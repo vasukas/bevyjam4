@@ -1,10 +1,13 @@
 use crate::app::assets::LoadedAllAssets;
 use crate::app::assets::TrackAssets;
 use crate::app::settings::AppSettings;
+use bevy::audio::VolumeLevel;
 use bevy::core_pipeline::bloom::BloomSettings;
 use bevy::core_pipeline::tonemapping::DebandDither;
 use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
+use bevy::window::WindowMode;
 use bevy_egui::{egui, EguiContexts};
 
 pub struct TmpPlugin;
@@ -12,7 +15,7 @@ pub struct TmpPlugin;
 impl Plugin for TmpPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<TestAssets>()
-            .add_systems(Startup, load_test_assets)
+            .add_systems(Startup, (set_global_volume, load_test_assets))
             .add_systems(
                 Update,
                 (
@@ -24,14 +27,20 @@ impl Plugin for TmpPlugin {
     }
 }
 
+fn set_global_volume(mut global_volume: ResMut<GlobalVolume>) {
+    global_volume.volume = VolumeLevel::new(0.5)
+}
+
 #[derive(Resource, Default)]
 struct TestAssets {
     image: Handle<Image>,
+    audio: Handle<AudioSource>,
 }
 
 fn load_test_assets(mut assets: ResMut<TestAssets>, mut track: TrackAssets) {
     *assets = TestAssets {
         image: track.load_and_track("test.png"),
+        audio: track.load_and_track("test.ogg"),
     };
 }
 
@@ -70,6 +79,12 @@ fn test_spawn(
         },
         BloomSettings::OLD_SCHOOL,
     ));
+
+    // sound
+    commands.spawn(AudioBundle {
+        source: assets.audio.clone(),
+        settings: PlaybackSettings::DESPAWN,
+    });
 }
 
 #[derive(Component)]
@@ -92,11 +107,21 @@ fn test_input(
     mut objects: Query<&mut TestObject>,
     mut egui_ctx: EguiContexts,
     mut settings: ResMut<AppSettings>,
+    mut window: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     if buttons.just_pressed(MouseButton::Right) || keys.just_pressed(KeyCode::R) {
         for mut object in objects.iter_mut() {
             object.dir *= -1.;
         }
+    }
+
+    if keys.just_pressed(KeyCode::F) {
+        let mut window = window.get_single_mut().unwrap();
+
+        window.mode = match window.mode {
+            WindowMode::Windowed => WindowMode::BorderlessFullscreen,
+            _ => WindowMode::Windowed,
+        };
     }
 
     egui::Area::new("test_input")

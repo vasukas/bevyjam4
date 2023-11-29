@@ -18,7 +18,7 @@ fn main() {
                         position: WindowPosition::Centered(MonitorSelection::Primary),
                         resolution: (1280., 720.).into(),
                         title: "Jam Game".to_string(),
-                        resizable: false,
+                        // resizable must be false for fullscreen toggle to work
                         ..default()
                     }),
                     ..default()

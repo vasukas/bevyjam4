@@ -57,6 +57,10 @@ fn log_messages(
         .show(egui_ctx.ctx_mut(), |ui| {
             // update window size
             {
+                // TODO: size is probably not entirely correct (esp. considering FONT_SIZE_INCREASE),
+                // plus message can be (and should be!) wrapped, taking two or more rows,
+                // while this expects strictly row per message
+
                 let style = ui.style();
                 let font_size = style.text_styles.get(&egui::TextStyle::Body).unwrap().size;
                 let font_size = font_size + FONT_SIZE_INCREASE;
@@ -158,7 +162,7 @@ fn log_messages(
 
                         ui.label(
                             egui::RichText::new(&message.text)
-                            .small()
+                                .small()
                                 .color(color.to_egui())
                                 .background_color(background_color.to_egui()),
                         );

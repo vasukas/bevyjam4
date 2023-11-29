@@ -6,9 +6,14 @@ Base
 + cookies (which also should work on desktop)
 + check where logs are in browser (in dev console, where else)
 
-- (hard) make audio work in wasm
-- (hard) this simple app stutters as crazy (in browser)
-- fullscreen toggle (in browser)
++ get audio to work in wasm at all
+
+- (hard) fix audio stutter in wasm
+    - find a way to reliable trigger it
+- (hard) this simple app stutters as crazy (in browser); though only sometimes
++ fullscreen toggle (in browser)
+
+- test webgpu build (see https://github.com/bevyengine/bevy/tree/latest/examples#webgl2-and-webgpu)
 
 
 
@@ -33,7 +38,7 @@ MVP
 
 Improvements
 
-(would be nice to do)
+(would be nice to do, not that important)
 
 - add import/export buttons for settings in web
 
@@ -47,8 +52,11 @@ Release
 (must be done, but only right before submitting the entry)
 
 - make itch.io page, list all used libraries and assets
+    disable "Automatically start on page load" for sound to work
 
 - check all TODOs
+
+- (maybe) try optimized wasm builds (see https://github.com/bevyengine/bevy/tree/latest/examples#optimizing)
 
 ...
 
@@ -58,5 +66,7 @@ Release
 Post-release
 
 (would be nice to do, but ONLY if any time left)
+
+- figure out why wrong GPU is detected (RX 200 in Firefox/Linux/webgl2)
 
 ...

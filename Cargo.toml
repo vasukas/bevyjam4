@@ -9,7 +9,7 @@ dev_build = ["bevy/dynamic_linking"]
 
 [dependencies]
 bevy = { version = "0.12", default-features = false, features = [
-    "animation",  # not "bevy_animation"; TODO: is this right?
+    "animation",
     "bevy_asset",
     "bevy_core_pipeline",
     "bevy_gizmos",
@@ -19,6 +19,8 @@ bevy = { version = "0.12", default-features = false, features = [
     "bevy_sprite",
     "bevy_winit",
     "x11",
+
+    "multi-threaded",
 
     "bevy_audio",
     "png",

@@ -59,6 +59,10 @@ default_run_address=127.0.0.1:8000
 # default value for --flags
 default_cargo_flags="--release --no-default-features"
 
+# file which allows audio to resume on user interaction if autoplay not allowed
+# TODO: make this configurable
+audio_autoplay_script="project/web-audio-autoplay.js"
+
 #
 # PARSE ARGUMENTS
 #
@@ -173,6 +177,9 @@ echo "(build_wasm) INFO: running bindgen..."
     --out-dir "$output_dir" --target web "$wasm_file"
 echo "(build_wasm) INFO: bindgen ok"
 
+# copy autoplay javascript
+cp "$audio_autoplay_script" "$output_dir/audio_autoplay.js"
+
 # create HTML
 html_file="$output_dir/index.html"
 if [[ ! -z "$html_source" ]]; then
@@ -181,20 +188,21 @@ else
     cat > "$html_file" <<EOF
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-    </head>
-    <body>
-        <script>
-            document.addEventListener("contextmenu", function (e){
-                e.preventDefault(); // for right-click to work
-            }, false);
-        </script>
-        <script type="module">
-            import init from './$project_name.js'
-            init();
-        </script>
-    </body>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+</head>
+<body>
+    <script>
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault(); // for right-click to work
+        }, false);
+    </script>
+    <script type="module">
+        import './audio_autoplay.js'
+        import init from './$project_name.js'
+        init();
+    </script>
+</body>
 </html>
 EOF
 # note: this EOF must be untabbed
