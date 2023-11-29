@@ -1,0 +1,62 @@
+Base
+
+(done before jam, to clear some technical/organisational issues)
+
++ wasm build
++ cookies (which also should work on desktop)
++ check where logs are in browser (in dev console, where else)
+
+- (hard) make audio work in wasm
+- (hard) this simple app stutters as crazy (in browser)
+- fullscreen toggle (in browser)
+
+
+
+
+Critical bugs
+
+(must be fixed)
+
+...
+
+
+
+
+MVP
+
+(must be done)
+
+...
+
+
+
+
+Improvements
+
+(would be nice to do)
+
+- add import/export buttons for settings in web
+
+...
+
+
+
+
+Release
+
+(must be done, but only right before submitting the entry)
+
+- make itch.io page, list all used libraries and assets
+
+- check all TODOs
+
+...
+
+
+
+
+Post-release
+
+(would be nice to do, but ONLY if any time left)
+
+...

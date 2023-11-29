@@ -1,0 +1,57 @@
+[package]
+name = "bevyjam4"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["dev_build"]
+dev_build = ["bevy/dynamic_linking"]
+
+[dependencies]
+bevy = { version = "0.12", default-features = false, features = [
+    "animation",  # not "bevy_animation"; TODO: is this right?
+    "bevy_asset",
+    "bevy_core_pipeline",
+    "bevy_gizmos",
+    "bevy_gltf",
+    "bevy_pbr",
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_winit",
+    "x11",
+
+    "bevy_audio",
+    "png",
+    "vorbis",
+
+    # avoid compilation errors with web-sys; also should increase compatibility
+    "webgl2",
+
+    # needed for tonemapping
+    "tonemapping_luts", "ktx2", "zstd",
+]}
+bevy_egui = { version = "0.23", default-features = false, features = ["default_fonts"] }
+
+# for userdata
+chrono = "0.4"
+ron = "0.8"
+serde = { version = "1", features = ["derive"] }
+wasm-cookies = "0.2"
+
+# for logging: same versions as used by bevy (to decrease number of dependencies)
+crossbeam-channel = "0.5"
+tracing-log = "0.1"
+tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
+
+# for logging: same versions as used by bevy (to decrease number of dependencies)
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1"
+tracing-wasm = "0.2"
+
+# Optimize this crate a bit in debug mode
+[profile.dev]
+opt-level = 1
+
+# Fully optimize dependencies in debug mode
+[profile.dev.package."*"]
+opt-level = 3
