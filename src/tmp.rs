@@ -1,6 +1,7 @@
 use crate::app::assets::LoadedAllAssets;
 use crate::app::assets::TrackAssets;
 use crate::app::settings::AppSettings;
+use crate::utils::for_crate::bevy_egui::*;
 use bevy::audio::VolumeLevel;
 use bevy::core_pipeline::bloom::BloomSettings;
 use bevy::core_pipeline::tonemapping::DebandDither;
@@ -8,7 +9,6 @@ use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy::window::WindowMode;
-use bevy_egui::{egui, EguiContexts};
 
 pub struct TmpPlugin;
 
@@ -65,6 +65,33 @@ fn test_spawn(
         },
         TestObject { dir: 1. },
     ));
+
+    // more quads!
+    let count = 110;
+    let material = color_materials.add(ColorMaterial {
+        color: Color::WHITE.with_a(0.5),
+        texture: assets.image.clone().into(),
+    });
+    let size = Vec2::new(1280., 720.) * 0.85;
+    let delta = size / count as f32;
+    for y in 0..count {
+        for x in 0..count {
+            let pos = Vec2::new(x as f32, y as f32);
+            let pos = pos * delta - size / 2.;
+            let scale = delta.max_element() * 0.7;
+
+            commands.spawn((
+                ColorMesh2dBundle {
+                    mesh: xy_quad.clone().into(),
+                    material: material.clone(),
+                    transform: Transform::from_translation(pos.extend(10.))
+                        .with_scale(Vec3::splat(scale)),
+                    ..default()
+                },
+                TestObject { dir: -1. },
+            ));
+        }
+    }
 
     // 2d camera
     commands.spawn((
@@ -124,9 +151,13 @@ fn test_input(
         };
     }
 
-    egui::Area::new("test_input")
-        .anchor(egui::Align2::LEFT_BOTTOM, egui::Vec2::ZERO)
-        .show(egui_ctx.ctx_mut(), |ui| {
+    EguiPopup {
+        name: "test_input",
+        anchor: egui::Align2::LEFT_BOTTOM,
+        ..default()
+    }
+    .show(egui_ctx.ctx_mut(), |ui| {
+        egui::Frame::popup(&ui.style()).show(ui, |ui| {
             ui.label("A text");
 
             if ui.button("Print error to log").clicked() {
@@ -152,4 +183,5 @@ fn test_input(
                 settings.set_changed();
             }
         });
+    });
 }

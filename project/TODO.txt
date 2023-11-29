@@ -9,7 +9,8 @@ Base
 + get audio to work in wasm at all
 
 - (hard) fix audio stutter in wasm
-    - find a way to reliable trigger it
+    + find a way to reliable trigger it
+    (many quads cause it to stutter, but only for a few seconds)
 
 + fullscreen toggle (in browser)
 

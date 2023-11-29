@@ -12,6 +12,7 @@ use std::time::Duration;
 #[serde(default)]
 pub struct AppSettings {
     pub log: LogSettings,
+    pub debug: DebugSettings,
 }
 
 /// In-app log display
@@ -21,6 +22,11 @@ pub struct LogSettings {
 
     /// Ignored if [`Self::show_all`] is `true`
     pub show_errors: bool,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub struct DebugSettings {
+    pub show_fps: bool,
 }
 
 const SAVE_DELAY: Duration = Duration::from_secs(1);
