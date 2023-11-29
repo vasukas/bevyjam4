@@ -10,10 +10,8 @@ Base
 
 - (hard) fix audio stutter in wasm
     - find a way to reliable trigger it
-- (hard) this simple app stutters as crazy (in browser); though only sometimes
-+ fullscreen toggle (in browser)
 
-- test webgpu build (see https://github.com/bevyengine/bevy/tree/latest/examples#webgl2-and-webgpu)
++ fullscreen toggle (in browser)
 
 
 
@@ -40,7 +38,12 @@ Improvements
 
 (would be nice to do, not that important)
 
+- (hard) fix occasional stuttering in browser
+
 - add import/export buttons for settings in web
+
+- add webgpu build (see https://github.com/bevyengine/bevy/tree/latest/examples#webgl2-and-webgpu)
+    (apparently isn't enabled by default on Linux in neither Firefox nor Chrome)
 
 ...
 
@@ -57,6 +60,7 @@ Release
 - check all TODOs
 
 - (maybe) try optimized wasm builds (see https://github.com/bevyengine/bevy/tree/latest/examples#optimizing)
+    (initial attempt: size isn't that much smaller, but build times are HUGE)
 
 ...
 
@@ -67,6 +71,6 @@ Post-release
 
 (would be nice to do, but ONLY if any time left)
 
-- figure out why wrong GPU is detected (RX 200 in Firefox/Linux/webgl2)
+- figure out why wrong GPU is detected (RX 200 in Firefox/Linux/webgl2, Chromium works fine)
 
 ...
