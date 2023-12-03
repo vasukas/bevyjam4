@@ -38,7 +38,7 @@ pub struct DebugSettings {
 }
 
 /// Graphics
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(default)]
 pub struct GraphicalSettings {
     /// How big UI is
@@ -46,6 +46,15 @@ pub struct GraphicalSettings {
 
     /// Fullscreen window
     pub fullscreen: bool,
+}
+
+impl Default for GraphicalSettings {
+    fn default() -> Self {
+        Self {
+            ui_scale: 1.,
+            fullscreen: false,
+        }
+    }
 }
 
 const SAVE_DELAY: Duration = Duration::from_secs(1);

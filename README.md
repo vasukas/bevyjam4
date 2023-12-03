@@ -8,6 +8,8 @@ Release build should be done with `--no-default-features` (to disable dynamic li
 
 Can be built for WebAssembly by `project/build_wasm.sh` script.
 
+If build fails on bindgen stage, you may need to update it: `cargo install wasm-bindgen-cli`.
+
 ## Temporary fixes for WASM build
 
 Had to enable bevy "webgl2" feature to disable WebGPU - same errors as in https://github.com/bevyengine/bevy/issues/10477.
