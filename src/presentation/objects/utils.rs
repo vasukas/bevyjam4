@@ -1,10 +1,10 @@
-use std::f32::consts::FRAC_2_PI;
 use crate::gameplay::master::level::spawn::GameObject;
 use bevy::core_pipeline::bloom::BloomSettings;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::core_pipeline::fxaa::Fxaa;
 use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::prelude::*;
+use std::f32::consts::FRAC_2_PI;
 
 /// Rotate normal 3D coordinates to pseudo-2D ones
 pub fn rotate_3to2() -> Quat {
