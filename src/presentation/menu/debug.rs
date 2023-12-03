@@ -1,4 +1,4 @@
-use crate::utils::for_crate::bevy_egui::*;
+use crate::utils::bevy_egui::*;
 use bevy::diagnostic::*;
 use bevy::prelude::*;
 

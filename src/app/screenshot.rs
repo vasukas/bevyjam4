@@ -1,40 +1,33 @@
-use crate::utils::plugins::userdata_plugin::Userdata;
+use super::actions::AppActions;
 use bevy::prelude::*;
 use bevy::render::view::screenshot::ScreenshotManager;
 use bevy::window::PrimaryWindow;
+use leafwing_input_manager::action_state::ActionState;
 
 pub struct ScreenshotPlugin;
 
 impl Plugin for ScreenshotPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, make_screenshot_on_key);
+        app.add_systems(Update, make_screenshot);
     }
 }
 
-fn make_screenshot_on_key(
-    keys: Res<Input<KeyCode>>,
+fn make_screenshot(
+    actions: Res<ActionState<AppActions>>,
     mut screenshot_manager: ResMut<ScreenshotManager>,
     window: Query<Entity, With<PrimaryWindow>>,
-    userdata: Res<Userdata>,
 ) {
-    if keys.just_pressed(KeyCode::F12) {
-        let Ok(window) = window.get_single() else { return; };
-        let Some(filename) = userdata.new_screenshot() else { return; };
+    let Ok(window) = window.get_single() else {
+        error!("can't make screenshot: no single PrimaryWindow");
+        return;
+    };
 
-        let _ = screenshot_manager.take_screenshot(window, move |image| {
-            // save screenshot in detached thread
-            std::thread::spawn(move || {
-                match image.try_into_dynamic() {
-                    Ok(image) => {
-                        let image = image.to_rgb8(); // discard alpha
-                        match image.save(filename) {
-                            Ok(path) => debug!("screenshot saved: {path:?}"),
-                            Err(e) => error!("screenshot: image.save: {e}"),
-                        }
-                    }
-                    Err(e) => error!("screenshot: image.try_into_dynamic: {e}"),
-                }
-            });
-        });
+    if actions.just_pressed(AppActions::Screenshot) {
+        // current local time formatted like "2023-11-01_23-59-59_999" (with milliseconds!)
+        let filename = chrono::prelude::Local::now()
+            .format("sshot_%F_%H-%M-%S_%3f.png")
+            .to_string();
+
+        let _ = screenshot_manager.save_screenshot_to_disk(window, filename);
     }
 }

@@ -1,17 +1,25 @@
-pub mod assets;
-pub mod screenshot;
-pub mod settings;
-
 use bevy::prelude::*;
 
-pub struct AppPlugins;
+pub mod actions;
+pub mod scheduling;
+pub mod scores;
+pub mod settings;
 
-impl Plugin for AppPlugins {
+#[cfg(not(target_arch = "wasm32"))]
+mod screenshot;
+
+pub struct AppPlugin;
+
+impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            assets::AssetsPlugin,
             settings::SettingsPlugin,
-            screenshot::ScreenshotPlugin,
+            actions::ActionsPlugin,
+            scheduling::SchedulingPlugin,
+            scores::ScoresPlugin,
         ));
+
+        #[cfg(not(target_arch = "wasm32"))]
+        app.add_plugins(screenshot::ScreenshotPlugin);
     }
 }

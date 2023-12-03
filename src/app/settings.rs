@@ -1,5 +1,8 @@
 use crate::utils::plugins::userdata_plugin::Userdata;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
+use bevy::window::WindowMode;
+use bevy_egui::EguiSettings;
 use serde::Deserialize;
 use serde::Serialize;
 use std::time::Duration;
@@ -13,20 +16,36 @@ use std::time::Duration;
 pub struct AppSettings {
     pub log: LogSettings,
     pub debug: DebugSettings,
+    pub graphics: GraphicalSettings,
 }
 
 /// In-app log display
 #[derive(Default, Serialize, Deserialize)]
+#[serde(default)]
 pub struct LogSettings {
+    /// Show all messages
     pub show_all: bool,
 
     /// Ignored if [`Self::show_all`] is `true`
     pub show_errors: bool,
 }
 
+/// Debug options
 #[derive(Default, Serialize, Deserialize)]
+#[serde(default)]
 pub struct DebugSettings {
     pub show_fps: bool,
+}
+
+/// Graphics
+#[derive(Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct GraphicalSettings {
+    /// How big UI is
+    pub ui_scale: f32,
+
+    /// Fullscreen window
+    pub fullscreen: bool,
 }
 
 const SAVE_DELAY: Duration = Duration::from_secs(1);
@@ -43,6 +62,7 @@ impl Plugin for SettingsPlugin {
                 (
                     init_save_settings.run_if(resource_changed::<AppSettings>()),
                     save_settings.run_if(resource_exists::<SaveAt>()),
+                    apply_settings.run_if(resource_changed::<AppSettings>()),
                 ),
             );
     }
@@ -69,5 +89,20 @@ fn save_settings(
     if time.elapsed() >= save_at.0 {
         userdata.write(USERDATA_NAME, &*settings);
         commands.remove_resource::<SaveAt>();
+    }
+}
+
+fn apply_settings(
+    settings: Res<AppSettings>,
+    mut egui_settings: ResMut<EguiSettings>,
+    mut window: Query<&mut Window, With<PrimaryWindow>>,
+) {
+    egui_settings.scale_factor = settings.graphics.ui_scale as f64;
+
+    if let Ok(mut window) = window.get_single_mut() {
+        window.mode = match settings.graphics.fullscreen {
+            true => WindowMode::BorderlessFullscreen,
+            false => WindowMode::Windowed,
+        };
     }
 }

@@ -1,11 +1,8 @@
-#![cfg_attr(target_arch = "wasm32", allow(unused))] // wasm doesn't use some stuff
-
 use bevy::prelude::*;
 
 mod app;
 mod gameplay;
 mod presentation;
-mod tmp;
 mod utils;
 
 fn main() {
@@ -17,7 +14,7 @@ fn main() {
                     primary_window: Some(Window {
                         position: WindowPosition::Centered(MonitorSelection::Primary),
                         resolution: (1280., 720.).into(),
-                        title: "Jam Game".to_string(),
+                        title: "Alien Overload".to_string(),
                         // resizable must be false for fullscreen toggle to work
                         ..default()
                     }),
@@ -25,11 +22,17 @@ fn main() {
                 })
                 .disable::<bevy::log::LogPlugin>(),
             bevy_egui::EguiPlugin,
-            utils::plugins::UtilPlugins,
-            app::AppPlugins,
-            gameplay::GameplayPlugins,
-            presentation::PresentationPlugins,
-            tmp::TmpPlugin,
+            utils::plugins::UtilPlugin,
+            app::AppPlugin,
+            gameplay::GameplayPlugin,
+            presentation::PresentationPlugin,
         ))
+        .add_systems(Update, exit_on_ctrl_q)
         .run()
+}
+
+fn exit_on_ctrl_q(keys: Res<Input<KeyCode>>, mut exit: EventWriter<bevy::app::AppExit>) {
+    if keys.pressed(KeyCode::Q) && keys.pressed(KeyCode::ControlLeft) {
+        exit.send_default()
+    }
 }

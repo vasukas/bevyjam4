@@ -1,50 +1,34 @@
-Base
+MVP
 
-(done before jam, to clear some technical/organisational issues)
+- ...
 
-+ wasm build
-+ cookies (which also should work on desktop)
-+ check where logs are in browser (in dev console, where else)
+- don't forget to change Scores::level and reset it when game is finished
 
-+ get audio to work in wasm at all
 
-- (hard) fix audio stutter in wasm
-    + find a way to reliable trigger it
-    (many quads cause it to stutter, but only for a few seconds)
+MVP goals (not neccessary in that order):
+* level with a couple of rooms/corridors;
+* player can walk in the level;
+- enemies standing and shooting (slow projectiles, periodic);
+- player can pick up "shield gens" (medkits);
+- player can pick up, carry and throw batteries and barrels;
+- there are breakable pipes with water and electric panels;
+- barrels with oil, water and explosives;
+- enemies can be hit with knockback;
+- water, electricity, oil, fire: all interacting with each other;
+- liquids spread;
+- sounds for all that;
+- (particle) effects for all that;
+- enemy overloading.
 
-+ fullscreen toggle (in browser)
+Extra goals:
+- level progression;
+- slowdown effects;
+- "Application is not responding. .... Well done!" message.
 
 
 
 
 Critical bugs
-
-(must be fixed)
-
-...
-
-
-
-
-MVP
-
-(must be done)
-
-...
-
-
-
-
-Improvements
-
-(would be nice to do, not that important)
-
-- (hard) fix occasional stuttering in browser
-
-- add import/export buttons for settings in web
-
-- add webgpu build (see https://github.com/bevyengine/bevy/tree/latest/examples#webgl2-and-webgpu)
-    (apparently isn't enabled by default on Linux in neither Firefox nor Chrome)
 
 ...
 
@@ -53,25 +37,30 @@ Improvements
 
 Release
 
-(must be done, but only right before submitting the entry)
-
 - make itch.io page, list all used libraries and assets
     disable "Automatically start on page load" for sound to work
 
 - check all TODOs
 
+
+
+
+Improvements
+
+- add camera room tracking (importance points, bounds, whatever), so it doesn't just follow the player
+
+- add import/export buttons for settings in web
+
 - (maybe) try optimized wasm builds (see https://github.com/bevyengine/bevy/tree/latest/examples#optimizing)
     (initial attempt: size isn't that much smaller, but build times are HUGE)
-
-...
 
 
 
 
 Post-release
 
-(would be nice to do, but ONLY if any time left)
-
+- (hard) fix audio stutter in wasm
+- (hard) fix occasional stuttering in browser
+- add webgpu build (see https://github.com/bevyengine/bevy/tree/latest/examples#webgl2-and-webgpu)
+    (apparently isn't enabled by default on Linux in neither Firefox nor Chrome)
 - figure out why wrong GPU is detected (RX 200 in Firefox/Linux/webgl2, Chromium works fine)
-
-...

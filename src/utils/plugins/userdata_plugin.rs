@@ -37,32 +37,6 @@ impl Userdata {
         }
     }
 
-    /// Filename for new screenshot, with PNG extension.
-    pub fn new_screenshot(&self) -> Option<String> {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            let dir = format!("{}/screenshots", self.file_directory);
-
-            if let Err(e) = std::fs::create_dir_all(&dir) {
-                error!("failed to create screenshot directory: {e}");
-                return None;
-            }
-
-            // current local time formatted like "2023-11-01_23-59-59_999" (with milliseconds!)
-            let time_str = chrono::prelude::Local::now()
-                .format("%F_%H-%M-%S_%3f")
-                .to_string();
-
-            Some(format!("{dir}/{time_str}.png"))
-        }
-
-        #[cfg(target_arch = "wasm32")]
-        {
-            error!("can't write files in wasm!");
-            None
-        }
-    }
-
     fn userdata_file(&self, name: &str) -> String {
         format!("{}/{name}.ron", self.file_directory)
     }
@@ -114,7 +88,7 @@ impl Userdata {
             value = match std::fs::read_to_string(file) {
                 Ok(value) => value,
                 Err(e) => {
-                    error!("failed to read userdata \"{name}\" - file error: {e}");
+                    warn!("failed to read userdata \"{name}\" - file error: {e}");
                     return None;
                 }
             };
@@ -129,7 +103,7 @@ impl Userdata {
                     return None;
                 }
                 None => {
-                    error!("failed to read userdata \"{name}\" - no such cookie");
+                    warn!("failed to read userdata \"{name}\" - no such cookie");
                     return None;
                 }
             };

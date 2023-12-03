@@ -8,8 +8,6 @@ use bevy::utils::HashSet;
 
 /// Use this instead of [`AssetServer`] for loading all assets before game starts.
 ///
-/// Loads assets and starts tracking it's loading state.
-///
 /// Should be used only in startup systems!
 /// Assets won't be tracked if added in [`AllAssetsState::LoadingDone`] state!
 #[derive(SystemParam)]
@@ -29,38 +27,41 @@ impl<'w> TrackAssets<'w> {
     }
 }
 
-/// Sent when all assets are loaded, only once per application run!
+/// Sent when all assets are loaded, only once per application run
 #[derive(Event)]
-pub struct LoadedAllAssets;
+pub struct LoadedTrackedAssets;
 
+///
 #[derive(States, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
-pub enum AllAssetsState {
+pub enum TrackedAssetsState {
     /// Initial state - assets are still loading
     #[default]
     StillLoading,
 
     /// All assets are loaded - state will remain set for the rest of run time
-    LoadingDone,
+    Loaded,
 }
 
-/// Information about how loading goes
+/// Information about how loading progress
 #[derive(Resource, Default)]
-pub struct AssetLoadInfo {
+pub struct TrackedAssetsInfo {
+    /// How many assets failed to load
     pub errors: usize,
 }
 
-///
-pub struct AssetsPlugin;
+//
 
-impl Plugin for AssetsPlugin {
+pub struct LoadAssetsPlugin;
+
+impl Plugin for LoadAssetsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<LoadingAssets>()
-            .init_resource::<AssetLoadInfo>()
-            .add_event::<LoadedAllAssets>()
-            .add_state::<AllAssetsState>()
+            .init_resource::<TrackedAssetsInfo>()
+            .add_event::<LoadedTrackedAssets>()
+            .add_state::<TrackedAssetsState>()
             .add_systems(
-                First,
-                send_assets_loaded_event.run_if(in_state(AllAssetsState::StillLoading)),
+                Last,
+                send_assets_loaded_event.run_if(in_state(TrackedAssetsState::StillLoading)),
             );
     }
 }
@@ -76,9 +77,9 @@ struct LoadingAssets {
 fn send_assets_loaded_event(
     asset_server: Res<AssetServer>,
     mut tracked_assets: ResMut<LoadingAssets>,
-    mut event: EventWriter<LoadedAllAssets>,
-    mut state: ResMut<NextState<AllAssetsState>>,
-    mut info: ResMut<AssetLoadInfo>,
+    mut event: EventWriter<LoadedTrackedAssets>,
+    mut state: ResMut<NextState<TrackedAssetsState>>,
+    mut info: ResMut<TrackedAssetsInfo>,
 ) {
     // retain only assets which are still loading
     tracked_assets.ids.retain(|id| {
@@ -113,7 +114,7 @@ fn send_assets_loaded_event(
     });
 
     if tracked_assets.ids.is_empty() {
-        event.send(LoadedAllAssets);
-        state.set(AllAssetsState::LoadingDone);
+        event.send(LoadedTrackedAssets);
+        state.set(TrackedAssetsState::Loaded);
     }
 }

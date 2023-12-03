@@ -10,20 +10,18 @@ dev_build = ["bevy/dynamic_linking"]  # faster recompilation, but should be disa
 [dependencies]
 bevy = { version = "0.12", default-features = false, features = [
     "animation",
-    "bevy_asset",
-    "bevy_core_pipeline",
-    "bevy_gizmos",
     "bevy_gltf",
+    
+    "bevy_asset",
+    "bevy_winit",
+    "bevy_core_pipeline",
     "bevy_pbr",
     "bevy_render",
-    "bevy_sprite",
-    "bevy_winit",
+    "multi-threaded",
+    "png",
     "x11",
 
-    "multi-threaded",
-
     "bevy_audio",
-    "png",
     "vorbis",
 
     # avoid compilation errors with web-sys; also should increase compatibility
@@ -33,22 +31,30 @@ bevy = { version = "0.12", default-features = false, features = [
     "tonemapping_luts", "ktx2", "zstd",
 ]}
 bevy_egui = { version = "0.23", default-features = false, features = ["default_fonts"] }
+bevy_rapier2d = { version = "0.23" }
+leafwing-input-manager = { version = "=0.11.1", default-features = false, features = ["egui"] }
 
 # for userdata
-chrono = "0.4"
 ron = "0.8"
 serde = { version = "1", features = ["derive"] }
-wasm-cookies = "0.2"
 
 # for logging: same versions as used by bevy (to decrease number of dependencies)
 crossbeam-channel = "0.5"
 tracing-log = "0.1"
 tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
 
-# for logging: same versions as used by bevy (to decrease number of dependencies)
+# for assets
+thiserror = "1.0"
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+# for logging: same versions as used by bevy (to decrease number of dependencies)
 console_error_panic_hook = "0.1"
 tracing-wasm = "0.2"
+# for userdata
+wasm-cookies = "0.2"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+chrono = "0.4"
 
 # Optimize this crate a bit in debug mode
 [profile.dev]

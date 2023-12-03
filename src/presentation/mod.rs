@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 
 mod menu;
+mod objects;
 
-pub struct PresentationPlugins;
+pub struct PresentationPlugin;
 
-impl Plugin for PresentationPlugins {
+impl Plugin for PresentationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((menu::MenuPlugins,));
+        app.add_plugins((menu::MenuPlugin, objects::ObjectsPlugin));
     }
 }

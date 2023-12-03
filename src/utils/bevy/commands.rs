@@ -1,4 +1,4 @@
-//! Fallible commands for [`bevy`]` crate.
+//! Fallible commands (and few other helper methods) for [`bevy`]` crate.
 
 use bevy::{ecs::system::EntityCommand, prelude::*};
 

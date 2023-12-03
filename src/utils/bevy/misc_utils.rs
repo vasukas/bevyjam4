@@ -1,6 +1,9 @@
 //! Various small utilities for [`bevy`]` crate.
 
-use bevy::{ecs::system::SystemParam, prelude::*};
+use bevy::{
+    ecs::{query::ReadOnlyWorldQuery, system::SystemParam},
+    prelude::*,
+};
 use std::time::Duration;
 
 /// Iterate over all children of the entity, their children, and so on.
@@ -74,12 +77,12 @@ impl ExtendedGizmos for Gizmos<'_> {
 ///
 /// **At the moment this doesn't work with hierarchies!**
 #[derive(SystemParam)]
-pub struct ImmediateTransformUpdate<'w, 's> {
-    pub transform: Query<'w, 's, (&'static mut Transform, Has<Parent>)>,
-    pub global: Query<'w, 's, &'static mut GlobalTransform>,
+pub struct ImmediateTransformUpdate<'w, 's, Filter: ReadOnlyWorldQuery + 'static = ()> {
+    pub transform: Query<'w, 's, (&'static mut Transform, Has<Parent>), Filter>,
+    pub global: Query<'w, 's, &'static mut GlobalTransform, Filter>,
 }
 
-impl<'w, 's> ImmediateTransformUpdate<'w, 's> {
+impl<'w, 's, Filter: ReadOnlyWorldQuery + 'static> ImmediateTransformUpdate<'w, 's, Filter> {
     /// Silently fails on errors
     pub fn update_inplace(&mut self, entity: Entity, new_transform: impl FnOnce(&mut Transform)) {
         let Ok(result) = self.transform.get(entity) else { return; };

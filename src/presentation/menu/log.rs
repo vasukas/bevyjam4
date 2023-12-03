@@ -1,4 +1,4 @@
-use crate::utils::for_crate::bevy_egui::*;
+use crate::utils::bevy_egui::*;
 use crate::{
     app::settings::AppSettings,
     utils::{
@@ -86,8 +86,8 @@ fn log_messages(
             'evloop: for event in messages.drain() {
                 if !settings.log.show_all {
                     if !match event.level {
-                        Level::TRACE | Level::DEBUG | Level::INFO => false,
-                        Level::WARN | Level::ERROR => settings.log.show_errors,
+                        Level::TRACE | Level::DEBUG | Level::INFO | Level::WARN => false,
+                        Level::ERROR => settings.log.show_errors,
                     } {
                         continue;
                     }

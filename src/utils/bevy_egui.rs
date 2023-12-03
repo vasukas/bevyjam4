@@ -43,6 +43,9 @@ pub struct EguiPopup<'a> {
     /// Which part of the screen to anchor to
     pub anchor: egui::Align2,
 
+    /// Offset from anchor position. Positive Y is down.
+    pub offset: Vec2,
+
     /// Draw frame and background or not
     pub background: bool,
 
@@ -58,6 +61,7 @@ impl Default for EguiPopup<'_> {
         Self {
             name: default(),
             anchor: egui::Align2::CENTER_CENTER,
+            offset: Vec2::ZERO,
             background: true,
             order: egui::Order::Middle,
             interactable: true,
@@ -68,7 +72,7 @@ impl Default for EguiPopup<'_> {
 impl<'a> EguiPopup<'a> {
     pub fn show(self, ctx: &mut egui::Context, add_contents: impl FnOnce(&mut egui::Ui)) {
         egui::Area::new(self.name.to_string())
-            .anchor(self.anchor, egui::Vec2::ZERO)
+            .anchor(self.anchor, self.offset.to_egui())
             .order(self.order)
             .interactable(self.interactable)
             .show(ctx, |ui| {
