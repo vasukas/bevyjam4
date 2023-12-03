@@ -18,8 +18,8 @@ impl Plugin for AssetsPlugin {
 
 fn load_assets(mut track: TrackAssets, mut commands: Commands) {
     commands.insert_resource(ObjectAssets {
-        model_jimbo: track.load_and_track("models/jimbo.glb#Scene0"),
-        model_floor: track.load_and_track("models/floor.glb#Scene0"),
-        model_wall: track.load_and_track("models/wall.glb#Scene0"),
+        model_jimbo: track.load_and_track("models/jimbo.gltf#Scene0"),
+        model_floor: track.load_and_track("models/floor.gltf#Scene0"),
+        model_wall: track.load_and_track("models/wall.gltf#Scene0"),
     });
 }

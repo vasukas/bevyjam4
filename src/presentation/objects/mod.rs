@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 mod assets;
 mod player;
+mod sprite;
 mod terrain;
 mod utils;
 
@@ -16,6 +17,7 @@ impl Plugin for ObjectsPlugin {
             terrain::TerrainPlugin,
             player::PlayerPlugin,
             utils::UtilsPlugin,
+            sprite::SpritePlugin,
         ));
     }
 }

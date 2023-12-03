@@ -51,7 +51,7 @@ pub struct GraphicalSettings {
 impl Default for GraphicalSettings {
     fn default() -> Self {
         Self {
-            ui_scale: 1.,
+            ui_scale: 2.,
             fullscreen: false,
         }
     }

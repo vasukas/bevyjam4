@@ -24,6 +24,6 @@ fn show_fps_count(mut egui_ctx: EguiContexts, diagnostics: Res<DiagnosticsStore>
         let average = diag.average().unwrap_or_default();
 
         ui.style_mut().wrap = Some(false); // otherwise it will split text into like a dozen lines
-        ui.label(format!("FPS: {average:6.2} (avg 20 frames)"));
+        ui.label(format!("FPS: {average:6.2} (avg per 20 frames)"));
     });
 }

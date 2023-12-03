@@ -18,19 +18,26 @@ MVP goals (not neccessary in that order):
 - liquids spread;
 - sounds for all that;
 - (particle) effects for all that;
-- enemy overloading.
+- enemy overloading;
+- actual graphics (be it 2D or 3D).
 
 Extra goals:
-- level progression;
+- level progression (via elevators);
 - slowdown effects;
-- "Application is not responding. .... Well done!" message.
+- "Application is not responding. .... Well done!" message;
+- harder challenges (i.e. walls can burst from too much explosions);
+- intro and outro;
+- final boss;
+- backgrounds (scrolling stars, partially hidden by the ship);
+- level decorations.
 
 
 
 
-Critical bugs
+Bugs
 
-...
+- lots of "Animation interpolation CubicSpline is not supported, will use linear" etcetera
+  (for now disabled log message, see main.rs)
 
 
 

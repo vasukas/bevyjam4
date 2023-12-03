@@ -1,3 +1,4 @@
+use bevy::log::Level;
 use bevy::prelude::*;
 
 mod app;
@@ -8,7 +9,8 @@ mod utils;
 fn main() {
     App::new()
         .add_plugins((
-            utils::plugins::log_plugin::LogPlugin::default(),
+            // TODO: remove log filtering
+            utils::plugins::log_plugin::LogPlugin::default().with_filter("bevy_gltf", Level::ERROR),
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {

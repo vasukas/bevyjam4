@@ -5,6 +5,7 @@ use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::game_states::GameRunning;
 use crate::gameplay::master::level::data::FIRST_LEVEL_ID;
 use crate::utils::bevy_egui::*;
+use bevy::app::AppExit;
 use bevy::prelude::*;
 
 pub struct MainPlugin;
@@ -34,6 +35,7 @@ fn draw_main_menu(
     mut game_commands: EventWriter<GameCommand>,
     mut prev_menu: ResMut<PreviousMenu>,
     scores: Res<Scores>,
+    mut exit: EventWriter<AppExit>,
 ) {
     EguiPopup {
         name: "draw_main_menu",
@@ -89,6 +91,11 @@ fn draw_main_menu(
             if ui.button("Exit to main menu").clicked() {
                 game_commands.send(GameCommand::Exit);
             }
+        }
+
+        #[cfg(not(target_arch = "wasm32"))] // there is no point in exiting in wasm
+        if ui.button("Exit to desktop").clicked() {
+            exit.send_default();
         }
     });
 }

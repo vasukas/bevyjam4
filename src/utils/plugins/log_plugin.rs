@@ -34,6 +34,20 @@ impl Default for LogPlugin {
     }
 }
 
+impl LogPlugin {
+    pub fn with_filter(mut self, crate_name: &str, level: Level) -> Self {
+        let level_name = match level {
+            Level::TRACE => "trace",
+            Level::DEBUG => "debug",
+            Level::INFO => "info",
+            Level::WARN => "warn",
+            Level::ERROR => "error",
+        };
+        self.filter += &format!(",{crate_name}={level_name}");
+        self
+    }
+}
+
 const EVENT_CHANNEL_CAPACITY: usize = 1024;
 
 impl Plugin for LogPlugin {
