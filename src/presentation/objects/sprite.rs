@@ -9,6 +9,7 @@ use bevy::prelude::*;
 pub struct SimpleSprite {
     pub color: Color,
     pub size: Vec2,
+    pub z_offset: f32,
 }
 
 impl Default for SimpleSprite {
@@ -16,6 +17,7 @@ impl Default for SimpleSprite {
         Self {
             color: Color::WHITE,
             size: Vec2::splat(TILE_SIZE),
+            z_offset: 0.,
         }
     }
 }
@@ -53,6 +55,7 @@ fn spawn_debug_sprite(
                             custom_size: Some(sprite.size),
                             ..default()
                         },
+                        transform: Transform::from_xyz(0., 0., sprite.z_offset),
                         ..default()
                     })
                     .id()
@@ -64,12 +67,13 @@ fn spawn_debug_sprite(
 
 fn update_debug_sprite(
     changed: Query<(&SpriteChild, &SimpleSprite), Changed<SimpleSprite>>,
-    mut sprites: Query<&mut Sprite>,
+    mut sprites: Query<(&mut Sprite, &mut Transform)>,
 ) {
     for (child, simple) in changed.iter() {
-        let Ok(mut sprite) = sprites.get_mut(child.0) else { return; };
+        let Ok((mut sprite, mut transform)) = sprites.get_mut(child.0) else { return; };
 
         sprite.color = simple.color;
         sprite.custom_size = Some(simple.size);
+        transform.translation.z = simple.z_offset;
     }
 }

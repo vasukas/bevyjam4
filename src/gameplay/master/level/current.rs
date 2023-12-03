@@ -2,6 +2,7 @@ use super::data::LevelData;
 use super::spawn::DespawnGameObjects;
 use super::spawn::SpawnObject;
 use crate::app::scheduling::SpawnSet;
+use crate::app::scores::Scores;
 use crate::utils::misc_utils::ExtendedEventReader;
 use bevy::asset::AssetLoader;
 use bevy::asset::AsyncReadExt as _;
@@ -63,6 +64,7 @@ fn complete_pending_level_load(
     mut levels: ResMut<Assets<LevelData>>,
     mut current: ResMut<CurrentLevel>,
     asset_server: Res<AssetServer>,
+    mut scores: ResMut<Scores>,
 ) {
     let level = match levels.remove(&level.0) {
         Some(level) => level,
@@ -83,6 +85,12 @@ fn complete_pending_level_load(
     current.data = level;
 
     commands.remove_resource::<PendingLevelLoad>();
+
+    if let Some(level) = scores.last_level.as_mut() {
+        if level.id == current.id {
+            level.name = current.data.name.clone()
+        }
+    }
 }
 
 fn execute_level_commands(

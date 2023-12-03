@@ -1,4 +1,7 @@
 use crate::app::actions::AppActions;
+use crate::app::scores::Scores;
+use crate::app::settings::AppSettings;
+use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::game_states::GameRunning;
 use crate::gameplay::master::time_master::TimeMaster;
 use crate::utils::plugins::load_assets::LoadedTrackedAssets;
@@ -47,8 +50,27 @@ fn update_game_controls(state: Res<State<MenuState>>, mut time: ResMut<TimeMaste
     time.in_menu = in_menu;
 }
 
-fn on_load_complete(mut next_state: ResMut<NextState<MenuState>>) {
-    next_state.set(MenuState::MainMenu);
+fn on_load_complete(
+    mut next_state: ResMut<NextState<MenuState>>,
+    settings: Res<AppSettings>,
+    mut game_commands: EventWriter<GameCommand>,
+    scores: Res<Scores>,
+) {
+    if settings.debug.quick_edit || settings.debug.quick_start {
+        if let Some(level) = &scores.last_level {
+            next_state.set(if settings.debug.quick_edit {
+                MenuState::LevelEditor
+            } else {
+                MenuState::None
+            });
+
+            game_commands.send(GameCommand::Start {
+                level_id: level.id.clone(),
+            });
+        }
+    } else {
+        next_state.set(MenuState::MainMenu);
+    }
 }
 
 /// Last state menu was in

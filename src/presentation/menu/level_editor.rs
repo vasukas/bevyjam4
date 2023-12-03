@@ -12,10 +12,14 @@ use crate::presentation::objects::WorldCameraBundle;
 use crate::presentation::AdvancedGizmos;
 use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::bevy_egui::*;
+use crate::utils::plugins::userdata_plugin::Userdata;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use itertools::Itertools as _;
 use leafwing_input_manager::action_state::ActionState;
+use serde::Deserialize;
+use serde::Serialize;
+use std::time::Duration;
 
 pub struct LevelEditorPlugin;
 
@@ -23,10 +27,12 @@ impl Plugin for LevelEditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<EditorEnabled>()
             .init_resource::<Editor>()
+            .add_systems(Startup, load_editor_tools)
             .add_systems(OnEnter(MenuState::LevelEditor), enable_editor)
             .add_systems(
                 Update,
                 (
+                    save_editor_tools.run_if(in_state(EditorEnabled::Yes)),
                     draw_editor_menu.run_if(in_state(MenuState::LevelEditor)),
                     (
                         (update_cursor_point, select_objects, tool_input).chain(),
@@ -63,11 +69,39 @@ struct Editor {
 
     /// World position where cursor points to
     world_cursor: Vec2,
+}
 
+#[derive(Resource, Default, Serialize, Deserialize)]
+#[serde(default)]
+struct EditorTools {
     add_object: LevelObject,
     snap_to_tile: bool,
-
     draw_labels: bool,
+}
+
+const EDITOR_TOOLS_USERDATA: &str = "editor_tools";
+const EDITOR_TOOLS_SAVE_DELAY: Duration = Duration::from_secs(2);
+
+fn load_editor_tools(mut commands: Commands, userdata: Res<Userdata>) {
+    commands.insert_resource(userdata.read_and_update::<EditorTools>(EDITOR_TOOLS_USERDATA));
+}
+
+fn save_editor_tools(
+    tools: Res<EditorTools>,
+    userdata: Res<Userdata>,
+    mut pending_save: Local<Option<Duration>>,
+    time: Res<Time<Real>>,
+) {
+    if tools.is_changed() {
+        pending_save.get_or_insert(time.elapsed());
+    }
+
+    if let Some(was) = *pending_save {
+        if time.elapsed().saturating_sub(was) > EDITOR_TOOLS_SAVE_DELAY {
+            *pending_save = None;
+            userdata.write(EDITOR_TOOLS_USERDATA, &*tools);
+        }
+    }
 }
 
 fn draw_editor_menu(
@@ -78,6 +112,7 @@ fn draw_editor_menu(
     mut editor: ResMut<Editor>,
     mut level: ResMut<CurrentLevel>,
     mut commands: Commands,
+    mut tools: ResMut<EditorTools>,
 ) {
     let editor = &mut *editor;
     let level = &mut level.data;
@@ -117,9 +152,9 @@ fn draw_editor_menu(
 
             ui.heading("ADD OBJECT");
 
-            ui.checkbox(&mut editor.snap_to_tile, "Snap to tile");
+            ui.checkbox(&mut tools.snap_to_tile, "Snap to tile");
 
-            ui.label(format!("Object: {:?}", editor.add_object.data));
+            ui.label(format!("Object: {:?}", tools.add_object.data));
             ui.collapsing("Properties", |ui| {
                 for (name, object) in [
                     ("Script point", LevelObjectData::ScriptPoint(default())),
@@ -127,12 +162,12 @@ fn draw_editor_menu(
                     ("Floor", LevelObjectData::TerrainFloor(default())),
                 ] {
                     if ui.button(name).clicked() {
-                        editor.add_object.data = object;
+                        tools.add_object.data = object;
                     }
                 }
 
                 ui.group(|ui| {
-                    edit_object(ui, &mut changed, None, &mut editor.add_object);
+                    edit_object(ui, &mut changed, None, &mut tools.add_object);
                 });
             });
             ui.label("");
@@ -151,7 +186,7 @@ fn draw_editor_menu(
 
                     if let Some(object) = level.get_object_mut(id) {
                         if ui.button("Pick").clicked() {
-                            editor.add_object = object.clone();
+                            tools.add_object = object.clone();
                         }
 
                         let text = format!("[{}] {:?}", object.align.symbol(), object.data);
@@ -254,20 +289,21 @@ fn tool_input(
     mut level: ResMut<CurrentLevel>,
     mut commands: Commands,
     mut spawn_commands: EventWriter<SpawnObject>,
+    mut tools: ResMut<EditorTools>,
 ) {
     let editor = &mut *editor;
     let level = &mut level.data;
 
     if actions.just_pressed(EditorActions::Tool)
-        && !matches!(editor.add_object.data, LevelObjectData::None)
+        && !matches!(tools.add_object.data, LevelObjectData::None)
     {
         let pos = editor.world_cursor;
-        let pos = match editor.snap_to_tile {
+        let pos = match tools.snap_to_tile {
             true => pos_to_tile_center(pos),
             false => pos,
         };
 
-        let mut object = editor.add_object.clone();
+        let mut object = tools.add_object.clone();
         object.pos = pos;
 
         let id = level.add_object(object.clone());
@@ -285,18 +321,18 @@ fn tool_input(
     }
 
     if actions.just_pressed(EditorActions::SwitchDisplay) {
-        editor.draw_labels = !editor.draw_labels;
+        tools.draw_labels = !tools.draw_labels;
     }
 
-    for align in [
-        LevelAlign::Center,
-        LevelAlign::Top,
-        LevelAlign::Bottom,
-        LevelAlign::Left,
-        LevelAlign::Right,
+    for (action, align) in [
+        (EditorActions::AlignCenter, LevelAlign::Center),
+        (EditorActions::AlignTop, LevelAlign::Top),
+        (EditorActions::AlignBottom, LevelAlign::Bottom),
+        (EditorActions::AlignLeft, LevelAlign::Left),
+        (EditorActions::AlignRight, LevelAlign::Right),
     ] {
-        if actions.just_pressed(EditorActions::Align(align)) {
-            editor.add_object.align = align;
+        if actions.just_pressed(action) {
+            tools.add_object.align = align;
         }
     }
 }
@@ -306,6 +342,7 @@ fn draw_tool_info(
     editor: Res<Editor>,
     prompt: ActionPrompt<EditorActions>,
     level: Res<CurrentLevel>,
+    tools: Res<EditorTools>,
 ) {
     EguiPopup {
         name: "draw_tool_info",
@@ -324,11 +361,15 @@ fn draw_tool_info(
             "Toggle labels: {}",
             prompt.get(EditorActions::SwitchDisplay)
         ));
-        ui.label(format!("Set align: arrows & numpad zero"));
+        ui.label(format!("Set align: arrows & zero"));
 
         ui.label("");
-        ui.label(format!("Add object: {:?}", editor.add_object.data));
-        ui.label(format!("Snap to tile: {:?}", editor.snap_to_tile));
+        ui.label(format!(
+            "Add object: [{}] {:?}",
+            tools.add_object.align.symbol(),
+            tools.add_object.data
+        ));
+        ui.label(format!("Snap to tile: {:?}", tools.snap_to_tile));
 
         if !editor.selected.is_empty() {
             ui.label("");
@@ -350,12 +391,12 @@ fn highlight_selected_tile(editor: Res<Editor>, mut gizmos: Gizmos) {
 }
 
 fn draw_labels(
-    editor: Res<Editor>,
     level: Res<CurrentLevel>,
     mut adv_gizmos: AdvancedGizmos,
     objects: Query<(&GlobalTransform, &LevelObjectId)>,
+    tools: Res<EditorTools>,
 ) {
-    if !editor.draw_labels {
+    if !tools.draw_labels {
         return;
     }
 
@@ -371,8 +412,8 @@ fn draw_labels(
         };
         let index_count = 6.; // +2 from max index
 
-        let pos = pos_to_tile_center(transform.translation().truncate());
-        let y = (index as f32 / index_count) * TILE_SIZE - HALF_TILE;
+        let pos = pos_to_tile_center(transform.translation().truncate()) - HALF_TILE;
+        let y = (index as f32 / index_count) * TILE_SIZE;
 
         adv_gizmos.world_text(pos + Vec2::Y * y, text);
     }

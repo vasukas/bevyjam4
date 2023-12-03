@@ -1,4 +1,6 @@
 use super::level::current::LevelCommand;
+use crate::app::scores::Scores;
+use crate::app::scores::ScoresLastLevel;
 use crate::utils::misc_utils::ExtendedEventReader;
 use bevy::prelude::*;
 
@@ -51,6 +53,7 @@ fn execute_game_command(
     mut level_commands: EventWriter<LevelCommand>,
     is_running: Res<State<GameRunning>>,
     mut game_running: ResMut<NextState<GameRunning>>,
+    mut scores: ResMut<Scores>,
 ) {
     if let Some(command) = game_commands.read_single("execute_game_command") {
         info!("execute_game_command: {command:?}");
@@ -66,6 +69,11 @@ fn execute_game_command(
 
                 level_commands.send(LevelCommand::Load(level_id.clone()));
                 game_running.set(GameRunning::Yes);
+
+                scores.last_level = Some(ScoresLastLevel {
+                    id: level_id.clone(),
+                    name: level_id.clone(),
+                });
             }
             GameCommand::Respawn => {
                 if !is_running {

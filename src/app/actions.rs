@@ -1,4 +1,3 @@
-use crate::gameplay::master::level::data::LevelAlign;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
@@ -43,7 +42,11 @@ pub enum EditorActions {
     ToolAlt,
     SwitchDisplay,
     //
-    Align(LevelAlign),
+    AlignTop,
+    AlignBottom,
+    AlignLeft,
+    AlignRight,
+    AlignCenter,
 }
 
 impl EditorActions {
@@ -54,11 +57,12 @@ impl EditorActions {
             .insert(MouseButton::Right, Self::ToolAlt)
             .insert(KeyCode::Space, Self::SwitchDisplay)
             //
-            .insert(KeyCode::Up, Self::Align(LevelAlign::Top))
-            .insert(KeyCode::Down, Self::Align(LevelAlign::Bottom))
-            .insert(KeyCode::Left, Self::Align(LevelAlign::Left))
-            .insert(KeyCode::Right, Self::Align(LevelAlign::Right))
-            .insert(KeyCode::Numpad0, Self::Align(LevelAlign::Center))
+            .insert(KeyCode::Up, Self::AlignTop)
+            .insert(KeyCode::Down, Self::AlignBottom)
+            .insert(KeyCode::Left, Self::AlignLeft)
+            .insert(KeyCode::Right, Self::AlignRight)
+            .insert(KeyCode::Numpad0, Self::AlignCenter)
+            .insert(KeyCode::Key0, Self::AlignCenter)
             .build()
     }
 }

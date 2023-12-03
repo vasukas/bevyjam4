@@ -38,6 +38,27 @@ fn draw_settings_menu(
             let settings = settings_res.bypass_change_detection();
             let mut changed = false;
 
+            if settings.debug.developer_mode {
+                ui.group(|ui| {
+                    ui.strong("Debug");
+
+                    changed |= ui
+                        .checkbox(&mut settings.debug.show_fps, "Show FPS counter")
+                        .changed();
+
+                    changed |= ui
+                        .checkbox(&mut settings.debug.quick_start, "On startup: Continue")
+                        .changed();
+
+                    changed |= ui
+                        .checkbox(
+                            &mut settings.debug.quick_edit,
+                            "On startup: Continue & Level Editor",
+                        )
+                        .changed();
+                });
+            }
+
             ui.group(|ui| {
                 ui.strong("Graphics");
 
@@ -56,6 +77,10 @@ fn draw_settings_menu(
                     .checkbox(&mut settings.graphics.fullscreen, "Fullscreen")
                     .changed();
             });
+
+            changed |= ui
+                .checkbox(&mut settings.debug.developer_mode, "Developer mode")
+                .changed();
 
             if changed {
                 settings_res.set_changed();

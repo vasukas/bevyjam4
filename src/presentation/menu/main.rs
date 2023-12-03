@@ -54,7 +54,7 @@ fn draw_main_menu(
                 }
             }
             GameRunning::No => {
-                if let Some(level) = &scores.level {
+                if let Some(level) = &scores.last_level {
                     if ui.button(format!("Continue: {}", level.name)).clicked() {
                         next_state.set(MenuState::None);
                         game_commands.send(GameCommand::Start {

@@ -6,6 +6,7 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 use bevy::window::PrimaryWindow;
 use bevy_egui::EguiSet;
+use bevy_egui::EguiSettings;
 use itertools::Itertools;
 
 #[derive(SystemParam)]
@@ -38,6 +39,8 @@ impl Plugin for AdvancedGizmosPlugin {
     }
 }
 
+const TEXT_SIZE: f32 = 10.;
+
 #[derive(Resource, Default)]
 struct AdvancedGizmosData {
     world_text: Vec<(Vec2, String)>,
@@ -50,6 +53,7 @@ fn draw_advanced_gizmos(
     cameras: Query<(&GlobalTransform, &Camera)>,
     primary_window: Query<(), With<PrimaryWindow>>,
     transforms: Query<&GlobalTransform>,
+    egui_settings: Res<EguiSettings>,
 ) {
     let Some((camera_transform, camera)) = cameras.iter().sorted_by_key(|v| v.1.order).last() else {
         *gizmos = default();
@@ -62,13 +66,16 @@ fn draw_advanced_gizmos(
         return;
     }
     let painter = egui_ctx.ctx_mut().debug_painter();
+    let scale = egui_settings.scale_factor as f32;
+    let font = egui::FontId::monospace(TEXT_SIZE / scale);
 
     let text_at_pos = |pos: Vec2, text| {
-        painter.debug_text(
-            pos.to_egui_pos(),
+        painter.text(
+            (pos / scale).to_egui_pos(),
             egui::Align2::LEFT_TOP,
-            Color::WHITE.to_egui(),
             text,
+            font.clone(),
+            Color::WHITE.to_egui(),
         );
     };
 

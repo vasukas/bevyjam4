@@ -23,9 +23,11 @@ fn make_screenshot(
     };
 
     if actions.just_pressed(AppActions::Screenshot) {
+        let _ = std::fs::create_dir_all("user/screenshots/");
+
         // current local time formatted like "2023-11-01_23-59-59_999" (with milliseconds!)
         let filename = chrono::prelude::Local::now()
-            .format("sshot_%F_%H-%M-%S_%3f.png")
+            .format("user/screenshots/%F_%H-%M-%S_%3f.png")
             .to_string();
 
         let _ = screenshot_manager.save_screenshot_to_disk(window, filename);

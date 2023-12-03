@@ -8,7 +8,7 @@ use serde::Serialize;
 #[serde(default)]
 pub struct Scores {
     /// ID of the last level played
-    pub level: Option<ScoresLastLevel>,
+    pub last_level: Option<ScoresLastLevel>,
 }
 
 #[derive(Default, Serialize, Deserialize)]

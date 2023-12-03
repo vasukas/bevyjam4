@@ -1,10 +1,3 @@
-MVP
-
-- ...
-
-- don't forget to change Scores::level and reset it when game is finished
-
-
 MVP goals (not neccessary in that order):
 
 * level with a couple of rooms/corridors;
@@ -30,6 +23,7 @@ Extra goals:
 - "Application is not responding. .... Well done!" message;
 - harder challenges (i.e. walls can burst from too much explosions);
 - intro and outro;
+    (don't forget to reset Scores::level when game is finished)
 - final boss;
 - backgrounds (scrolling stars, partially hidden by the ship);
 - level decorations;

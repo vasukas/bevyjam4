@@ -34,7 +34,14 @@ pub struct LogSettings {
 #[derive(Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct DebugSettings {
+    pub developer_mode: bool,
     pub show_fps: bool,
+
+    /// On startup go to play last played level
+    pub quick_start: bool,
+
+    /// On startup go to edit last played level
+    pub quick_edit: bool,
 }
 
 /// Graphics

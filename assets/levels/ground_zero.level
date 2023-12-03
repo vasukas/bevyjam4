@@ -1,0 +1,168 @@
+(
+    objects: {
+        (2): (
+            pos: (-1.0, -1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (3): (
+            pos: (-1.0, -3.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (4): (
+            pos: (1.0, -3.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (5): (
+            pos: (1.0, -1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (6): (
+            pos: (3.0, -1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (7): (
+            pos: (3.0, -3.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (8): (
+            pos: (5.0, -3.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (9): (
+            pos: (5.0, -1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (10): (
+            pos: (5.0, 1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (11): (
+            pos: (3.0, 1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (12): (
+            pos: (1.0, 1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (13): (
+            pos: (-1.0, 1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (15): (
+            pos: (-3.0, 1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (16): (
+            pos: (-3.0, -1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (17): (
+            pos: (-5.0, -1.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (18): (
+            pos: (-5.0, -3.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (19): (
+            pos: (-3.0, -3.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (21): (
+            pos: (1.0, -1.0),
+            align: Center,
+            data: ScriptPoint((
+                id: "player",
+            )),
+        ),
+        (22): (
+            pos: (-3.0, 1.0),
+            align: Top,
+            data: TerrainWall(Generic),
+        ),
+        (23): (
+            pos: (-1.0, 1.0),
+            align: Top,
+            data: TerrainWall(Generic),
+        ),
+        (24): (
+            pos: (1.0, 1.0),
+            align: Top,
+            data: TerrainWall(Generic),
+        ),
+        (25): (
+            pos: (3.0, 1.0),
+            align: Top,
+            data: TerrainWall(Generic),
+        ),
+        (26): (
+            pos: (5.0, 1.0),
+            align: Top,
+            data: TerrainWall(Generic),
+        ),
+        (27): (
+            pos: (5.0, 1.0),
+            align: Right,
+            data: TerrainWall(Generic),
+        ),
+        (28): (
+            pos: (5.0, -1.0),
+            align: Right,
+            data: TerrainWall(Generic),
+        ),
+        (29): (
+            pos: (5.0, -3.0),
+            align: Right,
+            data: TerrainWall(Generic),
+        ),
+        (30): (
+            pos: (5.0, -3.0),
+            align: Bottom,
+            data: TerrainWall(Generic),
+        ),
+        (31): (
+            pos: (3.0, -3.0),
+            align: Bottom,
+            data: TerrainWall(Generic),
+        ),
+        (32): (
+            pos: (1.0, -3.0),
+            align: Bottom,
+            data: TerrainWall(Generic),
+        ),
+        (33): (
+            pos: (-1.0, -3.0),
+            align: Bottom,
+            data: TerrainWall(Generic),
+        ),
+        (34): (
+            pos: (-5.0, -1.0),
+            align: Left,
+            data: TerrainWall(Generic),
+        ),
+        (35): (
+            pos: (-5.0, -3.0),
+            align: Left,
+            data: TerrainWall(Generic),
+        ),
+    },
+    last_object_id: 35,
+    name: "Ground Zero",
+)

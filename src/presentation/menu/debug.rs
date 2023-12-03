@@ -1,3 +1,4 @@
+use crate::app::settings::AppSettings;
 use crate::utils::bevy_egui::*;
 use bevy::diagnostic::*;
 use bevy::prelude::*;
@@ -11,7 +12,15 @@ impl Plugin for DebugPlugin {
     }
 }
 
-fn show_fps_count(mut egui_ctx: EguiContexts, diagnostics: Res<DiagnosticsStore>) {
+fn show_fps_count(
+    mut egui_ctx: EguiContexts,
+    diagnostics: Res<DiagnosticsStore>,
+    settings: Res<AppSettings>,
+) {
+    if !settings.debug.show_fps {
+        return;
+    }
+
     EguiPopup {
         name: "show_fps_count",
         background: false,
