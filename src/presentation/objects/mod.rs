@@ -16,7 +16,6 @@ impl Plugin for ObjectsPlugin {
             assets::AssetsPlugin,
             terrain::TerrainPlugin,
             player::PlayerPlugin,
-            utils::UtilsPlugin,
             sprite::SpritePlugin,
         ));
     }

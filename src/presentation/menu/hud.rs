@@ -24,6 +24,8 @@ fn draw_hud(mut egui_ctx: EguiContexts, level: Res<CurrentLevel>) {
     EguiPopup {
         name: "draw_hud",
         anchor: egui::Align2::CENTER_TOP,
+        interactable: false,
+        background: false,
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {

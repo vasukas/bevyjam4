@@ -50,6 +50,10 @@ impl LevelData {
     pub fn objects(&self) -> impl Iterator<Item = (LevelObjectId, &LevelObject)> {
         self.objects.iter().map(|v| (*v.0, v.1))
     }
+
+    pub fn get_object(&self, id: LevelObjectId) -> Option<&LevelObject> {
+        self.objects.get(&id)
+    }
 }
 
 /// Unique ID - doesn't get used again **in single executable run**.
@@ -90,15 +94,16 @@ impl LevelObject {
 }
 
 /// To which edge of the tile object sticks
-#[derive(Clone, Copy, Serialize, Deserialize, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize, Default)]
 pub enum LevelAlign {
-    #[default]
-    Center,
-
     Top,
     Bottom,
     Left,
     Right,
+
+    #[default]
+    #[serde(other)]
+    Center,
 }
 
 impl LevelAlign {
@@ -120,6 +125,16 @@ impl LevelAlign {
             LevelAlign::Bottom => PI,
             LevelAlign::Left => FRAC_PI_2,
             LevelAlign::Right => -FRAC_PI_2,
+        }
+    }
+
+    pub fn symbol(self) -> &'static str {
+        match self {
+            LevelAlign::Center => ".",
+            LevelAlign::Top => "^",
+            LevelAlign::Bottom => "v",
+            LevelAlign::Left => "<",
+            LevelAlign::Right => ">",
         }
     }
 }

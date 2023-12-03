@@ -6,6 +6,7 @@ MVP
 
 
 MVP goals (not neccessary in that order):
+
 * level with a couple of rooms/corridors;
 * player can walk in the level;
 - enemies standing and shooting (slow projectiles, periodic);
@@ -21,7 +22,9 @@ MVP goals (not neccessary in that order):
 - enemy overloading;
 - actual graphics (be it 2D or 3D).
 
+
 Extra goals:
+
 - level progression (via elevators);
 - slowdown effects;
 - "Application is not responding. .... Well done!" message;
@@ -29,7 +32,8 @@ Extra goals:
 - intro and outro;
 - final boss;
 - backgrounds (scrolling stars, partially hidden by the ship);
-- level decorations.
+- level decorations;
+- poster image, for itch page and menu background.
 
 
 
@@ -44,8 +48,13 @@ Bugs
 
 Release
 
-- make itch.io page, list all used libraries and assets
+- make itch.io page
     disable "Automatically start on page load" for sound to work
+- credit all used libraries and assets
+
+- make window take whole page
+
+- add list of all controls (on F1 key; mention that when the game starts)
 
 - check all TODOs
 
@@ -53,6 +62,8 @@ Release
 
 
 Improvements
+
+- add keybinds;
 
 - add camera room tracking (importance points, bounds, whatever), so it doesn't just follow the player
 

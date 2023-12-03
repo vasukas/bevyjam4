@@ -3,6 +3,7 @@ use bevy::prelude::*;
 pub mod master;
 pub mod mechanics;
 pub mod objects;
+pub mod utils;
 
 pub struct GameplayPlugin;
 

@@ -1,5 +1,8 @@
+use crate::gameplay::master::level::data::LevelAlign;
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
+use leafwing_input_manager::user_input::InputKind;
 
 #[derive(Actionlike, TypePath, Clone, Copy)]
 pub enum AppActions {
@@ -38,7 +41,9 @@ pub enum EditorActions {
     Movement, // action_axis_xy
     Tool,
     ToolAlt,
-    ToolSwitch,
+    SwitchDisplay,
+    //
+    Align(LevelAlign),
 }
 
 impl EditorActions {
@@ -47,7 +52,13 @@ impl EditorActions {
             .insert(VirtualDPad::wasd(), Self::Movement)
             .insert(MouseButton::Left, Self::Tool)
             .insert(MouseButton::Right, Self::ToolAlt)
-            .insert(KeyCode::Space, Self::ToolSwitch)
+            .insert(KeyCode::Space, Self::SwitchDisplay)
+            //
+            .insert(KeyCode::Up, Self::Align(LevelAlign::Top))
+            .insert(KeyCode::Down, Self::Align(LevelAlign::Bottom))
+            .insert(KeyCode::Left, Self::Align(LevelAlign::Left))
+            .insert(KeyCode::Right, Self::Align(LevelAlign::Right))
+            .insert(KeyCode::Numpad0, Self::Align(LevelAlign::Center))
             .build()
     }
 }
@@ -59,6 +70,43 @@ pub fn action_axis_xy<T: Actionlike>(state: &ActionState<T>, action: T) -> Vec2 
         .and_then(|data| data.direction())
         .map(|dir| dir.unit_vector())
         .unwrap_or_default()
+}
+
+/// Get prompt for action (which key/button to press)
+#[derive(SystemParam)]
+pub struct ActionPrompt<'w, A: Actionlike + 'static> {
+    map: Res<'w, InputMap<A>>,
+}
+
+impl<'w, A: Actionlike + 'static> ActionPrompt<'w, A> {
+    pub fn get(&self, action: A) -> String {
+        let mut inputs = self.map.get(action).iter();
+        let Some(input) = inputs.next() else { return "NOT SET".to_string(); };
+
+        let mut text = match input {
+            UserInput::Single(input) => match input {
+                InputKind::Keyboard(input) => format!("{input:?} key"),
+                InputKind::Mouse(input) => format!("{input:?} mouse button"),
+                _ => format!("Single:{input:?}"),
+            },
+            UserInput::Chord(input) => format!("Chord:{input:?}"),
+            UserInput::VirtualDPad(input) => {
+                if input == &VirtualDPad::wasd() {
+                    "W/A/S/D".to_string()
+                } else {
+                    format!("VirtualDPad:{input:?}")
+                }
+            }
+            UserInput::VirtualAxis(input) => format!("VirtualAxis:{input:?}"),
+        };
+
+        let and_more = inputs.next().is_some();
+        if and_more {
+            text += "... and more";
+        }
+
+        text
+    }
 }
 
 pub struct ActionsPlugin;

@@ -1,6 +1,10 @@
+#![allow(unused)] // TODO: temporary, remove
+
 use super::assets::ObjectAssets;
+use super::sprite::SimpleSprite;
 use super::utils::rotate_3to2_tr;
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::master::level::data::TILE_SIZE;
 use crate::gameplay::objects::terrain::*;
 use crate::utils::bevy::commands::FallibleCommands;
 use bevy::prelude::*;
@@ -25,13 +29,22 @@ fn spawn_terrain_wall(
     for (entity, _object) in new.iter() {
         let scene = assets.model_wall.clone();
 
-        commands.try_with_children(entity, |parent| {
-            parent.spawn(SceneBundle {
-                scene,
-                transform: rotate_3to2_tr(),
+        // commands.try_with_children(entity, |parent| {
+        //     parent.spawn(SceneBundle {
+        //         scene,
+        //         transform: rotate_3to2_tr(),
+        //         ..default()
+        //     });
+        // });
+
+        commands.try_insert(
+            entity,
+            SimpleSprite {
+                color: Color::BEIGE,
+                size: Vec2::new(TILE_SIZE, 0.4),
                 ..default()
-            });
-        });
+            },
+        );
     }
 }
 
@@ -43,13 +56,21 @@ fn spawn_terrain_floor(
     for (entity, _object) in new.iter() {
         let scene = assets.model_floor.clone();
 
-        commands.try_with_children(entity, |parent| {
-            parent.spawn(SceneBundle {
-                scene,
-                transform: rotate_3to2_tr(),
+        // commands.try_with_children(entity, |parent| {
+        //     parent.spawn(SceneBundle {
+        //         scene,
+        //         transform: rotate_3to2_tr(),
+        //         ..default()
+        //     });
+        // });
+
+        commands.try_insert(
+            entity,
+            SimpleSprite {
+                color: Color::DARK_GRAY,
                 ..default()
-            });
-        });
+            },
+        );
     }
 }
 
@@ -57,22 +78,22 @@ fn spawn_terrain_light(
     new: Query<(Entity, &TerrainLight), Added<TerrainLight>>,
     mut commands: Commands,
 ) {
-    for (entity, object) in new.iter() {
-        match object {
-            TerrainLight::Generic => {
-                commands.try_with_children(entity, |parent| {
-                    parent.spawn(PointLightBundle {
-                        point_light: PointLight {
-                            color: Color::WHITE,
-                            intensity: 3000.,
-                            shadows_enabled: true,
-                            ..default()
-                        },
-                        transform: Transform::from_xyz(0., -0.5, -2.5),
-                        ..default()
-                    });
-                });
-            }
-        }
-    }
+    // for (entity, object) in new.iter() {
+    //     match object {
+    //         TerrainLight::Generic => {
+    //             commands.try_with_children(entity, |parent| {
+    //                 parent.spawn(PointLightBundle {
+    //                     point_light: PointLight {
+    //                         color: Color::WHITE,
+    //                         intensity: 3000.,
+    //                         shadows_enabled: true,
+    //                         ..default()
+    //                     },
+    //                     transform: Transform::from_xyz(0., -0.5, -2.5),
+    //                     ..default()
+    //                 });
+    //             });
+    //         }
+    //     }
+    // }
 }

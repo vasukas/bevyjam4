@@ -4,6 +4,7 @@ use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::core_pipeline::fxaa::Fxaa;
 use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::prelude::*;
+use bevy::render::camera::ScalingMode;
 use std::f32::consts::FRAC_2_PI;
 
 /// Rotate normal 3D coordinates to pseudo-2D ones
@@ -22,7 +23,8 @@ pub fn rotate_3to2_tr() -> Transform {
 pub struct WorldCameraBundle {
     pub name: Name,
     pub game_object: GameObject,
-    pub camera: Camera3dBundle,
+    // pub camera: Camera3dBundle,
+    pub camera: Camera2dBundle,
     pub bloom: BloomSettings,
     pub fxaa: Fxaa,
 }
@@ -36,17 +38,36 @@ impl WorldCameraBundle {
         Self {
             name: Name::new(name),
             game_object: GameObject,
-            camera: Camera3dBundle {
+            // camera: Camera3dBundle {
+            //     camera: Camera {
+            //         hdr: true,
+            //         ..default()
+            //     },
+            //     projection: PerspectiveProjection {
+            //         fov: vertical_fov,
+            //         ..default()
+            //     }
+            //     .into(),
+            //     camera_3d: Camera3d {
+            //         clear_color: ClearColorConfig::Custom(Color::BLACK),
+            //         ..default()
+            //     },
+            //     tonemapping: Tonemapping::AgX,
+            //     // emulate 2D camera
+            //     transform: Transform::from_xyz(0., 0., distance).looking_at(Vec3::ZERO, Vec3::Y),
+            //     ..default()
+            // },
+            camera: Camera2dBundle {
                 camera: Camera {
                     hdr: true,
                     ..default()
                 },
-                projection: PerspectiveProjection {
-                    fov: vertical_fov,
+                projection: OrthographicProjection {
+                    near: -1000.,
+                    scaling_mode: ScalingMode::FixedVertical(20.),
                     ..default()
-                }
-                .into(),
-                camera_3d: Camera3d {
+                },
+                camera_2d: Camera2d {
                     clear_color: ClearColorConfig::Custom(Color::BLACK),
                     ..default()
                 },
@@ -58,13 +79,5 @@ impl WorldCameraBundle {
             bloom: BloomSettings::OLD_SCHOOL,
             fxaa: default(),
         }
-    }
-}
-
-pub struct UtilsPlugin;
-
-impl Plugin for UtilsPlugin {
-    fn build(&self, _app: &mut App) {
-        //
     }
 }

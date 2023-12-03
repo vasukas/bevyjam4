@@ -1090,6 +1090,7 @@ dependencies = [
  "chrono",
  "console_error_panic_hook",
  "crossbeam-channel",
+ "itertools",
  "leafwing-input-manager",
  "ron",
  "serde",

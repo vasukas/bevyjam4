@@ -85,12 +85,15 @@ fn draw_main_menu(
             }
         }
 
-        ui.label("");
-
         if game_running.get().is_yes() {
+            ui.label("");
+
             if ui.button("Exit to main menu").clicked() {
                 game_commands.send(GameCommand::Exit);
             }
+        } else {
+            #[cfg(not(target_arch = "wasm32"))]
+            ui.label("");
         }
 
         #[cfg(not(target_arch = "wasm32"))] // there is no point in exiting in wasm

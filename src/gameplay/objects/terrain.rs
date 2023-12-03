@@ -6,18 +6,24 @@ use bevy_rapier2d::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Component, Clone, Serialize, Deserialize, Debug)]
+#[derive(Component, Clone, Serialize, Deserialize, Debug, Default)]
 pub enum TerrainWall {
+    #[default]
+    #[serde(other)]
     Generic,
 }
 
-#[derive(Component, Clone, Serialize, Deserialize, Debug)]
+#[derive(Component, Clone, Serialize, Deserialize, Debug, Default)]
 pub enum TerrainFloor {
+    #[default]
+    #[serde(other)]
     Generic,
 }
 
-#[derive(Component, Clone, Serialize, Deserialize, Debug)]
+#[derive(Component, Clone, Serialize, Deserialize, Debug, Default)]
 pub enum TerrainLight {
+    #[default]
+    #[serde(other)]
     Generic,
 }
 

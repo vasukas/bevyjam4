@@ -7,18 +7,27 @@ pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            draw_settings_menu.run_if(in_state(MenuState::Settings)),
-        );
+        app.init_resource::<NewUiScale>()
+            .add_systems(OnEnter(MenuState::Settings), update_ui_scale)
+            .add_systems(
+                Update,
+                draw_settings_menu.run_if(in_state(MenuState::Settings)),
+            );
     }
+}
+
+#[derive(Resource, Default)]
+struct NewUiScale(f32);
+
+fn update_ui_scale(settings: Res<AppSettings>, mut new_ui_scale: ResMut<NewUiScale>) {
+    new_ui_scale.0 = settings.graphics.ui_scale;
 }
 
 fn draw_settings_menu(
     mut egui_ctx: EguiContexts,
     mut next_state: ResMut<NextState<MenuState>>,
     mut settings_res: ResMut<AppSettings>,
-    mut new_ui_scale: Local<Option<f32>>,
+    mut new_ui_scale: ResMut<NewUiScale>,
 ) {
     EguiPopup {
         name: "draw_settings_menu",
@@ -32,20 +41,14 @@ fn draw_settings_menu(
             ui.group(|ui| {
                 ui.strong("Graphics");
 
-                let mut ui_scale = settings.graphics.ui_scale;
-                if ui
-                    .add(
-                        egui::Slider::new(&mut ui_scale, 0.1..=10.)
-                            .text("UI scale")
-                            .clamp_to_range(false)
-                            .prefix("x"),
-                    )
-                    .changed()
-                {
-                    *new_ui_scale = Some(ui_scale);
-                }
+                ui.add(
+                    egui::Slider::new(&mut new_ui_scale.0, 0.1..=10.)
+                        .text("UI scale")
+                        .clamp_to_range(false)
+                        .prefix("x"),
+                );
                 if ui.button("Apply UI scale").clicked() {
-                    settings.graphics.ui_scale = ui_scale;
+                    settings.graphics.ui_scale = new_ui_scale.0;
                     changed = true;
                 }
 
