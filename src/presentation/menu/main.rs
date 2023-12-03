@@ -54,11 +54,7 @@ fn draw_main_menu(
             }
             GameRunning::No => {
                 if let Some(level_id) = scores.level.clone() {
-                    let name = level_db
-                        .meta
-                        .get(&level_id)
-                        .map(|meta| &meta.name)
-                        .unwrap_or(&level_id);
+                    let name = level_db.get_name(&level_id);
 
                     if ui.button(format!("Continue: {name}")).clicked() {
                         next_state.set(MenuState::None);

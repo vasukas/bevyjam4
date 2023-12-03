@@ -12,6 +12,14 @@ impl LevelDatabase {
     pub fn id_first(&self) -> String {
         ID_FIRST.to_string()
     }
+
+    /// Name shown to player
+    pub fn get_name<'a>(&'a self, id: &'a str) -> &'a str {
+        self.meta
+            .get(id)
+            .map(|meta| meta.name.as_str())
+            .unwrap_or(id)
+    }
 }
 
 /// Metadata for a level
