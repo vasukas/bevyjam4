@@ -8,7 +8,14 @@ use serde::Serialize;
 #[serde(default)]
 pub struct Scores {
     /// ID of the last level played
-    pub level: Option<String>,
+    pub level: Option<ScoresLastLevel>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ScoresLastLevel {
+    pub id: String,
+    pub name: String,
 }
 
 const USERDATA_NAME: &str = "scores";

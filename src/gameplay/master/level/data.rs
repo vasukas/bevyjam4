@@ -16,14 +16,19 @@ pub const TILE_SIZE: f32 = 2.;
 /// Half of size of a tile
 pub const HALF_TILE: f32 = TILE_SIZE / 2.;
 
+/// First level in new game
+pub const FIRST_LEVEL_ID: &str = "ground_zero";
+
 /// Level data
 #[derive(Clone, Serialize, Deserialize, Default, Asset, TypePath)]
 #[serde(default)]
 pub struct LevelData {
     #[serde(serialize_with = "serde_sorted_map")]
     objects: HashMap<LevelObjectId, LevelObject>,
-
     last_object_id: u64,
+
+    /// Name shown to player
+    pub name: String,
 }
 
 impl LevelData {

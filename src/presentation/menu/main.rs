@@ -3,7 +3,7 @@ use super::states::PreviousMenu;
 use crate::app::scores::Scores;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::game_states::GameRunning;
-use crate::gameplay::master::level::database::LevelDatabase;
+use crate::gameplay::master::level::data::FIRST_LEVEL_ID;
 use crate::utils::bevy_egui::*;
 use bevy::prelude::*;
 
@@ -32,7 +32,6 @@ fn draw_main_menu(
     mut next_state: ResMut<NextState<MenuState>>,
     game_running: Res<State<GameRunning>>,
     mut game_commands: EventWriter<GameCommand>,
-    level_db: Res<LevelDatabase>,
     mut prev_menu: ResMut<PreviousMenu>,
     scores: Res<Scores>,
 ) {
@@ -53,19 +52,19 @@ fn draw_main_menu(
                 }
             }
             GameRunning::No => {
-                if let Some(level_id) = scores.level.clone() {
-                    let name = level_db.get_name(&level_id);
-
-                    if ui.button(format!("Continue: {name}")).clicked() {
+                if let Some(level) = &scores.level {
+                    if ui.button(format!("Continue: {}", level.name)).clicked() {
                         next_state.set(MenuState::None);
-                        game_commands.send(GameCommand::Start { level_id });
+                        game_commands.send(GameCommand::Start {
+                            level_id: level.id.clone(),
+                        });
                     }
                 }
 
                 if ui.button("New game").clicked() {
                     next_state.set(MenuState::None);
                     game_commands.send(GameCommand::Start {
-                        level_id: level_db.id_first(),
+                        level_id: FIRST_LEVEL_ID.to_string(),
                     });
                 }
             }

@@ -2,7 +2,6 @@ use super::states::MenuState;
 use crate::app::actions::action_axis_xy;
 use crate::app::actions::EditorActions;
 use crate::gameplay::master::level::current::LevelCommand;
-use crate::gameplay::master::level::database::LevelDatabase;
 use crate::presentation::objects::WorldCameraBundle;
 use crate::utils::bevy_egui::*;
 use bevy::prelude::*;
@@ -44,7 +43,6 @@ fn draw_editor_menu(
     mut next_menu_state: ResMut<NextState<MenuState>>,
     mut level_commands: EventWriter<LevelCommand>,
     mut editor: ResMut<Editor>,
-    mut level_db: ResMut<LevelDatabase>,
 ) {
     if editor_state.get() == &EditorEnabled::No {
         next_editor_state.set(EditorEnabled::Yes);

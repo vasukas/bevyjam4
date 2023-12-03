@@ -3,7 +3,6 @@ use super::states::MenuState;
 use crate::app::actions::action_axis_xy;
 use crate::app::actions::PlayerActions;
 use crate::gameplay::master::level::current::CurrentLevel;
-use crate::gameplay::master::level::database::LevelDatabase;
 use crate::gameplay::objects::player::Player;
 use crate::utils::bevy_egui::*;
 use bevy::prelude::*;
@@ -21,14 +20,14 @@ impl Plugin for HudPlugin {
     }
 }
 
-fn draw_hud(mut egui_ctx: EguiContexts, level: Res<CurrentLevel>, level_db: Res<LevelDatabase>) {
+fn draw_hud(mut egui_ctx: EguiContexts, level: Res<CurrentLevel>) {
     EguiPopup {
         name: "draw_hud",
         anchor: egui::Align2::CENTER_TOP,
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {
-        let name = level_db.get_name(&level.id);
+        let name = &level.data.name;
         ui.label(format!("Level: {name}. HP: 100%"));
     });
 }
