@@ -1,5 +1,3 @@
-#![allow(unused)] // TODO: temporary, remove
-
 use super::assets::ObjectAssets;
 use super::sprite::SimpleSprite;
 use super::utils::rotate_3to2_tr;
@@ -41,8 +39,8 @@ fn spawn_terrain_wall(
             entity,
             SimpleSprite {
                 color: Color::BEIGE,
-                size: Vec2::new(TILE_SIZE, 0.4),
-                z_offset: -100.,
+                size: Vec2::new(TILE_SIZE, 0.2),
+                z_offset: 100.,
                 ..default()
             },
         );
@@ -69,7 +67,7 @@ fn spawn_terrain_floor(
             entity,
             SimpleSprite {
                 color: Color::DARK_GRAY,
-                z_offset: 100.,
+                z_offset: -100.,
                 ..default()
             },
         );

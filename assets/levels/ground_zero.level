@@ -162,7 +162,17 @@
             align: Left,
             data: TerrainWall(Generic),
         ),
+        (36): (
+            pos: (-5.0, -5.0),
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (37): (
+            pos: (-5.0, -7.0),
+            align: Bottom,
+            data: TerrainWall(Generic),
+        ),
     },
-    last_object_id: 35,
+    last_object_id: 37,
     name: "Ground Zero",
 )

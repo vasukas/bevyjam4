@@ -3,7 +3,9 @@ use super::states::MenuState;
 use crate::app::actions::action_axis_xy;
 use crate::app::actions::PlayerActions;
 use crate::gameplay::master::level::current::CurrentLevel;
+use crate::gameplay::mechanics::movement::MovementController;
 use crate::gameplay::objects::player::Player;
+use crate::gameplay::utils::RotateToTarget;
 use crate::utils::bevy_egui::*;
 use bevy::prelude::*;
 use leafwing_input_manager::action_state::ActionState;
@@ -36,12 +38,15 @@ fn draw_hud(mut egui_ctx: EguiContexts, level: Res<CurrentLevel>) {
 
 fn player_input(
     actions: Res<ActionState<PlayerActions>>,
-    mut players: Query<(&mut Transform, &mut Player)>,
-    time: Res<Time>,
+    mut players: Query<(&mut RotateToTarget, &mut MovementController, &mut Player)>,
 ) {
-    for (mut transform, mut _player) in players.iter_mut() {
-        let speed = 10. * time.delta_seconds();
-        transform.translation +=
-            action_axis_xy(&actions, PlayerActions::Movement).extend(0.) * speed;
+    for (mut rotate, mut mvmt, mut _player) in players.iter_mut() {
+        let dir = action_axis_xy(&actions, PlayerActions::Movement);
+
+        if dir.length() > 0.01 {
+            rotate.target_dir = dir;
+        }
+
+        mvmt.target_dir = dir;
     }
 }

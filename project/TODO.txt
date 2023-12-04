@@ -1,19 +1,26 @@
 MVP goals (not neccessary in that order):
 
-* level with a couple of rooms/corridors;
++ level editor;
 * player can walk in the level;
 - enemies standing and shooting (slow projectiles, periodic);
 - player can pick up "shield gens" (medkits);
 - player can pick up, carry and throw batteries and barrels;
+
+- enemies can be hit with knockback;
+- enemy overloading;
+
 - there are breakable pipes with water and electric panels;
 - barrels with oil, water and explosives;
-- enemies can be hit with knockback;
 - water, electricity, oil, fire: all interacting with each other;
 - liquids spread;
+
 - sounds for all that;
 - (particle) effects for all that;
-- enemy overloading;
+
+- level with a couple of rooms/corridors;
 - actual graphics (be it 2D or 3D).
+
+
 
 
 Extra goals:

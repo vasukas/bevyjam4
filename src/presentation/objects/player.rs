@@ -1,4 +1,5 @@
 use super::assets::ObjectAssets;
+use super::sprite::SimpleSprite;
 use super::WorldCameraBundle;
 use crate::app::scheduling::SpawnSet;
 use crate::gameplay::objects::player::Player;
@@ -37,11 +38,21 @@ fn spawn_player(
     for entity in new.iter() {
         let scene = assets.model_jimbo.clone();
 
-        commands.try_command(entity, |entity| {
-            let id =
-                entity.with_child(|parent| parent.spawn(SceneBundle { scene, ..default() }).id());
-            entity.insert(ModelChild(id));
-        });
+        // commands.try_command(entity, |entity| {
+        //     let id =
+        //         entity.with_child(|parent| parent.spawn(SceneBundle { scene, ..default() }).id());
+        //     entity.insert(ModelChild(id));
+        // });
+
+        commands.try_insert(
+            entity,
+            SimpleSprite {
+                color: Color::WHITE,
+                size: Vec2::splat(0.5),
+                z_offset: 10.,
+                ..default()
+            },
+        );
 
         commands.spawn((WorldCameraBundle::new("player camera"), PlayerCamera));
     }

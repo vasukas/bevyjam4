@@ -15,6 +15,7 @@ impl Plugin for GameplayPlugin {
             objects::ObjectsPlugin,
             mechanics::MechanicsPlugin,
             physics::PhysicsPlugin,
+            utils::UtilsPlugin,
         ));
     }
 }

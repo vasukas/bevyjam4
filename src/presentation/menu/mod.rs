@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 mod debug;
-mod hud;
+mod game;
 mod level_editor;
 mod log;
 mod main;
@@ -21,7 +21,7 @@ impl Plugin for MenuPlugin {
             settings::SettingsPlugin,
             states::StatesPlugin,
             startup::StartupPlugin,
-            hud::HudPlugin,
+            game::HudPlugin,
         ));
     }
 }
