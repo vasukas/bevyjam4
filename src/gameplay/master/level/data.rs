@@ -1,4 +1,4 @@
-use crate::gameplay::master::scripts::ScriptPoint;
+use crate::gameplay::master::script_points::ScriptPoint;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
 use crate::gameplay::objects::terrain::TerrainWall;

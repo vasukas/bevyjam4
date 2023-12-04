@@ -19,13 +19,20 @@ pub enum MenuState {
     MainMenu,
     Settings,
     LevelEditor,
+
+    ModalMessage,
+    Help,
 }
+
+#[derive(Event, Default)]
+pub struct CloseMenu;
 
 pub struct StatesPlugin;
 
 impl Plugin for StatesPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<MenuState>()
+            .add_event::<CloseMenu>()
             .init_resource::<PreviousMenu>()
             .add_systems(
                 Last,
@@ -75,7 +82,7 @@ fn on_load_complete(
 
 /// Last state menu was in
 #[derive(Resource)]
-pub struct PreviousMenu(pub MenuState);
+struct PreviousMenu(pub MenuState);
 
 impl Default for PreviousMenu {
     fn default() -> Self {
@@ -85,12 +92,13 @@ impl Default for PreviousMenu {
 
 fn on_back(
     actions: Res<ActionState<AppActions>>,
+    event: EventReader<CloseMenu>,
     state: Res<State<MenuState>>,
     mut next_state: ResMut<NextState<MenuState>>,
     mut previous: ResMut<PreviousMenu>,
     game_running: Res<State<GameRunning>>,
 ) {
-    if actions.just_pressed(AppActions::MenuBack) {
+    if actions.just_pressed(AppActions::ToggleMenu) || !event.is_empty() {
         let new_state = match state.get() {
             MenuState::Startup => {
                 return;

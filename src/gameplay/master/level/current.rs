@@ -2,7 +2,6 @@ use super::data::LevelData;
 use super::spawn::DespawnGameObjects;
 use super::spawn::SpawnObject;
 use crate::app::scheduling::SpawnSet;
-use crate::app::scores::Scores;
 use crate::utils::misc_utils::ExtendedEventReader;
 use bevy::asset::AssetLoader;
 use bevy::asset::AsyncReadExt as _;
@@ -33,12 +32,20 @@ pub struct CurrentLevel {
     pub data: LevelData,
 }
 
+/// Sent when [`LevelCommand::Load`] is completed.
+#[derive(Event)]
+pub struct LevelLoaded {
+    pub id: String,
+    pub name: String,
+}
+
 pub struct CurrentPlugin;
 
 impl Plugin for CurrentPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CurrentLevel>()
             .add_event::<LevelCommand>()
+            .add_event::<LevelLoaded>()
             .init_asset::<LevelData>()
             .init_asset_loader::<LevelLoader>()
             .add_systems(
@@ -55,21 +62,24 @@ impl Plugin for CurrentPlugin {
 
 /// Optional resource
 #[derive(Resource)]
-struct PendingLevelLoad(Handle<LevelData>);
+struct PendingLevelLoad {
+    handle: Handle<LevelData>,
+    id: String,
+}
 
 fn complete_pending_level_load(
     mut spawn_object: EventWriter<SpawnObject>,
     mut commands: Commands,
-    level: Res<PendingLevelLoad>,
+    pending: Res<PendingLevelLoad>,
     mut levels: ResMut<Assets<LevelData>>,
     mut current: ResMut<CurrentLevel>,
     asset_server: Res<AssetServer>,
-    mut scores: ResMut<Scores>,
+    mut loaded: EventWriter<LevelLoaded>,
 ) {
-    let level = match levels.remove(&level.0) {
+    let level = match levels.remove(&pending.handle) {
         Some(level) => level,
         None => {
-            let Some(LoadState::Failed) = asset_server.get_load_state(&level.0) else { return; };
+            let Some(LoadState::Failed) = asset_server.get_load_state(&pending.handle) else { return; };
             error!("Failed to load level");
             LevelData::default()
         }
@@ -82,15 +92,14 @@ fn complete_pending_level_load(
         });
     }
 
+    loaded.send(LevelLoaded {
+        id: pending.id.clone(),
+        name: level.name.clone(),
+    });
+
     current.data = level;
 
     commands.remove_resource::<PendingLevelLoad>();
-
-    if let Some(level) = scores.last_level.as_mut() {
-        if level.id == current.id {
-            level.name = current.data.name.clone()
-        }
-    }
 }
 
 fn execute_level_commands(
@@ -106,9 +115,10 @@ fn execute_level_commands(
 
         let (despawn, spawn) = match command {
             LevelCommand::Load(id) => {
-                commands.insert_resource(PendingLevelLoad(
-                    asset_server.load(format!("levels/{}.level", id)),
-                ));
+                commands.insert_resource(PendingLevelLoad {
+                    handle: asset_server.load(format!("levels/{}.level", id)),
+                    id: id.clone(),
+                });
                 current.id = id.clone();
                 (true, false)
             }

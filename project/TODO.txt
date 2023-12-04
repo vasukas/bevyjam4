@@ -55,7 +55,8 @@ Release
 
 - make window take whole page
 
-- add list of all controls (on F1 key; mention that when the game starts)
++ add list of all controls (on F1 key; mention that when the game starts)
+- show controls in-world instead of separate menu
 
 - check all TODOs
 

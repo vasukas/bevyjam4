@@ -1087,7 +1087,6 @@ dependencies = [
  "bevy",
  "bevy_egui",
  "bevy_rapier2d",
- "chrono",
  "console_error_panic_hook",
  "crossbeam-channel",
  "itertools",

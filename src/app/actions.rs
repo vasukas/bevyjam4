@@ -6,14 +6,14 @@ use leafwing_input_manager::user_input::InputKind;
 #[derive(Actionlike, TypePath, Clone, Copy)]
 pub enum AppActions {
     Screenshot,
-    MenuBack,
+    ToggleMenu,
 }
 
 impl AppActions {
     fn default_map() -> InputMap<Self> {
         InputMap::default()
             .insert(KeyCode::F12, Self::Screenshot)
-            .insert(KeyCode::Escape, Self::MenuBack)
+            .insert(KeyCode::Escape, Self::ToggleMenu)
             .build()
     }
 }
@@ -22,15 +22,17 @@ impl AppActions {
 pub enum PlayerActions {
     Movement, // action_axis_xy
     PickUp,
-    ThrowInteract,
+    Throw,
+    ToggleHelp,
 }
 
 impl PlayerActions {
     fn default_map() -> InputMap<Self> {
         InputMap::default()
             .insert(VirtualDPad::wasd(), Self::Movement)
-            .insert(KeyCode::J, Self::PickUp)
-            .insert(KeyCode::K, Self::ThrowInteract)
+            .insert(KeyCode::E, Self::PickUp)
+            .insert(KeyCode::G, Self::Throw)
+            .insert(KeyCode::I, Self::ToggleHelp)
             .build()
     }
 }

@@ -23,12 +23,21 @@ fn make_screenshot(
     };
 
     if actions.just_pressed(AppActions::Screenshot) {
-        let _ = std::fs::create_dir_all("user/screenshots/");
+        let dir = "user/screenshots";
+        let _ = std::fs::create_dir_all(dir);
 
-        // current local time formatted like "2023-11-01_23-59-59_999" (with milliseconds!)
-        let filename = chrono::prelude::Local::now()
-            .format("user/screenshots/%F_%H-%M-%S_%3f.png")
-            .to_string();
+        let mut filename;
+        let mut index = 0;
+        loop {
+            assert!(index < 100);
+
+            index += 1;
+            filename = format!("{dir}/{index:02}.png");
+
+            if std::fs::metadata(&filename).is_err() {
+                break;
+            }
+        }
 
         let _ = screenshot_manager.save_screenshot_to_disk(window, filename);
     }

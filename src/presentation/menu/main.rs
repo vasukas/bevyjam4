@@ -1,5 +1,5 @@
+use super::states::CloseMenu;
 use super::states::MenuState;
-use super::states::PreviousMenu;
 use crate::app::scores::Scores;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::game_states::GameRunning;
@@ -33,7 +33,7 @@ fn draw_main_menu(
     mut next_state: ResMut<NextState<MenuState>>,
     game_running: Res<State<GameRunning>>,
     mut game_commands: EventWriter<GameCommand>,
-    mut prev_menu: ResMut<PreviousMenu>,
+    mut close_menu: EventWriter<CloseMenu>,
     scores: Res<Scores>,
     mut exit: EventWriter<AppExit>,
 ) {
@@ -45,8 +45,7 @@ fn draw_main_menu(
         match game_running.get() {
             GameRunning::Yes => {
                 if ui.button("Back to game").clicked() {
-                    next_state.set(MenuState::None);
-                    prev_menu.0 = MenuState::MainMenu;
+                    close_menu.send_default();
                 }
                 if ui.button("Restart").clicked() {
                     next_state.set(MenuState::None);

@@ -5,6 +5,7 @@ mod menu;
 mod objects;
 
 pub use advanced_gizmos::AdvancedGizmos;
+pub use menu::{DelayedMessage, Message, MessageType};
 
 pub struct PresentationPlugin;
 

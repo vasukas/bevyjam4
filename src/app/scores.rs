@@ -1,3 +1,4 @@
+use crate::gameplay::master::level::current::LevelLoaded;
 use crate::utils::plugins::userdata_plugin::Userdata;
 use bevy::prelude::*;
 use serde::Deserialize;
@@ -26,7 +27,14 @@ impl Plugin for ScoresPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Scores>()
             .add_systems(PreStartup, load_scores)
-            .add_systems(Update, save_scores.run_if(resource_changed::<Scores>()));
+            .add_systems(
+                PostUpdate,
+                (
+                    (update_level.run_if(on_event::<LevelLoaded>()),),
+                    save_scores.run_if(resource_changed::<Scores>()),
+                )
+                    .chain(),
+            );
     }
 }
 
@@ -36,4 +44,13 @@ fn load_scores(mut scores: ResMut<Scores>, userdata: Res<Userdata>) {
 
 fn save_scores(scores: Res<Scores>, userdata: Res<Userdata>) {
     userdata.write(USERDATA_NAME, &*scores);
+}
+
+fn update_level(mut scores: ResMut<Scores>, mut level_loaded: EventReader<LevelLoaded>) {
+    if let Some(loaded) = level_loaded.read().last() {
+        scores.last_level = Some(ScoresLastLevel {
+            id: loaded.id.clone(),
+            name: loaded.name.clone(),
+        });
+    }
 }

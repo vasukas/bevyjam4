@@ -352,13 +352,13 @@ fn draw_tool_info(
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {
-        ui.label(format!("Add object: {}", prompt.get(EditorActions::Tool)));
+        ui.label(format!("Add object: [{}]", prompt.get(EditorActions::Tool)));
         ui.label(format!(
-            "Remove all objects on tile: {}",
+            "Remove all objects on tile: [{}]",
             prompt.get(EditorActions::ToolAlt)
         ));
         ui.label(format!(
-            "Toggle labels: {}",
+            "Toggle labels: [{}]",
             prompt.get(EditorActions::SwitchDisplay)
         ));
         ui.label(format!("Set align: arrows & zero"));

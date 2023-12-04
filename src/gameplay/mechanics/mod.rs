@@ -14,12 +14,6 @@ pub enum MechanicSet {
     Reaction,
 }
 
-impl MechanicSet {
-    pub fn first() -> Self {
-        Self::Input
-    }
-}
-
 pub struct MechanicsPlugin;
 
 impl Plugin for MechanicsPlugin {
