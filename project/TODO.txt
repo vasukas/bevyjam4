@@ -1,7 +1,7 @@
 MVP goals (not neccessary in that order):
 
 + level editor;
-* player can walk in the level;
++ player can walk in the level;
 - enemies standing and shooting (slow projectiles, periodic);
 - player can pick up "shield gens" (medkits);
 - player can pick up, carry and throw batteries and barrels;

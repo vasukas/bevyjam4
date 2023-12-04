@@ -60,3 +60,24 @@ impl WorldCameraBundle {
         }
     }
 }
+
+pub struct UtilsPlugin;
+
+impl Plugin for UtilsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Last, fix_lights);
+    }
+}
+
+// TODO: file bug report; shadows visibility is not updated for lights (at all?),
+// so there are no shadows if lights are spawned before the camera
+// (this issue? https://github.com/bevyengine/bevy/issues/8535)
+fn fix_lights(new_cameras: Query<(), Added<Camera3d>>, mut lights: Query<&mut PointLight>) {
+    if !new_cameras.is_empty() {
+        for mut light in lights.iter_mut() {
+            if light.shadows_enabled {
+                light.set_changed();
+            }
+        }
+    }
+}

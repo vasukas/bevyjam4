@@ -55,6 +55,8 @@ pub struct GraphicalSettings {
 
     /// Fullscreen window
     pub fullscreen: bool,
+
+    pub shadows: bool,
 }
 
 impl Default for GraphicalSettings {
@@ -62,9 +64,15 @@ impl Default for GraphicalSettings {
         Self {
             ui_scale: 2.,
             fullscreen: false,
+            shadows: true,
         }
     }
 }
+
+/// Marker for [`PointLight`] which should have shadows enabled.
+/// Needed for toggling shadows via settings.
+#[derive(Component)]
+pub struct LightWithShadows;
 
 const SAVE_DELAY: Duration = Duration::from_secs(1);
 const USERDATA_NAME: &str = "settings";
@@ -115,6 +123,7 @@ fn apply_settings(
     mut egui_settings: ResMut<EguiSettings>,
     mut window: Query<&mut Window, With<PrimaryWindow>>,
     #[cfg(feature = "dev_build")] mut rapier: ResMut<bevy_rapier2d::render::DebugRenderContext>,
+    mut point_lights: Query<&mut PointLight, With<LightWithShadows>>,
 ) {
     egui_settings.scale_factor = settings.graphics.ui_scale as f64;
 
@@ -128,5 +137,9 @@ fn apply_settings(
     #[cfg(feature = "dev_build")]
     {
         rapier.enabled = settings.debug.show_physics;
+    }
+
+    for mut light in point_lights.iter_mut() {
+        light.shadows_enabled = settings.graphics.shadows;
     }
 }

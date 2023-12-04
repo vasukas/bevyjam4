@@ -80,6 +80,10 @@ fn draw_settings_menu(
                 changed |= ui
                     .checkbox(&mut settings.graphics.fullscreen, "Fullscreen")
                     .changed();
+
+                changed |= ui
+                    .checkbox(&mut settings.graphics.shadows, "Shadows")
+                    .changed();
             });
 
             changed |= ui

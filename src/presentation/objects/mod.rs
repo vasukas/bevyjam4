@@ -19,6 +19,7 @@ impl Plugin for ObjectsPlugin {
             player::PlayerPlugin,
             sprite::SpritePlugin,
             animation_ctl::AnimationCtlPlugin,
+            utils::UtilsPlugin,
         ));
     }
 }

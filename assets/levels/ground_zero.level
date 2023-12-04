@@ -172,12 +172,31 @@
             align: Bottom,
             data: TerrainWall(Generic),
         ),
-        (41): (
-            pos: (1.0, -1.0),
+        (42): (
+            pos: (1.0, 1.0),
             align: Top,
             data: TerrainLight(Generic),
         ),
+        (43): (
+            pos: (5.0, -1.0),
+            align: Right,
+            data: TerrainLight(Generic),
+        ),
+        (44): (
+            pos: (-5.0, -3.0),
+            align: Left,
+            data: TerrainLight(Custom(
+                color: Rgba(
+                    red: 0.93333334,
+                    green: 0.80784315,
+                    blue: 0.49019608,
+                    alpha: 1.0,
+                ),
+                intensity: 65.0,
+                shadows: false,
+            )),
+        ),
     },
-    last_object_id: 41,
+    last_object_id: 44,
     name: "Ground Zero",
 )

@@ -22,6 +22,12 @@ pub enum TerrainFloor {
 
 #[derive(Component, Clone, Serialize, Deserialize, Debug, Default)]
 pub enum TerrainLight {
+    Custom {
+        color: Color,
+        intensity: f32,
+        shadows: bool,
+    },
+
     #[default]
     #[serde(other)]
     Generic,

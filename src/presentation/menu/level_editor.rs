@@ -6,6 +6,7 @@ use crate::gameplay::master::level::current::CurrentLevel;
 use crate::gameplay::master::level::current::LevelCommand;
 use crate::gameplay::master::level::data::*;
 use crate::gameplay::master::level::spawn::SpawnObject;
+use crate::gameplay::objects::terrain::TerrainLight;
 use crate::gameplay::utils::pos_to_tile;
 use crate::gameplay::utils::pos_to_tile_center;
 use crate::presentation::objects::WorldCameraBundle;
@@ -19,6 +20,7 @@ use itertools::Itertools as _;
 use leafwing_input_manager::action_state::ActionState;
 use serde::Deserialize;
 use serde::Serialize;
+use std::ops::RangeInclusive;
 use std::time::Duration;
 
 pub struct LevelEditorPlugin;
@@ -217,6 +219,40 @@ fn text_field(ui: &mut egui::Ui, changed: &mut bool, name: &str, value: &mut Str
     });
 }
 
+fn color_field_rgb(ui: &mut egui::Ui, changed: &mut bool, name: &str, value: &mut Color) {
+    ui.horizontal(|ui| {
+        let mut color = value.to_egui();
+        let color_changed = egui::color_picker::color_picker_color32(
+            ui,
+            &mut color,
+            egui::color_picker::Alpha::Opaque,
+        );
+        if color_changed {
+            *value = Color::from_egui(color);
+            *changed = true;
+        }
+
+        ui.label(name);
+    });
+}
+
+fn simple_slider_field(
+    ui: &mut egui::Ui,
+    changed: &mut bool,
+    suffix: &str,
+    value: &mut f32,
+    range: RangeInclusive<f32>,
+) {
+    *changed |= ui
+        .add(
+            egui::Slider::new(value, range)
+                .clamp_to_range(false)
+                .show_value(true)
+                .suffix(suffix),
+        )
+        .changed();
+}
+
 fn edit_object(
     ui: &mut egui::Ui,
     changed: &mut bool,
@@ -269,8 +305,35 @@ fn edit_object(
         LevelObjectData::TerrainFloor(_object) => {
             ui.label("Floor");
         }
-        LevelObjectData::TerrainLight(_object) => {
-            ui.label("Light");
+        LevelObjectData::TerrainLight(object) => {
+            if ui.button("Generic").clicked() {
+                *object = TerrainLight::Generic;
+                *changed = true;
+            }
+            if ui.button("Custom").clicked() {
+                *object = TerrainLight::Custom {
+                    color: default(),
+                    intensity: 200.,
+                    shadows: false,
+                };
+                *changed = true;
+            }
+
+            match object {
+                TerrainLight::Custom {
+                    color,
+                    intensity,
+                    shadows,
+                } => {
+                    ui.label("Light: Custom");
+                    color_field_rgb(ui, changed, "color", color);
+                    simple_slider_field(ui, changed, " intensity", intensity, 10. ..=400.);
+                    *changed |= ui.checkbox(shadows, "shadows").changed();
+                }
+                TerrainLight::Generic => {
+                    ui.label("Light: Generic");
+                }
+            }
         }
         LevelObjectData::None => {
             ui.label("None");
