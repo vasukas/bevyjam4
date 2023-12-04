@@ -43,8 +43,18 @@ fn draw_hud(mut egui_ctx: EguiContexts, level: Res<CurrentLevel>) {
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {
-        let name = &level.data.name;
-        ui.label(format!("Level: {name}. HP: 100%"));
+        let style = ui.style_mut();
+        style.visuals.window_fill = Color::BLACK.with_a(0.7).to_egui();
+        style.visuals.window_stroke = egui::Stroke::NONE; // no border
+        style.visuals.popup_shadow = egui::epaint::Shadow::NONE;
+
+        egui::Frame::popup(style).show(ui, |ui| {
+            ui.visuals_mut().override_text_color = Color::WHITE.to_egui().into();
+            ui.label(format!("HP: {}", 100));
+
+            ui.visuals_mut().override_text_color = egui::Color32::from_gray(192).into();
+            ui.small(format!("\"{}\"", level.data.name));
+        });
     });
 }
 
