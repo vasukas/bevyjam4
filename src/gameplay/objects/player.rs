@@ -1,18 +1,31 @@
 use crate::app::scheduling::SpawnSet;
 use crate::gameplay::mechanics::movement::MovementController;
+use crate::gameplay::mechanics::MechanicSet;
 use crate::gameplay::physics::TypicalBody;
 use crate::gameplay::utils::RotateToTarget;
 use crate::utils::bevy::commands::FallibleCommands;
 use bevy::prelude::*;
 
-#[derive(Component, Default)]
-pub struct Player;
+#[derive(Component, Debug, Default)]
+pub struct Player {
+    pub state: PlayerState,
+
+    pub input_walking: bool,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum PlayerState {
+    #[default]
+    Idle,
+    Walking,
+}
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostUpdate, spawn_player.in_set(SpawnSet::Roots));
+        app.add_systems(PostUpdate, spawn_player.in_set(SpawnSet::Roots))
+            .add_systems(Update, update_player_state.after(MechanicSet::Reaction));
     }
 }
 
@@ -37,5 +50,15 @@ fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
                 RotateToTarget::new_from_time(0.35),
             ),
         );
+    }
+}
+
+fn update_player_state(mut player: Query<&mut Player>) {
+    for mut player in player.iter_mut() {
+        if std::mem::take(&mut player.input_walking) {
+            player.state = PlayerState::Walking;
+        } else {
+            player.state = PlayerState::Idle;
+        }
     }
 }

@@ -27,7 +27,7 @@ pub struct LogSettings {
     pub show_all: bool,
 
     /// Ignored if [`Self::show_all`] is `true`
-    pub show_errors: bool,
+    pub hide_errors: bool,
 }
 
 /// Debug options

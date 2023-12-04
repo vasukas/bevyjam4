@@ -172,7 +172,12 @@
             align: Bottom,
             data: TerrainWall(Generic),
         ),
+        (41): (
+            pos: (1.0, -1.0),
+            align: Top,
+            data: TerrainLight(Generic),
+        ),
     },
-    last_object_id: 37,
+    last_object_id: 41,
     name: "Ground Zero",
 )

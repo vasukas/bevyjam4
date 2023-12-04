@@ -7,6 +7,7 @@ use crate::gameplay::master::level::current::CurrentLevel;
 use crate::gameplay::mechanics::movement::MovementController;
 use crate::gameplay::mechanics::MechanicSet;
 use crate::gameplay::objects::player::Player;
+use crate::gameplay::utils::rotate_to_target;
 use crate::gameplay::utils::RotateToTarget;
 use crate::utils::bevy_egui::*;
 use bevy::prelude::*;
@@ -19,7 +20,12 @@ impl Plugin for HudPlugin {
         app.add_systems(
             Update,
             (
-                (draw_hud, player_input.before(MechanicSet::Input))
+                (
+                    draw_hud,
+                    player_input
+                        .before(MechanicSet::Input)
+                        .before(rotate_to_target),
+                )
                     .run_if(in_state(MenuState::None).and_then(in_state(EditorEnabled::No))),
                 toggle_help_menu,
                 draw_help_menu.run_if(in_state(MenuState::Help)),
@@ -46,11 +52,12 @@ fn player_input(
     actions: Res<ActionState<PlayerActions>>,
     mut players: Query<(&mut RotateToTarget, &mut MovementController, &mut Player)>,
 ) {
-    for (mut rotate, mut mvmt, mut _player) in players.iter_mut() {
+    for (mut rotate, mut mvmt, mut player) in players.iter_mut() {
         let dir = action_axis_xy(&actions, PlayerActions::Movement);
 
         if dir.length() > 0.01 {
             rotate.target_dir = dir;
+            player.input_walking = true;
         }
 
         mvmt.target_dir = dir;

@@ -87,7 +87,7 @@ fn log_messages(
                 if !settings.log.show_all {
                     if !match event.level {
                         Level::TRACE | Level::DEBUG | Level::INFO | Level::WARN => false,
-                        Level::ERROR => settings.log.show_errors,
+                        Level::ERROR => !settings.log.hide_errors,
                     } {
                         continue;
                     }

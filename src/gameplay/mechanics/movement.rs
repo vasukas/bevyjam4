@@ -15,9 +15,6 @@ pub struct MovementController {
 
     /// Unitless force coefficient - larger it is, more responsive movement is
     pub k_force: f32,
-
-    /// Current velocity
-    pub velocity: Vec2,
 }
 
 impl MovementController {
@@ -37,7 +34,6 @@ impl Default for MovementController {
             target_dir: default(),
             speed: 6.,
             k_force: 150.,
-            velocity: Vec2::ZERO,
         }
     }
 }

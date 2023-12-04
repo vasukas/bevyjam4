@@ -27,7 +27,9 @@ impl<'w> TrackAssets<'w> {
     }
 }
 
-/// Sent when all assets are loaded, only once per application run
+/// Sent when all assets are loaded, only once per application run.
+///
+/// Sent in [`Last`] schedule.
 #[derive(Event)]
 pub struct LoadedTrackedAssets;
 

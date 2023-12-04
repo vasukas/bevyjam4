@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+mod animation_ctl;
 mod assets;
 mod player;
 mod sprite;
@@ -17,6 +18,7 @@ impl Plugin for ObjectsPlugin {
             terrain::TerrainPlugin,
             player::PlayerPlugin,
             sprite::SpritePlugin,
+            animation_ctl::AnimationCtlPlugin,
         ));
     }
 }

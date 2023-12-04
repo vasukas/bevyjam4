@@ -18,7 +18,8 @@ MVP goals (not neccessary in that order):
 - (particle) effects for all that;
 
 - level with a couple of rooms/corridors;
-- actual graphics (be it 2D or 3D).
++ actual graphics (be it 2D or 3D);
+- more graphics.
 
 
 

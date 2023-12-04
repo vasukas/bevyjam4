@@ -29,6 +29,7 @@ impl Plugin for LevelEditorPlugin {
             .init_resource::<Editor>()
             .add_systems(Startup, load_editor_tools)
             .add_systems(OnEnter(MenuState::LevelEditor), enable_editor)
+            .add_systems(OnExit(EditorEnabled::Yes), delete_editor_camera)
             .add_systems(
                 Update,
                 (
@@ -160,6 +161,7 @@ fn draw_editor_menu(
                     ("Script point", LevelObjectData::ScriptPoint(default())),
                     ("Wall", LevelObjectData::TerrainWall(default())),
                     ("Floor", LevelObjectData::TerrainFloor(default())),
+                    ("Light", LevelObjectData::TerrainLight(default())),
                 ] {
                     if ui.button(name).clicked() {
                         tools.add_object.data = object;
@@ -250,6 +252,16 @@ fn edit_object(
         LevelObjectData::ScriptPoint(object) => {
             ui.label("Script point");
             text_field(ui, changed, "ID", &mut object.id);
+
+            ui.small("Set ID:");
+            let mut id_button = |ui: &mut egui::Ui, value: &str| {
+                if ui.button(value).clicked() {
+                    object.id = value.to_string();
+                }
+            };
+            ui.horizontal(|ui| {
+                id_button(ui, "player");
+            });
         }
         LevelObjectData::TerrainWall(_object) => {
             ui.label("Wall");
@@ -434,6 +446,12 @@ fn spawn_editor_camera(mut commands: Commands, camera: Query<(), With<EditorCame
             },
             EditorCamera,
         ));
+    }
+}
+
+fn delete_editor_camera(mut commands: Commands, camera: Query<Entity, With<EditorCamera>>) {
+    for entity in camera.iter() {
+        commands.try_despawn_recursive(entity);
     }
 }
 

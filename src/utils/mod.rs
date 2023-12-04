@@ -5,3 +5,4 @@ pub mod bevy_egui;
 pub mod math_algorithms;
 pub mod misc_utils;
 pub mod plugins;
+pub mod random;

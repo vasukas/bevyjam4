@@ -60,7 +60,8 @@ impl Plugin for UtilsPlugin {
 
 pub fn rotate_to_target(mut entities: Query<(&mut Transform, &RotateToTarget)>, time: Res<Time>) {
     for (mut transform, target) in entities.iter_mut() {
-        let target_angle = target.target_dir.angle_between(Vec2::X);
+        // TODO: why negative? needed for player character
+        let target_angle = -target.target_dir.angle_between(Vec2::X);
         let target_rot = Quat::from_rotation_z(target_angle);
 
         let max_delta = target.rotation_speed * time.delta_seconds();
