@@ -5,7 +5,11 @@ edition = "2021"
 
 [features]
 default = ["dev_build"]
-dev_build = ["bevy/dynamic_linking"]  # faster recompilation, but should be disabled for release builds
+dev_build = [
+    # faster recompilation, but should be disabled for release builds (and WASM)
+    "bevy/dynamic_linking",
+    "bevy_rapier2d/debug-render-2d",
+]
 
 [dependencies]
 bevy = { version = "0.12", default-features = false, features = [

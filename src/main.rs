@@ -29,6 +29,10 @@ fn main() {
             gameplay::GameplayPlugin,
             presentation::PresentationPlugin,
         ))
+        .insert_resource(GizmoConfig {
+            depth_bias: -1., // always render in front
+            ..default()
+        })
         .add_systems(Update, exit_on_ctrl_q)
         .run()
 }

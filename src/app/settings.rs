@@ -35,7 +35,9 @@ pub struct LogSettings {
 #[serde(default)]
 pub struct DebugSettings {
     pub developer_mode: bool,
+
     pub show_fps: bool,
+    pub show_physics: bool,
 
     /// On startup go to play last played level
     pub quick_start: bool,
@@ -112,6 +114,7 @@ fn apply_settings(
     settings: Res<AppSettings>,
     mut egui_settings: ResMut<EguiSettings>,
     mut window: Query<&mut Window, With<PrimaryWindow>>,
+    #[cfg(feature = "dev_build")] mut rapier: ResMut<bevy_rapier2d::render::DebugRenderContext>,
 ) {
     egui_settings.scale_factor = settings.graphics.ui_scale as f64;
 
@@ -120,5 +123,10 @@ fn apply_settings(
             true => WindowMode::BorderlessFullscreen,
             false => WindowMode::Windowed,
         };
+    }
+
+    #[cfg(feature = "dev_build")]
+    {
+        rapier.enabled = settings.debug.show_physics;
     }
 }

@@ -47,6 +47,10 @@ fn draw_settings_menu(
                         .changed();
 
                     changed |= ui
+                        .checkbox(&mut settings.debug.show_physics, "Debug physics render")
+                        .changed();
+
+                    changed |= ui
                         .checkbox(&mut settings.debug.quick_start, "On startup: Continue")
                         .changed();
 

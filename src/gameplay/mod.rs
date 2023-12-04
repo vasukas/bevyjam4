@@ -3,6 +3,7 @@ use bevy::prelude::*;
 pub mod master;
 pub mod mechanics;
 pub mod objects;
+pub mod physics;
 pub mod utils;
 
 pub struct GameplayPlugin;
@@ -13,6 +14,7 @@ impl Plugin for GameplayPlugin {
             master::MasterPlugin,
             objects::ObjectsPlugin,
             mechanics::MechanicsPlugin,
+            physics::PhysicsPlugin,
         ));
     }
 }
