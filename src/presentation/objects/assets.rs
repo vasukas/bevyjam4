@@ -7,8 +7,12 @@ use bevy::utils::HashMap;
 #[derive(Resource)]
 pub struct ObjectAssets {
     pub model_jimbo: ModelAsset,
+
     pub scene_floor: Handle<Scene>,
     pub scene_wall: Handle<Scene>,
+
+    /// 1x1x1 cube
+    pub mesh_cube: Handle<Mesh>,
 }
 
 pub struct ModelAsset {
@@ -44,11 +48,14 @@ impl Plugin for AssetsPlugin {
     }
 }
 
-fn load_assets(mut track: TrackAssets, mut commands: Commands) {
+fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     commands.insert_resource(ObjectAssets {
         model_jimbo: ModelAsset::new(track.load_and_track("models/jimbo.gltf")),
+
         scene_floor: track.load_and_track("models/floor.gltf#Scene0"),
         scene_wall: track.load_and_track("models/wall.gltf#Scene0"),
+
+        mesh_cube: meshes.add(shape::Cube::default().into()),
     });
 }
 

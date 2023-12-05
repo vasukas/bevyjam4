@@ -59,54 +59,56 @@ fn spawn_terrain_light(
     new: Query<(Entity, &TerrainLight), Added<TerrainLight>>,
     mut commands: Commands,
     settings: Res<AppSettings>,
+    assets: Res<ObjectAssets>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, object) in new.iter() {
-        let shadows_enabled = settings.graphics.shadows;
-
-        // up and away from wall
-        let transform = Transform::from_xyz(0., -0.5, 2.5);
-
-        match *object {
+        let (color, intensity, shadows) = match *object {
             TerrainLight::Custom {
                 color,
                 intensity,
                 shadows,
-            } => {
-                commands.try_with_children(entity, move |parent| {
-                    let shadows_enabled = shadows && shadows_enabled;
-                    let mut child = parent.spawn(PointLightBundle {
-                        point_light: PointLight {
-                            color,
-                            intensity,
-                            shadows_enabled,
-                            ..default()
-                        },
-                        transform,
-                        ..default()
-                    });
-                    if shadows_enabled {
-                        child.insert(LightWithShadows);
-                    }
-                });
-            }
+            } => (color, intensity, shadows),
 
-            TerrainLight::Generic => {
-                commands.try_with_children(entity, move |parent| {
-                    parent.spawn((
-                        PointLightBundle {
-                            point_light: PointLight {
-                                color: Color::ALICE_BLUE,
-                                intensity: 200.,
-                                shadows_enabled,
-                                ..default()
-                            },
-                            transform,
-                            ..default()
-                        },
-                        LightWithShadows,
-                    ));
-                });
+            TerrainLight::Generic => (Color::ALICE_BLUE, 200., true),
+        };
+
+        let light_transform = Transform::from_xyz(0., -0.5, 2.5); // up and away from wall
+        let pbr_transform = Transform::from_xyz(0., -0.15, light_transform.translation.z)
+            .with_scale(Vec3::splat(0.2));
+        let pbr_intensity = 2.;
+
+        let shadows_enabled = shadows && settings.graphics.shadows;
+
+        let pbr = PbrBundle {
+            mesh: assets.mesh_cube.clone(),
+            material: materials.add(StandardMaterial {
+                base_color: color * pbr_intensity,
+                unlit: true,
+                ..default()
+            }),
+            transform: pbr_transform,
+            ..default()
+        };
+
+        commands.try_with_children(entity, move |parent| {
+            let mut child = parent.spawn(PointLightBundle {
+                point_light: PointLight {
+                    color,
+                    intensity,
+                    shadows_enabled,
+                    ..default()
+                },
+                transform: light_transform,
+                ..default()
+            });
+            if shadows_enabled {
+                child.insert(LightWithShadows);
             }
-        }
+            // show light fixture for lamps
+            if shadows {
+                parent.spawn(pbr);
+            }
+        });
     }
 }
