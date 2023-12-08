@@ -52,11 +52,13 @@ fn spawn_projectiles(
     materials: Res<Materials>,
 ) {
     for (entity, object) in new.iter() {
-        let _ = object;
-
         let bundle = PbrBundle {
             mesh: assets.mesh_sphere.clone(),
             material: materials.projectile.clone(),
+            transform: {
+                let scale = object.radius * 2.;
+                Transform::from_xyz(0., 0., 0.8).with_scale(Vec3::new(scale * 1.5, scale, scale))
+            },
             ..default()
         };
 

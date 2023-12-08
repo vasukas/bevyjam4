@@ -7,7 +7,6 @@ use crate::gameplay::objects::player::Player;
 use crate::gameplay::physics::PhysicsType;
 use crate::gameplay::utils::RotateToTarget;
 use crate::utils::bevy::commands::FallibleCommands;
-use crate::utils::bevy::misc_utils::ExtendedTimer;
 use crate::utils::math_algorithms::map_linear_range;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -83,7 +82,7 @@ impl Plugin for AiPlugin {
     }
 }
 
-fn spawn(new_shoot: Query<Entity, With<Shoot>>, mut commands: Commands) {
+fn spawn(new_shoot: Query<Entity, Added<Shoot>>, mut commands: Commands) {
     for entity in new_shoot.iter() {
         commands.try_insert(entity, ShootState::default());
     }
@@ -154,18 +153,21 @@ fn rotate(mut entities: Query<(&mut RotateToTarget, &Target), Without<Dead>>) {
 }
 
 fn shoot(
-    mut shooters: Query<(&Shoot, &mut ShootState, &Target, &GlobalTransform), Without<Dead>>,
+    mut shooters: Query<
+        (Entity, &Shoot, &mut ShootState, &Target, &GlobalTransform),
+        Without<Dead>,
+    >,
     mut commands: Commands,
     time: Res<Time>,
 ) {
-    for (shoot, mut state, target, pos) in shooters.iter_mut() {
+    for (entity, shoot, mut state, target, pos) in shooters.iter_mut() {
         let Some(target) = target.found.filter(|_| target.can_react()) else { continue; };
 
         state.cooldown.tick(time.delta());
 
-        if state.cooldown.finished() {
+        for _ in 0..state.cooldown.times_finished_this_tick() {
             let cooldown = shoot.period;
-            state.cooldown = Timer::once(cooldown);
+            state.cooldown = Timer::new(cooldown, TimerMode::Repeating);
 
             commands.spawn(
                 shoot

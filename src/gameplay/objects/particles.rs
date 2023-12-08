@@ -22,9 +22,15 @@ impl Particle {
         }
     }
 
+    fn count(self) -> usize {
+        match self {
+            Self::ProjectileImpact => 8,
+        }
+    }
+
     fn overload_power(self) -> f32 {
         match self {
-            Self::ProjectileImpact => 0.25,
+            Self::ProjectileImpact => 1. / self.count() as f32,
         }
     }
 
@@ -64,10 +70,11 @@ impl Plugin for ParticlesPlugin {
 }
 
 fn particle_events(mut projectile_impact: EventReader<ProjectileImpact>, mut commands: Commands) {
-    for ProjectileImpact { pos, damage } in projectile_impact.read().copied() {
-        let (count, ty, base_distance) = match damage {
-            _ => (8, Particle::ProjectileImpact, 1.),
+    for ProjectileImpact { pos, projectile } in projectile_impact.read().copied() {
+        let (ty, base_distance) = match projectile.damage {
+            _ => (Particle::ProjectileImpact, 1.),
         };
+        let count = ty.count();
 
         for _ in 0..count {
             let dir = Vec2::random_dir() * (base_distance * 0.5..base_distance * 1.5).random();

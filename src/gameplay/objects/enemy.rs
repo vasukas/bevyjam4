@@ -37,7 +37,7 @@ fn spawn_player(new: Query<Entity, Added<Enemy>>, mut commands: Commands) {
                 //
                 Target::default(),
                 Shoot {
-                    period: Duration::from_millis(1500),
+                    period: Duration::from_millis(50),
                     projectile: Projectile::default(),
                 },
             ),

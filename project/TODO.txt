@@ -6,13 +6,12 @@ MVP goals (not neccessary in that order):
 + enemies standing and shooting (slow projectiles, periodic);
 + player has 2-3 HP, no healing
 
-    - (maybe) real graphics for projectile and impact
-    - player reacts to damage
-    - fix
-        - enemy rate of fire
-        - no impact projectiles?
-        - enemy line-of-sight check
-        - adjust health & damage & overload for high rate of fire
+- fix
+    + enemy rate of fire
+    - no impact particles
+    - enemy line-of-sight check
+    + adjust health & damage & overload for high rate of fire
+    - player hit & death animations don't play (they are activated! what the hell!)
 
 - barrels
 - gun: fire
@@ -33,6 +32,8 @@ Extra goals:
 - level decorations
 
 - sounds
+- real graphics for projectiles and particles
+
 - slowdown effect
 - "Application is not responding. .... Well done!" message
 
@@ -42,6 +43,8 @@ Extra goals:
 
 - backgrounds (scrolling stars, partially hidden by the ship)
 - poster image, for itch page and menu background
+
+- particle count multiplier (for increasing performance)
 
 
 
@@ -62,14 +65,15 @@ Release
 - make window take whole page
 
 + add list of all controls (on F1 key; mention that when the game starts)
-- show controls in-world instead of separate menu
 
 - check all TODOs
 
 
 
 
-Improvements
+Improvements (post-release)
+
+- show controls & objectives in-world instead of separate menu
 
 - add keybinds;
 

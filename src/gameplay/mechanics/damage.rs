@@ -10,7 +10,7 @@ use bevy::prelude::*;
 pub struct Projectile {
     pub damage: u32,
     pub speed: f32,
-    pub size: f32,
+    pub radius: f32,
 }
 
 impl Projectile {
@@ -24,7 +24,7 @@ impl Projectile {
             ),
             //
             RigidBody::Dynamic,
-            Collider::ball(self.size),
+            Collider::ball(self.radius),
             Velocity::linear(direction * self.speed),
             ColliderMassProperties::Mass(5.),
             CollidingEntities::default(),
@@ -40,8 +40,8 @@ impl Default for Projectile {
     fn default() -> Self {
         Self {
             damage: 1,
-            speed: 10.,
-            size: 0.3,
+            speed: 6.,
+            radius: 0.15,
         }
     }
 }
@@ -73,7 +73,7 @@ pub struct Dead;
 #[derive(Event, Clone, Copy)]
 pub struct ProjectileImpact {
     pub pos: Vec2,
-    pub damage: u32,
+    pub projectile: Projectile,
 }
 
 ///
@@ -94,11 +94,9 @@ fn projectile(
     mut impacts: EventWriter<ProjectileImpact>,
 ) {
     for (proj_entity, projectile, colliding, pos) in projectiles.iter() {
-        let damage = projectile.damage;
-
         for victim in colliding.iter() {
             if let Ok(mut health) = victims.get_mut(victim) {
-                if health.reduce(damage) {
+                if health.reduce(projectile.damage) {
                     commands.try_insert(victim, Dead);
                 }
             }
@@ -108,7 +106,7 @@ fn projectile(
             commands.try_despawn_recursive(proj_entity);
             impacts.send(ProjectileImpact {
                 pos: pos.translation().truncate(),
-                damage,
+                projectile: *projectile,
             })
         }
     }
@@ -116,6 +114,7 @@ fn projectile(
 
 fn remove_dead_colliders(entity: Query<Entity, Added<Dead>>, mut commands: Commands) {
     for entity in entity.iter() {
+        commands.try_remove::<RigidBody>(entity);
         commands.try_remove::<Collider>(entity);
     }
 }

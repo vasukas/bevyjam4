@@ -5,6 +5,8 @@ use super::assets::ObjectAssets;
 use super::utils::rotate_3to2_tr;
 use super::WorldCameraBundle;
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::mechanics::damage::Dead;
+use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::objects::player::Player;
 use crate::gameplay::objects::player::PlayerState;
 use crate::utils::bevy::commands::ExtendedEntityMut;
@@ -40,14 +42,19 @@ struct PlayerCamera;
 struct PlayerData {
     model: Entity,
     idle_for: Duration,
+    had_health: u32,
 }
 
+/// In order of increasing priority
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum PlayerAnimation {
     Idle,
     LookAround,
     LookBack,
     Walking,
+    Hit,
+    Dead,
+    Death,
 }
 
 impl Into<usize> for PlayerAnimation {
@@ -63,6 +70,9 @@ impl PlayerAnimation {
             Self::LookAround => ("look_around", false, 3.),
             Self::LookBack => ("look_back", false, 3.),
             Self::Walking => ("walk", true, 0.8),
+            Self::Hit => ("hit", false, 0.4),
+            Self::Dead => ("dead", true, 1.),
+            Self::Death => ("death", false, 1.),
         };
         animation.layer(self, model.animation(name), repeat, 1. / duration)
     }
@@ -105,6 +115,7 @@ fn spawn_player(
             entity.insert(PlayerData {
                 model: id,
                 idle_for: default(),
+                had_health: default(),
             });
         });
 
@@ -133,17 +144,28 @@ fn camera_tracking(
 }
 
 fn update_player_animation(
-    mut player: Query<(&Player, &mut PlayerData)>,
+    mut player: Query<(&Player, &mut PlayerData, &Health)>,
     mut animations: Query<&mut AnimationCtl>,
     time: Res<Time>,
+    died: Query<(), (With<Player>, Added<Dead>)>,
 ) {
     let idle_after = Duration::from_secs(1);
     let idle_check_period = Duration::from_secs(3);
     let idle_chance = 0.5;
     let idle_chance_around = 0.7;
 
-    for (player, mut data) in player.iter_mut() {
+    for (player, mut data, health) in player.iter_mut() {
         let Ok(mut animation) = animations.get_mut(data.model) else { continue; };
+
+        if health.value < data.had_health {
+            data.had_health = health.value;
+            animation.set_active(PlayerAnimation::Hit, true);
+        }
+
+        if !died.is_empty() {
+            animation.set_active(PlayerAnimation::Dead, true);
+            animation.set_active(PlayerAnimation::Death, true);
+        }
 
         // random idle animations
         if player.state == PlayerState::Idle {

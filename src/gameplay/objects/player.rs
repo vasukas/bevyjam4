@@ -32,7 +32,7 @@ impl Plugin for PlayerPlugin {
 }
 
 const PLAYER_RADIUS: f32 = 0.2;
-pub const PLAYER_HEALTH: u32 = 3;
+pub const PLAYER_HEALTH: u32 = 30;
 
 fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
     for entity in new.iter() {

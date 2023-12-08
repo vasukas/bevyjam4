@@ -76,7 +76,7 @@ fn draw_hud(
 
 fn player_input(
     actions: Res<ActionState<PlayerActions>>,
-    mut players: Query<(&mut RotateToTarget, &mut MovementController, &mut Player)>,
+    mut players: Query<(&mut RotateToTarget, &mut MovementController, &mut Player), Without<Dead>>,
 ) {
     for (mut rotate, mut mvmt, mut player) in players.iter_mut() {
         let dir = action_axis_xy(&actions, PlayerActions::Movement);
