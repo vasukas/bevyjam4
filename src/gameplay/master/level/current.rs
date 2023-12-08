@@ -2,13 +2,9 @@ use super::data::LevelData;
 use super::spawn::DespawnGameObjects;
 use super::spawn::SpawnObject;
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::master::level_progress::LevelList;
 use crate::utils::misc_utils::ExtendedEventReader;
-use bevy::asset::AssetLoader;
-use bevy::asset::AsyncReadExt as _;
-use bevy::asset::LoadState;
 use bevy::prelude::*;
-use bevy::utils::BoxedFuture;
-use thiserror::Error;
 
 /// Change current level
 #[derive(Event, Debug)]
@@ -36,7 +32,6 @@ pub struct CurrentLevel {
 #[derive(Event)]
 pub struct LevelLoaded {
     pub id: String,
-    pub name: String,
 }
 
 pub struct CurrentPlugin;
@@ -46,60 +41,13 @@ impl Plugin for CurrentPlugin {
         app.init_resource::<CurrentLevel>()
             .add_event::<LevelCommand>()
             .add_event::<LevelLoaded>()
-            .init_asset::<LevelData>()
-            .init_asset_loader::<LevelLoader>()
             .add_systems(
                 PostUpdate,
-                (
-                    execute_level_commands
-                        .before(SpawnSet::first())
-                        .run_if(on_event::<LevelCommand>()),
-                    complete_pending_level_load.run_if(resource_exists::<PendingLevelLoad>()),
-                ),
+                (execute_level_commands
+                    .before(SpawnSet::first())
+                    .run_if(on_event::<LevelCommand>()),),
             );
     }
-}
-
-/// Optional resource
-#[derive(Resource)]
-struct PendingLevelLoad {
-    handle: Handle<LevelData>,
-    id: String,
-}
-
-fn complete_pending_level_load(
-    mut spawn_object: EventWriter<SpawnObject>,
-    mut commands: Commands,
-    pending: Res<PendingLevelLoad>,
-    mut levels: ResMut<Assets<LevelData>>,
-    mut current: ResMut<CurrentLevel>,
-    asset_server: Res<AssetServer>,
-    mut loaded: EventWriter<LevelLoaded>,
-) {
-    let level = match levels.remove(&pending.handle) {
-        Some(level) => level,
-        None => {
-            let Some(LoadState::Failed) = asset_server.get_load_state(&pending.handle) else { return; };
-            error!("Failed to load level");
-            LevelData::default()
-        }
-    };
-
-    for (id, object) in level.objects() {
-        spawn_object.send(SpawnObject {
-            id,
-            object: object.clone(),
-        });
-    }
-
-    loaded.send(LevelLoaded {
-        id: pending.id.clone(),
-        name: level.name.clone(),
-    });
-
-    current.data = level;
-
-    commands.remove_resource::<PendingLevelLoad>();
 }
 
 fn execute_level_commands(
@@ -107,20 +55,24 @@ fn execute_level_commands(
     mut spawn_object: EventWriter<SpawnObject>,
     mut despawn_cmd: EventWriter<DespawnGameObjects>,
     mut current: ResMut<CurrentLevel>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    levels: Res<LevelList>,
+    mut loaded_event: EventWriter<LevelLoaded>,
 ) {
     if let Some(command) = level_commands.read_single("execute_level_commands") {
         info!("execute_level_commands: {command:?}");
 
         let (despawn, spawn) = match command {
             LevelCommand::Load(id) => {
-                commands.insert_resource(PendingLevelLoad {
-                    handle: asset_server.load(format!("levels/{}.level", id)),
+                let data = levels.data(&id);
+
+                *current = CurrentLevel {
                     id: id.clone(),
-                });
-                current.id = id.clone();
-                (true, false)
+                    data: data.clone(),
+                };
+
+                loaded_event.send(LevelLoaded { id: id.clone() });
+
+                (true, true)
             }
             LevelCommand::Reload => (true, true),
             LevelCommand::Unload => (true, false),
@@ -147,43 +99,5 @@ fn execute_level_commands(
                 });
             }
         }
-    }
-}
-
-#[derive(Default)]
-struct LevelLoader;
-
-#[non_exhaustive]
-#[derive(Debug, Error)]
-pub enum CustomAssetLoaderError {
-    /// An [IO](std::io) Error
-    #[error("Could load shader: {0}")]
-    Io(#[from] std::io::Error),
-    /// A [RON](ron) Error
-    #[error("Could not parse RON: {0}")]
-    RonSpannedError(#[from] ron::error::SpannedError),
-}
-
-impl AssetLoader for LevelLoader {
-    type Asset = LevelData;
-    type Settings = ();
-    type Error = CustomAssetLoaderError;
-
-    fn load<'a>(
-        &'a self,
-        reader: &'a mut bevy::asset::io::Reader,
-        _settings: &'a (),
-        _load_context: &'a mut bevy::asset::LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
-            let mut bytes = Vec::new();
-            reader.read_to_end(&mut bytes).await?;
-            let custom_asset = ron::de::from_bytes::<Self::Asset>(&bytes)?;
-            Ok(custom_asset)
-        })
-    }
-
-    fn extensions(&self) -> &[&str] {
-        &["level"]
     }
 }

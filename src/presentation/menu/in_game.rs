@@ -5,6 +5,7 @@ use crate::app::actions::ActionPrompt;
 use crate::app::actions::PlayerActions;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::level::current::CurrentLevel;
+use crate::gameplay::master::level_progress::LevelList;
 use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::mechanics::movement::MovementController;
@@ -41,6 +42,7 @@ impl Plugin for HudPlugin {
 fn draw_hud(
     mut egui_ctx: EguiContexts,
     level: Res<CurrentLevel>,
+    levels: Res<LevelList>,
     player: Query<&Health, (With<Player>, Without<Dead>)>,
 ) {
     let Ok(health) = player.get_single() else { return; };
@@ -70,7 +72,7 @@ fn draw_hud(
             ui.label(format!("HP: {hp:3}"));
 
             ui.visuals_mut().override_text_color = egui::Color32::from_gray(192).into();
-            ui.small(format!("\"{}\"", level.data.name));
+            ui.small(format!("\"{}\"", levels.name(&level.id)));
         });
     });
 }

@@ -3,12 +3,14 @@ use bevy::prelude::*;
 mod debug;
 mod in_game;
 mod level_editor;
+mod levels;
 mod log;
 mod main;
 mod messages;
 mod settings;
 mod startup;
 mod states;
+mod ui_const;
 
 pub use messages::{DelayedMessage, Message, MessageType};
 
@@ -26,6 +28,7 @@ impl Plugin for MenuPlugin {
             startup::StartupPlugin,
             in_game::HudPlugin,
             messages::MessagesPlugin,
+            levels::LevelsPlugin,
         ));
     }
 }

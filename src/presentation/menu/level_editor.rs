@@ -123,7 +123,6 @@ fn draw_editor_menu(
     mut tools: ResMut<EditorTools>,
 ) {
     let editor = &mut *editor;
-    let level = &mut level.data;
 
     EguiPopup {
         name: "draw_editor_menu",
@@ -138,7 +137,8 @@ fn draw_editor_menu(
 
             ui.heading("LEVEL");
 
-            text_field(ui, &mut changed, "Pretty name", &mut level.name);
+            ui.label(format!("Level ID: \"{}\"", &level.id));
+            let level = &mut level.data;
 
             if editor.unsaved_changes {
                 if ui.button("SAVE CHANGES").clicked() {

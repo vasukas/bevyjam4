@@ -17,11 +17,13 @@ pub enum MenuState {
     None,
 
     MainMenu,
+    LevelSelect,
     Settings,
     LevelEditor,
 
     ModalMessage,
     Help,
+    LevelLoading,
 }
 
 #[derive(Event, Default)]
@@ -100,7 +102,7 @@ fn on_back(
 ) {
     if actions.just_pressed(AppActions::ToggleMenu) || !event.is_empty() {
         let new_state = match state.get() {
-            MenuState::Startup => {
+            MenuState::Startup | MenuState::LevelLoading => {
                 return;
             }
             MenuState::None => previous.0,

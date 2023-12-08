@@ -13,12 +13,7 @@ MVP goals (not neccessary in that order):
 - fire effect
 - enemy overload
 
-- level progression (via elevators)
-    + elevator models & orientation
-    + elevator trigger zones
-    - level list & automatic checks
-    - fade to black on level change
-    - score screen?
++ level progression (via elevators)
 
 
 
@@ -39,7 +34,6 @@ Extra goals:
 
 - intro and outro
 - final boss (respawning barrels; speed challenge)
-    (don't forget to reset Scores::level when game is finished)
 
 - backgrounds (scrolling stars, partially hidden by the ship)
 - poster image, for itch page and menu background

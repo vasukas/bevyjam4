@@ -1,12 +1,11 @@
 use super::states::CloseMenu;
 use super::states::MenuState;
+use super::ui_const::UiConst;
 use crate::utils::bevy_egui::*;
 use crate::utils::math_algorithms::lerp;
 use crate::utils::misc_utils::DurationDivF32 as _;
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use bevy_egui::EguiSet;
-use bevy_egui::EguiSettings;
 use std::collections::VecDeque;
 use std::time::Duration;
 
@@ -27,6 +26,14 @@ impl Message {
         }
     }
 
+    pub fn error(text: impl Into<String>) -> Self {
+        Self {
+            header: "ERROR".into(),
+            text: text.into(),
+            ty: MessageType::Error,
+        }
+    }
+
     pub fn delay(self, by: Duration) -> DelayedMessage {
         DelayedMessage { message: self, by }
     }
@@ -38,8 +45,11 @@ pub enum MessageType {
     /// Pop-up notification intended for gameplay
     Notification,
 
+    /// System errors?
+    Error,
+
     /// Locks menu. Not real modal window - has only "OK" option.
-    _ModalNotification,
+    ModalNotification,
 }
 
 impl MessageType {
@@ -55,7 +65,7 @@ impl MessageType {
 
     fn modal(&self) -> bool {
         match self {
-            MessageType::_ModalNotification => true,
+            MessageType::ModalNotification => true,
             _ => false,
         }
     }
@@ -142,25 +152,10 @@ fn draw_and_update_messages(
     mut data: ResMut<MessageData>,
     time: Res<Time<Real>>,
     mut egui_ctx: EguiContexts,
-    egui_settings: Res<EguiSettings>,
-    window: Query<&Window, With<PrimaryWindow>>,
+    ui_const: UiConst,
     mut close_menu: EventWriter<CloseMenu>,
 ) {
-    // Screen size independent values. I think.
-    let ui_const = {
-        let dev_window_height = 720.;
-        let window_height = window
-            .get_single()
-            .map(|window| window.height())
-            .unwrap_or(dev_window_height);
-        let k_window = window_height / dev_window_height;
-
-        let dev_scale = 2.;
-        let scale = egui_settings.scale_factor as f32;
-        let k_scale = scale / dev_scale;
-
-        k_window * k_scale
-    };
+    let ui_const = ui_const.scale();
     let margin = 20. * ui_const;
     let text_size = 28. * ui_const;
     let popup_offset = Vec2::new(0., -20.) * ui_const;
@@ -186,7 +181,12 @@ fn draw_and_update_messages(
             let bg_alpha = 0.7;
             let bg_color_start = Color::rgb(0.3, 0.6, 0.6);
             let bg_color_main = Color::BLACK;
-            let text_color = Color::WHITE;
+
+            let text_color = match message.ty {
+                MessageType::Notification => Color::WHITE,
+                MessageType::Error => Color::ORANGE_RED,
+                MessageType::ModalNotification => Color::WHITE,
+            };
 
             let fade_in;
             let alpha;

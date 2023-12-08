@@ -1,4 +1,5 @@
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::master::level_progress::ImportantEnemy;
 use crate::gameplay::mechanics::ai::*;
 use crate::gameplay::mechanics::damage::Projectile;
 use crate::gameplay::physics::*;
@@ -40,6 +41,7 @@ fn spawn_player(new: Query<Entity, Added<Enemy>>, mut commands: Commands) {
                     period: Duration::from_millis(50),
                     projectile: Projectile::default(),
                 },
+                ImportantEnemy,
             ),
         );
     }

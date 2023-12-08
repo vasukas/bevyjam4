@@ -5,21 +5,21 @@ use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
 use crate::gameplay::objects::terrain::TerrainWall;
 use crate::utils::misc_utils::serde_sorted_map;
+use bevy::asset::AssetLoader;
+use bevy::asset::AsyncReadExt as _;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::f32::consts::FRAC_PI_2;
 use std::f32::consts::PI;
+use thiserror::Error;
 
 /// Size of a tile
 pub const TILE_SIZE: f32 = 2.;
 
 /// Half of size of a tile
 pub const HALF_TILE: f32 = TILE_SIZE / 2.;
-
-/// First level in new game
-pub const FIRST_LEVEL_ID: &str = "ground_zero";
 
 /// Level data
 #[derive(Clone, Serialize, Deserialize, Default, Asset, TypePath)]
@@ -28,9 +28,6 @@ pub struct LevelData {
     #[serde(serialize_with = "serde_sorted_map")]
     objects: HashMap<LevelObjectId, LevelObject>,
     last_object_id: u64,
-
-    /// Name shown to player
-    pub name: String,
 }
 
 impl LevelData {
@@ -160,4 +157,52 @@ pub enum LevelObjectData {
     #[default]
     #[serde(other)]
     None,
+}
+
+/// Asset loader
+pub struct DataPlugin;
+
+impl Plugin for DataPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_asset::<LevelData>()
+            .init_asset_loader::<LevelLoader>();
+    }
+}
+
+#[derive(Default)]
+struct LevelLoader;
+
+#[non_exhaustive]
+#[derive(Debug, Error)]
+pub enum CustomAssetLoaderError {
+    /// An [IO](std::io) Error
+    #[error("Could load shader: {0}")]
+    Io(#[from] std::io::Error),
+    /// A [RON](ron) Error
+    #[error("Could not parse RON: {0}")]
+    RonSpannedError(#[from] ron::error::SpannedError),
+}
+
+impl AssetLoader for LevelLoader {
+    type Asset = LevelData;
+    type Settings = ();
+    type Error = CustomAssetLoaderError;
+
+    fn load<'a>(
+        &'a self,
+        reader: &'a mut bevy::asset::io::Reader,
+        _settings: &'a (),
+        _load_context: &'a mut bevy::asset::LoadContext,
+    ) -> bevy::utils::BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+        Box::pin(async move {
+            let mut bytes = Vec::new();
+            reader.read_to_end(&mut bytes).await?;
+            let custom_asset = ron::de::from_bytes::<Self::Asset>(&bytes)?;
+            Ok(custom_asset)
+        })
+    }
+
+    fn extensions(&self) -> &[&str] {
+        &["level"]
+    }
 }

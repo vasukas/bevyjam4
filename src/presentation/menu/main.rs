@@ -3,7 +3,7 @@ use super::states::MenuState;
 use crate::app::scores::Scores;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::game_states::GameRunning;
-use crate::gameplay::master::level::data::FIRST_LEVEL_ID;
+use crate::gameplay::master::level_progress::LevelList;
 use crate::utils::bevy_egui::*;
 use bevy::app::AppExit;
 use bevy::prelude::*;
@@ -23,6 +23,7 @@ impl Plugin for MainPlugin {
                         .and_then(in_state(GameRunning::Yes))
                         .and_then(not(in_state(MenuState::LevelEditor))),
                 ),
+                crab,
             ),
         );
     }
@@ -36,6 +37,7 @@ fn draw_main_menu(
     mut close_menu: EventWriter<CloseMenu>,
     scores: Res<Scores>,
     mut exit: EventWriter<AppExit>,
+    levels: Res<LevelList>,
 ) {
     EguiPopup {
         name: "draw_main_menu",
@@ -54,7 +56,10 @@ fn draw_main_menu(
             }
             GameRunning::No => {
                 if let Some(level) = &scores.last_level {
-                    if ui.button(format!("Continue: {}", level.name)).clicked() {
+                    if ui
+                        .button(format!("Continue: {}", levels.name(&level.id)))
+                        .clicked()
+                    {
                         next_state.set(MenuState::None);
                         game_commands.send(GameCommand::Start {
                             level_id: level.id.clone(),
@@ -65,8 +70,12 @@ fn draw_main_menu(
                 if ui.button("New game").clicked() {
                     next_state.set(MenuState::None);
                     game_commands.send(GameCommand::Start {
-                        level_id: FIRST_LEVEL_ID.to_string(),
+                        level_id: levels.first(),
                     });
+                }
+
+                if ui.button("Select level").clicked() {
+                    next_state.set(MenuState::LevelSelect);
                 }
             }
         }
@@ -125,4 +134,36 @@ fn draw_menu_background(mut egui_ctx: EguiContexts) {
             Color::BLACK.with_a(alpha).to_egui(),
         );
     });
+}
+
+fn crab(mut egui_ctx: EguiContexts, state: Res<State<MenuState>>, mut hovered: Local<bool>) {
+    let show = match state.get() {
+        MenuState::Startup | MenuState::MainMenu | MenuState::LevelSelect | MenuState::Settings => {
+            true
+        }
+        MenuState::None
+        | MenuState::LevelEditor
+        | MenuState::ModalMessage
+        | MenuState::Help
+        | MenuState::LevelLoading => false,
+    };
+
+    if show {
+        EguiPopup {
+            name: "crab",
+            anchor: egui::Align2::RIGHT_BOTTOM,
+            order: egui::Order::Tooltip,
+            background: false,
+            ..default()
+        }
+        .show(egui_ctx.ctx_mut(), |ui| {
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Max), |ui| {
+                let text = match *hovered {
+                    true => "()_^^_()",
+                    false => "()_.._()",
+                };
+                *hovered = ui.label(egui::RichText::new(text).monospace()).hovered();
+            });
+        });
+    }
 }
