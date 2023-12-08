@@ -16,6 +16,9 @@ pub struct ObjectAssets {
     pub scene_barrel_red: Handle<Scene>,
     pub scene_barrel_blue: Handle<Scene>,
 
+    pub scene_elevator_enter: Handle<Scene>,
+    pub scene_elevator_exit: Handle<Scene>,
+
     /// 1x1x1 cube
     pub mesh_cube: Handle<Mesh>,
     /// 0.5-radius UV-sphere
@@ -69,6 +72,9 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
 
         scene_barrel_red: track.load_and_track("models/barrel_red.gltf#Scene0"),
         scene_barrel_blue: track.load_and_track("models/barrel_blue.gltf#Scene0"),
+
+        scene_elevator_enter: track.load_and_track("models/elevator_enter.glb#Scene0"),
+        scene_elevator_exit: track.load_and_track("models/elevator_exit.glb#Scene0"),
 
         mesh_cube: meshes.add(shape::Cube::default().into()),
         mesh_sphere: meshes.add(

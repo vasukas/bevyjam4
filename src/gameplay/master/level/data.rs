@@ -1,5 +1,6 @@
 use crate::gameplay::master::script_points::EnemySpawner;
 use crate::gameplay::master::script_points::ScriptPoint;
+use crate::gameplay::objects::elevators::Elevator;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
 use crate::gameplay::objects::terrain::TerrainWall;
@@ -82,6 +83,8 @@ pub struct LevelObjectId(u64);
 pub struct LevelObject {
     /// For tile-aligned objects: always center position
     pub pos: Vec2,
+    /// Rotation angle, if used
+    pub rotation_degrees: f32,
     pub align: LevelAlign,
     pub data: LevelObjectData,
 }
@@ -89,7 +92,8 @@ pub struct LevelObject {
 impl LevelObject {
     pub fn transform(&self) -> Transform {
         let pos = self.pos + self.align.offset();
-        let rotation = Quat::from_rotation_z(self.align.rotation_angle());
+        let rotation =
+            Quat::from_rotation_z(self.align.rotation_angle() + self.rotation_degrees.to_radians());
         Transform::from_translation(pos.extend(0.)).with_rotation(rotation)
     }
 }
@@ -147,6 +151,7 @@ impl LevelAlign {
 pub enum LevelObjectData {
     ScriptPoint(ScriptPoint),
     EnemySpawner(EnemySpawner),
+    Elevator(Elevator),
 
     TerrainWall(TerrainWall),
     TerrainFloor(TerrainFloor),

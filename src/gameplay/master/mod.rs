@@ -3,6 +3,7 @@ use bevy::prelude::*;
 mod game_script;
 pub mod game_states;
 pub mod level;
+pub mod level_progress;
 pub mod script_points;
 pub mod time_master;
 
@@ -16,6 +17,7 @@ impl Plugin for MasterPlugin {
             level::LevelPlugin,
             script_points::ScriptsPlugin,
             game_script::GameScriptPlugin,
+            level_progress::LevelProgressPlugin,
         ));
     }
 }

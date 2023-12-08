@@ -7,6 +7,7 @@ use crate::gameplay::master::level::current::LevelCommand;
 use crate::gameplay::master::level::data::*;
 use crate::gameplay::master::level::spawn::SpawnObject;
 use crate::gameplay::master::script_points::EnemySpawner;
+use crate::gameplay::objects::elevators::Elevator;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
 use crate::gameplay::objects::terrain::TerrainWall;
@@ -17,6 +18,7 @@ use crate::presentation::AdvancedGizmos;
 use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::bevy_egui::*;
 use crate::utils::plugins::userdata_plugin::Userdata;
+use crate::utils::random::RandomRange;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use itertools::Itertools as _;
@@ -265,6 +267,7 @@ fn make_object(ui: &mut egui::Ui) -> Option<LevelObjectData> {
     [
         ("Script point", LevelObjectData::ScriptPoint(default())),
         ("Enemy spawner", LevelObjectData::EnemySpawner(default())),
+        ("Elevator", LevelObjectData::Elevator(default())),
         ("Wall", LevelObjectData::TerrainWall(default())),
         ("Floor", LevelObjectData::TerrainFloor(default())),
         ("Light", LevelObjectData::TerrainLight(default())),
@@ -308,6 +311,15 @@ fn edit_object(
         });
     }
 
+    ui.horizontal(|ui| {
+        simple_slider_field(ui, changed, "°", &mut object.rotation_degrees, 0. ..=360.);
+        if ui.button("Random").clicked() {
+            object.rotation_degrees = (0. ..360.).random();
+            *changed = true;
+        }
+        ui.label("Rotation");
+    });
+
     match &mut object.data {
         LevelObjectData::ScriptPoint(object) => {
             ui.label("Script point");
@@ -328,6 +340,11 @@ fn edit_object(
             match object {
                 EnemySpawner::Regular => ui.label("Enemy spawner"),
             };
+        }
+
+        LevelObjectData::Elevator(object) => {
+            *changed |= ui.radio_value(object, Elevator::Enter, "Enter").changed();
+            *changed |= ui.radio_value(object, Elevator::Exit, "Exit").changed();
         }
 
         LevelObjectData::TerrainWall(object) => {
@@ -520,6 +537,7 @@ fn draw_labels(
             LevelObjectData::None => (0, "NONE".to_string()),
             LevelObjectData::ScriptPoint(object) => (1, format!("SP:{}", object.id)),
             LevelObjectData::EnemySpawner(_object) => (1, format!("Enemy")),
+            LevelObjectData::Elevator(_object) => (1, format!("Elevator")),
             LevelObjectData::TerrainWall(_) => (2, "Wall".to_string()),
             LevelObjectData::TerrainFloor(_) => (3, "Floor".to_string()),
             LevelObjectData::TerrainLight(_) => (4, "Light".to_string()),

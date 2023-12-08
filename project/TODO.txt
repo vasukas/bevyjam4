@@ -13,8 +13,12 @@ MVP goals (not neccessary in that order):
 - fire effect
 - enemy overload
 
-- rework jimbo anims
 - level progression (via elevators)
+    + elevator models & orientation
+    + elevator trigger zones
+    - level list & automatic checks
+    - fade to black on level change
+    - score screen?
 
 
 
@@ -22,6 +26,7 @@ MVP goals (not neccessary in that order):
 Extra goals:
 
 - on-screen indicator for being hit
+- rework jimbo anims
 
 - breakable pipes with water and electric panels
 - level decorations
@@ -46,7 +51,10 @@ Extra goals:
 
 Bugs
 
-...
+- elevator light position is invalid (and God knows where)
+- elevator light looks weird on exit cable
+
+- can't exit from editor to game: menu stuck in loop
 
 
 

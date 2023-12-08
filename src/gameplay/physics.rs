@@ -26,9 +26,9 @@ impl TypicalBody {
         Self::new(Collider::ball(radius))
     }
 
-    // pub fn new_box(half_extents: Vec2) -> Self {
-    //     Self::new(Collider::cuboid(half_extents.x, half_extents.y))
-    // }
+    pub fn new_box(half_extents: Vec2) -> Self {
+        Self::new(Collider::cuboid(half_extents.x, half_extents.y))
+    }
 
     pub fn mass(mut self, mass: f32) -> Self {
         self.mass = ColliderMassProperties::Mass(mass);
