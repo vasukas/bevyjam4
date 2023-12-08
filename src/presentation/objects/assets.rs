@@ -6,6 +6,7 @@ use bevy::utils::HashMap;
 
 #[derive(Resource)]
 pub struct ObjectAssets {
+    // don't forget to add new ones to load_models!
     pub model_jimbo: ModelAsset,
     pub model_tripod: ModelAsset,
 
@@ -33,7 +34,11 @@ impl ModelAsset {
     }
 
     pub fn animation(&self, name: &str) -> Handle<AnimationClip> {
-        self.animations.get(name).cloned().unwrap_or_default()
+        let anim = self.animations.get(name);
+        if anim.is_none() {
+            error!("animation \"{name}\" not found");
+        }
+        anim.cloned().unwrap_or_default()
     }
 
     fn new(gltf: Handle<Gltf>) -> Self {
@@ -85,4 +90,5 @@ fn load_models(mut assets: ResMut<ObjectAssets>, gltfs: Res<Assets<Gltf>>) {
     };
 
     load_model(&mut assets.model_jimbo);
+    load_model(&mut assets.model_tripod);
 }

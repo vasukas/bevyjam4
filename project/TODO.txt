@@ -6,11 +6,6 @@ MVP goals (not neccessary in that order):
 + enemies standing and shooting (slow projectiles, periodic);
 + player has 2-3 HP, no healing
 
-- fix
-    - player hit & death animations don't play (they are activated! what the hell!)
-       (tbh don't care about hit anims?)
-    - enemy models are invisible
-
 - barrels
 - gun: fire
 - gun: gravity
@@ -25,6 +20,8 @@ MVP goals (not neccessary in that order):
 
 
 Extra goals:
+
+- on-screen indicator for being hit
 
 - breakable pipes with water and electric panels
 - level decorations
@@ -58,9 +55,9 @@ Release
 
 - make itch.io page
     disable "Automatically start on page load" for sound to work
-- credit all used libraries and assets
+    maybe use other screen size than 1280x720? this will require changes in code!
 
-- make window take whole page
+- credit all used libraries and assets
 
 + add list of all controls (on F1 key; mention that when the game starts)
 

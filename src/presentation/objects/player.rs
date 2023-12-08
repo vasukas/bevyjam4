@@ -55,6 +55,7 @@ enum PlayerAnimation {
     Hit,
     Dead,
     Death,
+    // don't forget to add new ones to all()
 }
 
 impl Into<usize> for PlayerAnimation {
@@ -78,7 +79,16 @@ impl PlayerAnimation {
     }
 
     fn all() -> impl Iterator<Item = Self> {
-        [Self::Idle, Self::LookAround, Self::LookBack, Self::Walking].into_iter()
+        [
+            Self::Idle,
+            Self::LookAround,
+            Self::LookBack,
+            Self::Walking,
+            Self::Hit,
+            Self::Dead,
+            Self::Death,
+        ]
+        .into_iter()
     }
 
     fn make_ctl(model: &ModelAsset) -> AnimationCtl {
@@ -157,10 +167,11 @@ fn update_player_animation(
     for (player, mut data, health) in player.iter_mut() {
         let Ok(mut animation) = animations.get_mut(data.model) else { continue; };
 
-        if health.value < data.had_health {
-            data.had_health = health.value;
-            animation.set_active(PlayerAnimation::Hit, true);
-        }
+        // Hit animation is disabled - it looks janky and can't be seen through particles anyway
+        // if health.value < data.had_health {
+        //     animation.set_active(PlayerAnimation::Hit, true);
+        // }
+        data.had_health = health.value;
 
         if !died.is_empty() {
             animation.set_active(PlayerAnimation::Dead, true);

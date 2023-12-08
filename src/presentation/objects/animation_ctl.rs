@@ -137,7 +137,7 @@ fn update_controller(
                 let clip = player.animation_clip();
                 let clip_duration = clips.get(clip).map(|clip| clip.duration()).unwrap_or(0.);
 
-                if player.elapsed() >= clip_duration {
+                if player.elapsed() * layer.speed >= clip_duration {
                     layer.active = false;
                     ctl.playing = None;
                 }
@@ -148,8 +148,9 @@ fn update_controller(
         let new_playing = ctl
             .layers
             .iter()
-            .filter_map(|(id, layer)| layer.active.then_some(*id))
-            .max()
+            .rev()
+            .find(|(_, layer)| layer.active)
+            .map(|(id, _)| *id)
             .or(Some(0));
         if new_playing != ctl.playing {
             ctl.playing = new_playing;
@@ -167,5 +168,17 @@ fn update_controller(
             }
             player.set_speed(layer.speed);
         }
+
+        // disable all non-repeating animations below current
+        let playing_id = ctl.playing.unwrap_or(0);
+        ctl.layers
+            .iter_mut()
+            .rev()
+            .skip_while(|(id, _)| **id >= playing_id)
+            .for_each(|(_, layer)| {
+                if !layer.repeat {
+                    layer.active = false;
+                }
+            });
     }
 }
