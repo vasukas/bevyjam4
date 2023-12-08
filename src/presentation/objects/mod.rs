@@ -2,6 +2,8 @@ use bevy::prelude::*;
 
 mod animation_ctl;
 mod assets;
+mod enemy;
+mod other_objects;
 mod player;
 mod sprite;
 mod terrain;
@@ -20,6 +22,8 @@ impl Plugin for ObjectsPlugin {
             sprite::SpritePlugin,
             animation_ctl::AnimationCtlPlugin,
             utils::UtilsPlugin,
+            enemy::EnemyPlugin,
+            other_objects::OtherObjectsPlugin,
         ));
     }
 }

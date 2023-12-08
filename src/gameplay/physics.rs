@@ -26,9 +26,9 @@ impl TypicalBody {
         Self::new(Collider::ball(radius))
     }
 
-    pub fn new_box(half_extents: Vec2) -> Self {
-        Self::new(Collider::cuboid(half_extents.x, half_extents.y))
-    }
+    // pub fn new_box(half_extents: Vec2) -> Self {
+    //     Self::new(Collider::cuboid(half_extents.x, half_extents.y))
+    // }
 
     pub fn mass(mut self, mass: f32) -> Self {
         self.mass = ColliderMassProperties::Mass(mass);
@@ -50,6 +50,48 @@ impl TypicalBody {
 
     pub fn lock_rotation(self) -> impl Bundle {
         (self, LockedAxes::ROTATION_LOCKED)
+    }
+}
+
+/// How bodies interact
+#[derive(Clone, Copy)]
+pub enum PhysicsType {
+    /// Impenetrable by anything
+    Wall,
+    /// Collide only with walls
+    WallOnly,
+
+    /// Most level objects
+    Object,
+
+    Enemy,
+    EnemyProjectile,
+}
+
+impl PhysicsType {
+    pub fn groups(self) -> CollisionGroups {
+        let wall = Group::GROUP_1;
+        let object = Group::GROUP_2;
+        let enemy = Group::GROUP_3;
+        let enemy_proj = Group::GROUP_4;
+        let wall_only = Group::GROUP_5;
+
+        let (memberships, filters) = match self {
+            PhysicsType::Wall => (wall, Group::all()),
+            PhysicsType::WallOnly => (wall_only, wall),
+            PhysicsType::Object => (object, Group::all()),
+            PhysicsType::Enemy => (enemy, Group::all()),
+            PhysicsType::EnemyProjectile => (enemy_proj, wall | object),
+        };
+
+        CollisionGroups {
+            memberships,
+            filters,
+        }
+    }
+
+    pub fn filter(self) -> QueryFilter<'static> {
+        QueryFilter::new().groups(self.groups())
     }
 }
 

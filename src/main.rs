@@ -1,3 +1,4 @@
+use bevy::asset::AssetMetaCheck;
 use bevy::log::Level;
 use bevy::prelude::*;
 
@@ -8,6 +9,7 @@ mod utils;
 
 fn main() {
     App::new()
+        .insert_resource(AssetMetaCheck::Never) // don't load .meta files (required for itch.io)
         .add_plugins((
             // TODO: remove log filtering
             utils::plugins::log_plugin::LogPlugin::default().with_filter("bevy_gltf", Level::ERROR),

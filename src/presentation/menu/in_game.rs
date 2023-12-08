@@ -4,9 +4,12 @@ use crate::app::actions::action_axis_xy;
 use crate::app::actions::ActionPrompt;
 use crate::app::actions::PlayerActions;
 use crate::gameplay::master::level::current::CurrentLevel;
+use crate::gameplay::mechanics::damage::Dead;
+use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::mechanics::movement::MovementController;
 use crate::gameplay::mechanics::MechanicSet;
 use crate::gameplay::objects::player::Player;
+use crate::gameplay::objects::player::PLAYER_HEALTH;
 use crate::gameplay::utils::rotate_to_target;
 use crate::gameplay::utils::RotateToTarget;
 use crate::utils::bevy_egui::*;
@@ -34,7 +37,13 @@ impl Plugin for HudPlugin {
     }
 }
 
-fn draw_hud(mut egui_ctx: EguiContexts, level: Res<CurrentLevel>) {
+fn draw_hud(
+    mut egui_ctx: EguiContexts,
+    level: Res<CurrentLevel>,
+    player: Query<&Health, (With<Player>, Without<Dead>)>,
+) {
+    let Ok(health) = player.get_single() else { return; };
+
     EguiPopup {
         name: "draw_hud",
         anchor: egui::Align2::CENTER_TOP,
@@ -49,8 +58,15 @@ fn draw_hud(mut egui_ctx: EguiContexts, level: Res<CurrentLevel>) {
         style.visuals.popup_shadow = egui::epaint::Shadow::NONE;
 
         egui::Frame::popup(style).show(ui, |ui| {
-            ui.visuals_mut().override_text_color = Color::WHITE.to_egui().into();
-            ui.label(format!("HP: {}", 100));
+            let hp = (health.value as f32 / PLAYER_HEALTH as f32 * 100.) as i32;
+            ui.visuals_mut().override_text_color = match hp {
+                _ if hp < 50 => Color::ORANGE_RED,
+                _ if hp < 75 => Color::YELLOW,
+                _ => Color::WHITE,
+            }
+            .to_egui()
+            .into();
+            ui.label(format!("HP: {hp:3}"));
 
             ui.visuals_mut().override_text_color = egui::Color32::from_gray(192).into();
             ui.small(format!("\"{}\"", level.data.name));

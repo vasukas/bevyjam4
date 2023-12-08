@@ -76,6 +76,9 @@ fn spawn_objects(mut spawn_objects: ResMut<Events<SpawnObject>>, mut commands: C
             LevelObjectData::ScriptPoint(object) => {
                 entity.insert(object);
             }
+            LevelObjectData::EnemySpawner(object) => {
+                entity.insert(object);
+            }
             LevelObjectData::TerrainWall(object) => {
                 entity.insert(object);
             }

@@ -1,5 +1,6 @@
 use crate::app::scheduling::SpawnSet;
 use crate::gameplay::master::level::data::HALF_TILE;
+use crate::gameplay::physics::PhysicsType;
 use crate::utils::bevy::commands::FallibleCommands;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -50,6 +51,7 @@ fn spawn_terrain_colliders(walls: Query<Entity, Added<TerrainWall>>, mut command
             (
                 RigidBody::Fixed,
                 Collider::cuboid(HALF_TILE, WALL_THICKNESS / 2.),
+                PhysicsType::Wall.groups(),
             ),
         );
     }

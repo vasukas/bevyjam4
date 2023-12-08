@@ -6,7 +6,10 @@ use crate::gameplay::master::level::current::CurrentLevel;
 use crate::gameplay::master::level::current::LevelCommand;
 use crate::gameplay::master::level::data::*;
 use crate::gameplay::master::level::spawn::SpawnObject;
+use crate::gameplay::master::script_points::EnemySpawner;
+use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
+use crate::gameplay::objects::terrain::TerrainWall;
 use crate::gameplay::utils::pos_to_tile;
 use crate::gameplay::utils::pos_to_tile_center;
 use crate::presentation::objects::WorldCameraBundle;
@@ -159,19 +162,15 @@ fn draw_editor_menu(
 
             ui.label(format!("Object: {:?}", tools.add_object.data));
             ui.collapsing("Properties", |ui| {
-                for (name, object) in [
-                    ("Script point", LevelObjectData::ScriptPoint(default())),
-                    ("Wall", LevelObjectData::TerrainWall(default())),
-                    ("Floor", LevelObjectData::TerrainFloor(default())),
-                    ("Light", LevelObjectData::TerrainLight(default())),
-                ] {
-                    if ui.button(name).clicked() {
-                        tools.add_object.data = object;
+                if let Some(object) = make_object(ui) {
+                    tools.add_object.data = object;
+
+                    if forced_center_align(&tools.add_object.data) {
+                        tools.add_object.align = LevelAlign::Center;
                     }
                 }
-
                 ui.group(|ui| {
-                    edit_object(ui, &mut changed, None, &mut tools.add_object);
+                    edit_object(ui, &mut changed, &mut tools.add_object, None);
                 });
             });
             ui.label("");
@@ -199,7 +198,7 @@ fn draw_editor_menu(
                             .id_source(entity)
                             .default_open(false)
                             .show(ui, |ui| {
-                                edit_object(ui, &mut changed, id.into(), object);
+                                edit_object(ui, &mut changed, object, Some(id));
                             });
                     }
                 });
@@ -253,36 +252,61 @@ fn simple_slider_field(
         .changed();
 }
 
+fn forced_center_align(object: &LevelObjectData) -> bool {
+    match object {
+        LevelObjectData::ScriptPoint(_)
+        | LevelObjectData::EnemySpawner(_)
+        | LevelObjectData::TerrainFloor(_) => true,
+        _ => false,
+    }
+}
+
+fn make_object(ui: &mut egui::Ui) -> Option<LevelObjectData> {
+    [
+        ("Script point", LevelObjectData::ScriptPoint(default())),
+        ("Enemy spawner", LevelObjectData::EnemySpawner(default())),
+        ("Wall", LevelObjectData::TerrainWall(default())),
+        ("Floor", LevelObjectData::TerrainFloor(default())),
+        ("Light", LevelObjectData::TerrainLight(default())),
+    ]
+    .into_iter()
+    .fold(None, |acc, (name, object)| {
+        ui.button(name).clicked().then_some(object).or(acc)
+    })
+}
+
 fn edit_object(
     ui: &mut egui::Ui,
     changed: &mut bool,
-    id: Option<LevelObjectId>,
     object: &mut LevelObject,
+    show_align_grid: Option<LevelObjectId>,
 ) {
     ui.label(format!("Pos {}", object.pos));
 
-    egui::Grid::new(format!("{id:?}_align")).show(ui, |ui| {
-        let mut button = |ui: &mut egui::Ui, value| {
-            *changed |= ui
-                .radio_value(&mut object.align, value, format!("{value:?}"))
-                .changed();
-        };
+    if let Some(id) = show_align_grid {
+        egui::Grid::new(format!("{id:?}_align")).show(ui, |ui| {
+            let mut button = |ui: &mut egui::Ui, value| {
+                *changed |= ui
+                    .radio_value(&mut object.align, value, format!("{value:?}"))
+                    .changed();
+            };
 
-        ui.label("");
-        button(ui, LevelAlign::Top);
-        ui.label("");
-        ui.end_row();
+            ui.label("");
+            button(ui, LevelAlign::Top);
+            ui.label("");
+            ui.end_row();
 
-        button(ui, LevelAlign::Left);
-        button(ui, LevelAlign::Center);
-        button(ui, LevelAlign::Right);
-        ui.end_row();
+            button(ui, LevelAlign::Left);
+            button(ui, LevelAlign::Center);
+            button(ui, LevelAlign::Right);
+            ui.end_row();
 
-        ui.label("");
-        button(ui, LevelAlign::Bottom);
-        ui.label("");
-        ui.end_row();
-    });
+            ui.label("");
+            button(ui, LevelAlign::Bottom);
+            ui.label("");
+            ui.end_row();
+        });
+    }
 
     match &mut object.data {
         LevelObjectData::ScriptPoint(object) => {
@@ -299,12 +323,25 @@ fn edit_object(
                 id_button(ui, "player");
             });
         }
-        LevelObjectData::TerrainWall(_object) => {
-            ui.label("Wall");
+
+        LevelObjectData::EnemySpawner(object) => {
+            match object {
+                EnemySpawner::Regular => ui.label("Enemy spawner"),
+            };
         }
-        LevelObjectData::TerrainFloor(_object) => {
-            ui.label("Floor");
+
+        LevelObjectData::TerrainWall(object) => {
+            match object {
+                TerrainWall::Generic => ui.label("Wall"),
+            };
         }
+
+        LevelObjectData::TerrainFloor(object) => {
+            match object {
+                TerrainFloor::Generic => ui.label("Floor"),
+            };
+        }
+
         LevelObjectData::TerrainLight(object) => {
             if ui.button("Generic").clicked() {
                 *object = TerrainLight::Generic;
@@ -335,6 +372,7 @@ fn edit_object(
                 }
             }
         }
+
         LevelObjectData::None => {
             ui.label("None");
         }
@@ -481,6 +519,7 @@ fn draw_labels(
         let (index, text) = match &object.data {
             LevelObjectData::None => (0, "NONE".to_string()),
             LevelObjectData::ScriptPoint(object) => (1, format!("SP:{}", object.id)),
+            LevelObjectData::EnemySpawner(_object) => (1, format!("Enemy")),
             LevelObjectData::TerrainWall(_) => (2, "Wall".to_string()),
             LevelObjectData::TerrainFloor(_) => (3, "Floor".to_string()),
             LevelObjectData::TerrainLight(_) => (4, "Light".to_string()),
@@ -542,7 +581,13 @@ fn update_cursor_point(
 
     let Ok((camera_pos, camera)) = camera.get_single() else { return; };
 
-    let world_cursor = camera.viewport_to_world_2d(&camera_pos, cursor);
+    // let world_cursor = camera.viewport_to_world_2d(&camera_pos, cursor);
+    let world_cursor = camera
+        .viewport_to_world(&camera_pos, cursor)
+        .and_then(|ray| {
+            ray.intersect_plane(Vec3::ZERO, Vec3::NEG_Z)
+                .map(|distance| ray.get_point(distance).truncate())
+        });
 
     editor.world_cursor = world_cursor.unwrap_or_default();
 }

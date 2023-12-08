@@ -1,6 +1,8 @@
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::mechanics::movement::MovementController;
 use crate::gameplay::mechanics::MechanicSet;
+use crate::gameplay::physics::PhysicsType;
 use crate::gameplay::physics::TypicalBody;
 use crate::gameplay::utils::RotateToTarget;
 use crate::utils::bevy::commands::FallibleCommands;
@@ -29,7 +31,8 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-const PLAYER_RADIUS: f32 = 0.3;
+const PLAYER_RADIUS: f32 = 0.2;
+pub const PLAYER_HEALTH: u32 = 3;
 
 fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
     for entity in new.iter() {
@@ -41,6 +44,7 @@ fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
                     .restitution(0.)
                     .mass(40.)
                     .lock_rotation(),
+                PhysicsType::Object.groups(),
                 MovementController {
                     speed: 6.,
                     k_force: 100.,
@@ -48,6 +52,7 @@ fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
                 }
                 .bundle(),
                 RotateToTarget::new_from_time(0.35),
+                Health::new(PLAYER_HEALTH),
             ),
         );
     }

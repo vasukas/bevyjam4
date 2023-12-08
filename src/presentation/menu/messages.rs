@@ -39,7 +39,7 @@ pub enum MessageType {
     Notification,
 
     /// Locks menu. Not real modal window - has only "OK" option.
-    ModalNotification,
+    _ModalNotification,
 }
 
 impl MessageType {
@@ -55,7 +55,7 @@ impl MessageType {
 
     fn modal(&self) -> bool {
         match self {
-            MessageType::ModalNotification => true,
+            MessageType::_ModalNotification => true,
             _ => false,
         }
     }

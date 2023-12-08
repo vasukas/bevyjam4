@@ -7,12 +7,18 @@ use bevy::utils::HashMap;
 #[derive(Resource)]
 pub struct ObjectAssets {
     pub model_jimbo: ModelAsset,
+    pub model_tripod: ModelAsset,
 
     pub scene_floor: Handle<Scene>,
     pub scene_wall: Handle<Scene>,
 
+    pub scene_barrel_red: Handle<Scene>,
+    pub scene_barrel_blue: Handle<Scene>,
+
     /// 1x1x1 cube
     pub mesh_cube: Handle<Mesh>,
+    /// 0.5-radius UV-sphere
+    pub mesh_sphere: Handle<Mesh>,
 }
 
 pub struct ModelAsset {
@@ -51,11 +57,23 @@ impl Plugin for AssetsPlugin {
 fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     commands.insert_resource(ObjectAssets {
         model_jimbo: ModelAsset::new(track.load_and_track("models/jimbo.gltf")),
+        model_tripod: ModelAsset::new(track.load_and_track("models/tripod.gltf")),
 
         scene_floor: track.load_and_track("models/floor.gltf#Scene0"),
         scene_wall: track.load_and_track("models/wall.gltf#Scene0"),
 
+        scene_barrel_red: track.load_and_track("models/barrel_red.gltf#Scene0"),
+        scene_barrel_blue: track.load_and_track("models/barrel_blue.gltf#Scene0"),
+
         mesh_cube: meshes.add(shape::Cube::default().into()),
+        mesh_sphere: meshes.add(
+            shape::UVSphere {
+                radius: 0.5,
+                sectors: 18,
+                stacks: 9,
+            }
+            .into(),
+        ),
     });
 }
 

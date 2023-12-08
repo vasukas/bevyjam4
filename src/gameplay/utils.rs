@@ -1,9 +1,13 @@
 use super::master::level::data::HALF_TILE;
 use super::master::level::data::TILE_SIZE;
+use crate::utils::bevy::commands::FallibleCommands;
+use crate::utils::bevy::misc_utils::ExtendedTimer;
+use crate::utils::math_algorithms::lerp;
 use bevy::prelude::*;
 use leafwing_input_manager::orientation::Orientation;
 use leafwing_input_manager::orientation::Rotation;
 use std::f32::consts::TAU;
+use std::time::Duration;
 
 /// Tile which position belongs to
 pub fn pos_to_tile(mut pos: Vec2) -> IVec2 {
@@ -28,6 +32,16 @@ pub fn pos_to_tile_center(pos: Vec2) -> Vec2 {
     tile_center(pos_to_tile(pos))
 }
 
+/// Rotation from 2D direction (may be non-normalized)
+pub fn rotation_from_dir(dir: Vec2) -> Quat {
+    dir.try_normalize()
+        .map(|dir| {
+            let angle = -dir.angle_between(Vec2::X);
+            Quat::from_rotation_z(angle)
+        })
+        .unwrap_or_default()
+}
+
 //
 
 /// Gradually rotates entity in target direction
@@ -50,11 +64,37 @@ impl RotateToTarget {
     }
 }
 
+/// Interpolate (linearly) from current to target transform, once (then this component is removed)
+#[derive(Component)]
+pub struct InterpolateTransformOnce {
+    target: Transform,
+    timer: Timer,
+    start: Option<Transform>,
+}
+
+impl InterpolateTransformOnce {
+    pub fn new(target: Transform, duration: Duration) -> Self {
+        Self {
+            target,
+            timer: Timer::once(duration),
+            start: None,
+        }
+    }
+}
+
+/// Entity will be despawned after that time (uses virtual time)
+#[derive(Component)]
+pub struct Lifetime(pub Duration);
+
+/// The plugin
 pub struct UtilsPlugin;
 
 impl Plugin for UtilsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, rotate_to_target);
+        app.add_systems(
+            Update,
+            (rotate_to_target, interpolate_transform_once, despawn_after),
+        );
     }
 }
 
@@ -70,5 +110,50 @@ pub fn rotate_to_target(mut entities: Query<(&mut Transform, &RotateToTarget)>, 
         transform
             .rotation
             .rotate_towards(target_rot, Some(max_rotation));
+    }
+}
+
+fn interpolate_transform_once(
+    mut entities: Query<(Entity, &mut Transform, &mut InterpolateTransformOnce)>,
+    time: Res<Time>,
+    mut commands: Commands,
+) {
+    for (entity, mut transform, mut data) in entities.iter_mut() {
+        if data.timer.tick(time.delta()).finished() {
+            *transform = data.target;
+            commands.try_remove::<InterpolateTransformOnce>(entity);
+        } else {
+            let start = *data.start.get_or_insert(*transform);
+            let target = data.target;
+            let t = data.timer.t_elapsed();
+
+            transform.translation = lerp(start.translation, target.translation, t);
+            transform.rotation = start.rotation.slerp(target.rotation, t);
+            transform.scale = lerp(start.scale, target.scale, t);
+        }
+    }
+}
+
+#[derive(Component)]
+struct DespawnAt(Duration);
+
+fn despawn_after(
+    new: Query<(Entity, &Lifetime), Added<Lifetime>>,
+    entities: Query<(Entity, &DespawnAt)>,
+    time: Res<Time>,
+    mut commands: Commands,
+) {
+    for (entity, after) in new.iter() {
+        if after.0 < time.delta() {
+            commands.try_despawn_recursive(entity);
+        } else {
+            commands.try_insert(entity, DespawnAt(time.elapsed() + after.0));
+        }
+    }
+
+    for (entity, at) in entities.iter() {
+        if time.elapsed() >= at.0 {
+            commands.try_despawn_recursive(entity);
+        }
     }
 }

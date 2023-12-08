@@ -113,7 +113,7 @@ fn spawn_player(
         // TODO: set per-level?
         commands.insert_resource(AmbientLight {
             color: Color::WHITE,
-            brightness: 0.5,
+            brightness: 0.15,
         });
     }
 }

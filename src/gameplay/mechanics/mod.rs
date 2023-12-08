@@ -1,10 +1,14 @@
 use bevy::prelude::*;
 
+pub mod ai;
+pub mod damage;
 pub mod movement;
+pub mod overload;
 
+/// In [`Update`]
 #[derive(SystemSet, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum MechanicSet {
-    /// Processes external input
+    /// Processes external input or sensor data
     Input,
 
     /// Creates events
@@ -27,6 +31,11 @@ impl Plugin for MechanicsPlugin {
             )
                 .chain(),
         )
-        .add_plugins((movement::MovementPlugin,));
+        .add_plugins((
+            movement::MovementPlugin,
+            damage::DamagePlugin,
+            ai::AiPlugin,
+            overload::OverloadPlugin,
+        ));
     }
 }

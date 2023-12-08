@@ -1,3 +1,4 @@
+use crate::gameplay::master::script_points::EnemySpawner;
 use crate::gameplay::master::script_points::ScriptPoint;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
@@ -145,6 +146,7 @@ impl LevelAlign {
 #[derive(Component, Clone, Serialize, Deserialize, Default, Debug)]
 pub enum LevelObjectData {
     ScriptPoint(ScriptPoint),
+    EnemySpawner(EnemySpawner),
 
     TerrainWall(TerrainWall),
     TerrainFloor(TerrainFloor),
