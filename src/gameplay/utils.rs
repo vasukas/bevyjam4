@@ -65,20 +65,37 @@ impl RotateToTarget {
 }
 
 /// Interpolate (linearly) from current to target transform, once (then this component is removed)
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct InterpolateTransformOnce {
-    target: Transform,
+    target_pos: Option<Vec3>,
+    target_rotation: Option<Quat>,
+    target_scale: Option<Vec3>,
+
     timer: Timer,
     start: Option<Transform>,
 }
 
 impl InterpolateTransformOnce {
-    pub fn new(target: Transform, duration: Duration) -> Self {
+    pub fn new(duration: Duration) -> Self {
         Self {
-            target,
             timer: Timer::once(duration),
-            start: None,
+            ..default()
         }
+    }
+
+    pub fn pos(mut self, target: Vec3) -> Self {
+        self.target_pos = target.into();
+        self
+    }
+
+    pub fn rotation(mut self, target: Quat) -> Self {
+        self.target_rotation = target.into();
+        self
+    }
+
+    pub fn scale(mut self, target: Vec3) -> Self {
+        self.target_scale = target.into();
+        self
     }
 }
 
@@ -119,17 +136,24 @@ fn interpolate_transform_once(
     mut commands: Commands,
 ) {
     for (entity, mut transform, mut data) in entities.iter_mut() {
-        if data.timer.tick(time.delta()).finished() {
-            *transform = data.target;
-            commands.try_remove::<InterpolateTransformOnce>(entity);
-        } else {
-            let start = *data.start.get_or_insert(*transform);
-            let target = data.target;
-            let t = data.timer.t_elapsed();
+        let t = match data.timer.tick(time.delta()).finished() {
+            true => {
+                commands.try_remove::<InterpolateTransformOnce>(entity);
+                1.
+            }
+            false => data.timer.t_elapsed(),
+        };
 
-            transform.translation = lerp(start.translation, target.translation, t);
-            transform.rotation = start.rotation.slerp(target.rotation, t);
-            transform.scale = lerp(start.scale, target.scale, t);
+        let start = *data.start.get_or_insert(*transform);
+
+        if let Some(target) = data.target_pos {
+            transform.translation = lerp(start.translation, target, t);
+        }
+        if let Some(target) = data.target_rotation {
+            transform.rotation = start.rotation.slerp(target, t);
+        }
+        if let Some(target) = data.target_scale {
+            transform.scale = lerp(start.scale, target, t);
         }
     }
 }
@@ -144,10 +168,9 @@ fn despawn_after(
     mut commands: Commands,
 ) {
     for (entity, after) in new.iter() {
-        if after.0 < time.delta() {
-            commands.try_despawn_recursive(entity);
-        } else {
-            commands.try_insert(entity, DespawnAt(time.elapsed() + after.0));
+        match after.0.checked_sub(time.delta()) {
+            Some(left) => commands.try_insert(entity, DespawnAt(time.elapsed() + left)),
+            None => commands.try_despawn_recursive(entity),
         }
     }
 

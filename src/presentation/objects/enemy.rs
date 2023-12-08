@@ -25,8 +25,8 @@ impl Plugin for EnemyPlugin {
 
 fn spawn(new: Query<Entity, Added<Enemy>>, mut commands: Commands, assets: Res<ObjectAssets>) {
     for entity in new.iter() {
-        //let model = &assets.model_tripod;
-        let model = &assets.model_jimbo;
+        let model = &assets.model_tripod;
+        // let model = &assets.model_jimbo;
         let scene = model.scene();
 
         commands.try_command(entity, |entity| {
@@ -44,13 +44,13 @@ fn spawn(new: Query<Entity, Added<Enemy>>, mut commands: Commands, assets: Res<O
     }
 }
 
-fn on_death(died: Query<(Entity, &Transform), (With<Enemy>, Added<Dead>)>, mut commands: Commands) {
+fn on_death(died: Query<Entity, (With<Enemy>, Added<Dead>)>, mut commands: Commands) {
     let duration = Duration::from_millis(800);
 
-    for (entity, transform) in died.iter() {
-        let mut transform = *transform;
-        transform.rotation = default();
-
-        commands.try_insert(entity, InterpolateTransformOnce::new(transform, duration));
+    for entity in died.iter() {
+        commands.try_insert(
+            entity,
+            InterpolateTransformOnce::new(duration).rotation(default()),
+        );
     }
 }

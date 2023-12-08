@@ -7,11 +7,9 @@ MVP goals (not neccessary in that order):
 + player has 2-3 HP, no healing
 
 - fix
-    + enemy rate of fire
-    - no impact particles
-    - enemy line-of-sight check
-    + adjust health & damage & overload for high rate of fire
     - player hit & death animations don't play (they are activated! what the hell!)
+       (tbh don't care about hit anims?)
+    - enemy models are invisible
 
 - barrels
 - gun: fire

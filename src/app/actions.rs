@@ -21,18 +21,16 @@ impl AppActions {
 #[derive(Actionlike, TypePath, Clone, Copy)]
 pub enum PlayerActions {
     Movement, // action_axis_xy
-    PickUp,
-    Throw,
     ToggleHelp,
+    Restart,
 }
 
 impl PlayerActions {
     fn default_map() -> InputMap<Self> {
         InputMap::default()
             .insert(VirtualDPad::wasd(), Self::Movement)
-            .insert(KeyCode::E, Self::PickUp)
-            .insert(KeyCode::G, Self::Throw)
             .insert(KeyCode::I, Self::ToggleHelp)
+            .insert(KeyCode::R, Self::Restart)
             .build()
     }
 }

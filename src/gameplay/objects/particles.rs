@@ -41,10 +41,10 @@ impl Particle {
         (
             GameObjectBundle::new("projectile", Transform::from_translation(pos.extend(0.))),
             Lifetime(lifetime),
-            InterpolateTransformOnce::new(
-                Transform::from_translation((pos + end_delta).extend(0.)).with_scale(Vec3::ZERO),
-                lifetime,
-            ),
+            // InterpolateTransformOnce::new(lifetime)
+            //     .pos((pos + end_delta).extend(0.))
+            //     .scale(Vec3::ZERO), // to use without physics
+            InterpolateTransformOnce::new(lifetime).scale(Vec3::ZERO),
             //
             RigidBody::Dynamic,
             Collider::ball(self.size()),
@@ -52,11 +52,13 @@ impl Particle {
                 coefficient: 1.,
                 combine_rule: CoefficientCombineRule::Max,
             },
+            Velocity::linear(end_delta / lifetime.as_secs_f32()),
             PhysicsType::WallOnly.groups(),
             //
             OverloadSource {
                 power: self.overload_power(),
             },
+            self,
         )
     }
 }

@@ -100,36 +100,37 @@ fn find_target(
         .ok();
 
     for (pos, mut target) in finders.iter_mut() {
-        target.found = target_pos.map(|target| {
-            let pos = pos.translation().truncate();
-
-            let dir = (target - pos).try_normalize().unwrap_or(Vec2::Y);
-            let distance = (target - pos).length();
-
-            TargetData { dir, distance }
-        });
-
-        // // update target data
-        // target.found = target_pos.and_then(|target| {
+        // target.found = target_pos.map(|target| {
         //     let pos = pos.translation().truncate();
 
         //     let dir = (target - pos).try_normalize().unwrap_or(Vec2::Y);
         //     let distance = (target - pos).length();
 
-        //     // visible if no opaque object is blocking ray
-        //     let visible = distance < Target::MAX_DISTANCE
-        //         && phy_world
-        //             .cast_ray(
-        //                 pos,
-        //                 dir,
-        //                 Target::MAX_DISTANCE,
-        //                 true,
-        //                 PhysicsType::WallOnly.filter(),
-        //             )
-        //             .is_none();
-
-        //     visible.then_some(TargetData { dir, distance })
+        //     TargetData { dir, distance }
         // });
+
+        // update target data
+        target.found = target_pos.and_then(|target| {
+            let pos = pos.translation().truncate();
+
+            let dir = (target - pos).try_normalize().unwrap_or(Vec2::Y);
+            let distance = (target - pos).length();
+
+            // visible if no opaque object is blocking ray
+            let visible = distance < Target::MAX_DISTANCE
+                && phy_world
+                    .cast_ray(
+                        pos,
+                        dir,
+                        Target::MAX_DISTANCE,
+                        true,
+                        PhysicsType::WallOnly.filter(),
+                    )
+                    .map(|(_, toi)| toi > distance)
+                    .unwrap_or(true);
+
+            visible.then_some(TargetData { dir, distance })
+        });
 
         // reaction delay / forget
         let visible = target.found.is_some();
@@ -153,14 +154,11 @@ fn rotate(mut entities: Query<(&mut RotateToTarget, &Target), Without<Dead>>) {
 }
 
 fn shoot(
-    mut shooters: Query<
-        (Entity, &Shoot, &mut ShootState, &Target, &GlobalTransform),
-        Without<Dead>,
-    >,
+    mut shooters: Query<(&Shoot, &mut ShootState, &Target, &GlobalTransform), Without<Dead>>,
     mut commands: Commands,
     time: Res<Time>,
 ) {
-    for (entity, shoot, mut state, target, pos) in shooters.iter_mut() {
+    for (shoot, mut state, target, pos) in shooters.iter_mut() {
         let Some(target) = target.found.filter(|_| target.can_react()) else { continue; };
 
         state.cooldown.tick(time.delta());

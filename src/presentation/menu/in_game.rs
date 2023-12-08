@@ -3,6 +3,7 @@ use super::states::MenuState;
 use crate::app::actions::action_axis_xy;
 use crate::app::actions::ActionPrompt;
 use crate::app::actions::PlayerActions;
+use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::level::current::CurrentLevel;
 use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::mechanics::damage::Health;
@@ -77,6 +78,7 @@ fn draw_hud(
 fn player_input(
     actions: Res<ActionState<PlayerActions>>,
     mut players: Query<(&mut RotateToTarget, &mut MovementController, &mut Player), Without<Dead>>,
+    mut game_commands: EventWriter<GameCommand>,
 ) {
     for (mut rotate, mut mvmt, mut player) in players.iter_mut() {
         let dir = action_axis_xy(&actions, PlayerActions::Movement);
@@ -87,6 +89,10 @@ fn player_input(
         }
 
         mvmt.target_dir = dir;
+    }
+
+    if actions.just_pressed(PlayerActions::Restart) {
+        game_commands.send(GameCommand::Respawn);
     }
 }
 
@@ -112,8 +118,8 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
     }
     .show(egui_ctx.ctx_mut(), |ui| {
         ui.heading("Objective");
-        ui.label("1. Overload alien network");
-        ui.label("2. Reach the elevator");
+        ui.label("1. Overload aliens!");
+        ui.label("2. Reach elevator");
         ui.label("");
 
         ui.heading("Controls");
@@ -122,12 +128,8 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
             ui.label(prompt.get(PlayerActions::Movement));
             ui.end_row();
 
-            ui.label("Pick up");
-            ui.label(prompt.get(PlayerActions::PickUp));
-            ui.end_row();
-
-            ui.label("Throw");
-            ui.label(prompt.get(PlayerActions::Throw));
+            ui.label("Restart levle");
+            ui.label(prompt.get(PlayerActions::Restart));
             ui.end_row();
         });
     });

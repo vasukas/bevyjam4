@@ -80,6 +80,7 @@ fn spawn_particles(
             material: match object {
                 Particle::ProjectileImpact => materials.projectile_impact.clone(),
             },
+            transform: Transform::from_xyz(0., 0., 1.2),
             ..default()
         };
 
