@@ -26,49 +26,39 @@ MVP goals (not neccessary in that order):
     disable "Automatically start on page load" for sound to work
     maybe use other screen size than 1280x720? this will require changes in main.rs!
 
-- gameplay kind of isn't there
-
-- credit all used libraries and assets
++ credit all used libraries
 
 - explain (to player) how guns work (in F1 menu or somehow else)
 - flavor text!
     - intro and outro
 
-
-
-
-Polish:
-
-- playtest
-
-- particles kinda obstruct vision too much
-    - add gizmo-based helpers?
-- (maybe) make weapons directional (cursor-based)?
-
-- poster & screenshots for itch page
-
-- gather time statistics and display them to player
-
-- add more levels
-
-- add native builds (use github CI)
-
-- more level graphics
+- gameplay kind of isn't there
 
 
 
 
 Extra goals:
 
-- slowdown effect
-- "Application is not responding. .... Well done!" message
+- potential gameplay improvements
+    - particles kinda obstruct vision too much
+        - add gizmo-based helpers?
+    - (maybe) make weapons directional (cursor-based)?
 
-- level decorations
-- lightning-explosion effect (for overload, at least)
+- more stuff
+    - add more levels
+    - more level graphics (decorations)
+    - gather time statistics and display them to player
+    - final boss (respawning barrels; speed challenge)
 
-+ background: scrolling stars, partially hidden by the ship
+- release
+    - poster & screenshots for itch page
+    - add native builds (use github CI)
 
-- final boss (respawning barrels; speed challenge)
+- very extra
+    + background: scrolling stars, partially hidden by the ship
+    - lightning-explosion effect (for overload, at least)
+    - slowdown effect
+    - "Application is not responding. .... Well done!" message
 
 
 
