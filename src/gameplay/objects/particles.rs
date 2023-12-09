@@ -234,6 +234,9 @@ fn on_explosion(
                 commands.spawn((
                     GameObjectBundle::new("explosion", Transform::from_translation(pos.extend(0.))),
                     Lifetime(Duration::from_secs(3)),
+                    //
+                    Collider::ball(1.),
+                    PhysicsType::Overload.groups(),
                     OverloadSource {
                         power: OVERLOAD_EXPLOSION,
                     },
@@ -249,7 +252,7 @@ fn on_explosion(
                         if let Ok(transform) = victims.get(victim) {
                             damage.send(ApplyDamage {
                                 victim,
-                                amount: 1,
+                                amount: 3,
                                 ty: DamageType::Barrels,
                             });
                             damage.send(ApplyDamage {
@@ -263,7 +266,7 @@ fn on_explosion(
                                     impulse: {
                                         let target = transform.translation().truncate();
                                         let delta = target - pos;
-                                        let delta = delta.try_normalize().unwrap_or_default();
+                                        let delta = delta.normalize_or_zero();
                                         delta * 500.
                                     },
                                     ..default()

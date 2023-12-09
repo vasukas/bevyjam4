@@ -1,5 +1,4 @@
 use crate::app::scheduling::SpawnSet;
-use crate::gameplay::balance::BARREL_HEALTH;
 use crate::gameplay::balance::OVERLOAD_BURNING_BARREL;
 use crate::gameplay::mechanics::damage::DamageType;
 use crate::gameplay::mechanics::damage::Dead;
@@ -47,7 +46,8 @@ impl Plugin for BarrelsPlugin {
     }
 }
 
-const ON_FIRE_DURATION: Duration = Duration::from_millis(2500);
+const BARREL_HEALTH: u32 = 4;
+const ON_FIRE_DURATION: Duration = Duration::from_millis(1700);
 
 fn spawn_barrels(new: Query<Entity, Added<Barrel>>, mut commands: Commands) {
     for entity in new.iter() {

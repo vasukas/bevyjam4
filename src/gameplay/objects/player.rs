@@ -25,8 +25,9 @@ pub struct Player {
     pub input_pull: bool,
 
     fire_cooldown: Timer,
-    pull_cooldown: Timer,
     fire_count: usize,
+
+    pull_active: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
@@ -41,6 +42,9 @@ pub enum PlayerEvent {
     /// Sent each frame
     ReachedExitElevator,
 }
+
+#[derive(Component)]
+pub struct PulledObject;
 
 pub struct PlayerPlugin;
 
@@ -119,12 +123,13 @@ fn weapon_input(
     mut player: Query<(&GlobalTransform, &mut Player)>,
     time: Res<Time>,
     mut commands: Commands,
+    objects: Query<(Entity, &GlobalTransform), (Without<Player>, With<Collider>)>,
+    pulled: Query<(Entity, &GlobalTransform), With<PulledObject>>,
 ) {
     for (pos, mut player) in player.iter_mut() {
         let pos = pos.translation().truncate();
 
         player.fire_cooldown.tick(time.delta());
-        player.pull_cooldown.tick(time.delta());
 
         if std::mem::take(&mut player.input_fire) && player.fire_cooldown.finished() {
             player.fire_cooldown = Timer::once(Duration::from_millis(300));
@@ -152,8 +157,44 @@ fn weapon_input(
             }
         }
 
-        if std::mem::take(&mut player.input_pull) && player.pull_cooldown.finished() {
-            //
+        let input_pull = std::mem::take(&mut player.input_pull);
+        if input_pull != player.pull_active {
+            player.pull_active = input_pull;
+
+            let max_distance = 6_f32;
+            let scale_in = 5.;
+            let scale_out = 0.5;
+            let impulse = 5_000.;
+
+            let impulse = |transform: &GlobalTransform, scale: f32| {
+                let target = transform.translation().truncate();
+                let delta = target - pos;
+
+                if delta.length_squared() < max_distance.powi(2) {
+                    let dir = delta.normalize_or_zero();
+                    Some(ExternalImpulse {
+                        impulse: dir * scale * impulse,
+                        ..default()
+                    })
+                } else {
+                    None
+                }
+            };
+
+            if player.pull_active {
+                for (entity, transform) in objects.iter() {
+                    if let Some(bundle) = impulse(transform, -scale_in * time.delta_seconds()) {
+                        commands.try_insert(entity, (bundle, PulledObject));
+                    }
+                }
+            } else {
+                for (entity, transform) in pulled.iter() {
+                    commands.try_remove::<PulledObject>(entity);
+                    if let Some(bundle) = impulse(transform, scale_out) {
+                        commands.try_insert(entity, bundle);
+                    }
+                }
+            }
         }
     }
 }
