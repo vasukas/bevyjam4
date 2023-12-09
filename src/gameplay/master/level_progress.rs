@@ -37,6 +37,13 @@ impl LevelList {
             .data
     }
 
+    pub fn replace_data(&mut self, id: &str, data: LevelData) {
+        self.levels
+            .get_mut(id)
+            .expect(&format!("no such level \"{id}\""))
+            .data = data
+    }
+
     pub fn name(&self, id: &str) -> String {
         self.levels
             .get(id)

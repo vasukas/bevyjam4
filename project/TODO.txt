@@ -53,6 +53,8 @@ Polish:
 
 - add native builds (use github CI)
 
+- more level graphics
+
 
 
 
@@ -64,19 +66,19 @@ Extra goals:
 - level decorations
 - lightning-explosion effect (for overload, at least)
 
-- (maybe) camera shake from explosions
-- background: scrolling stars, partially hidden by the ship
++ background: scrolling stars, partially hidden by the ship
 
 - final boss (respawning barrels; speed challenge)
-
-- make barrels rotate when pulled
 
 
 
 
 Improvements (post-release)
 
-/ check all TODOs
+- (maybe) camera shake from explosions
+- make barrels rotate when pulled
+
+- check all TODOs
 
 - improve graphics
     - on-screen indicator for being hit

@@ -19,6 +19,12 @@ pub struct ObjectAssets {
     pub scene_elevator_enter: Handle<Scene>,
     pub scene_elevator_exit: Handle<Scene>,
 
+    pub scene_void_lta: Handle<Scene>,
+    pub scene_void_ltb: Handle<Scene>,
+    pub scene_void_squ: Handle<Scene>,
+    pub scene_void_tri: Handle<Scene>,
+    pub scene_star: Handle<Scene>,
+
     /// 1x1x1 cube
     pub mesh_cube: Handle<Mesh>,
     /// 0.5-radius UV-sphere
@@ -75,6 +81,12 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
 
         scene_elevator_enter: track.load_and_track("models/elevator_enter.glb#Scene0"),
         scene_elevator_exit: track.load_and_track("models/elevator_exit.glb#Scene0"),
+
+        scene_void_lta: track.load_and_track("models/void_lta.glb#Scene0"),
+        scene_void_ltb: track.load_and_track("models/void_ltb.glb#Scene0"),
+        scene_void_squ: track.load_and_track("models/void_squ.glb#Scene0"),
+        scene_void_tri: track.load_and_track("models/void_tri.glb#Scene0"),
+        scene_star: track.load_and_track("models/star.glb#Scene0"),
 
         mesh_cube: meshes.add(shape::Cube::default().into()),
         mesh_sphere: meshes.add(

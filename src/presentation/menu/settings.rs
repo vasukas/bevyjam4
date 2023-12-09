@@ -84,6 +84,10 @@ fn draw_settings_menu(
                 changed |= ui
                     .checkbox(&mut settings.graphics.shadows, "Shadows")
                     .changed();
+
+                changed |= ui
+                    .checkbox(&mut settings.graphics.starfield, "Background")
+                    .changed();
             });
 
             changed |= ui

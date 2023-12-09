@@ -1,3 +1,4 @@
+use super::level::current::CurrentLevel;
 use super::level::current::LevelLoaded;
 use crate::app::actions::ActionPrompt;
 use crate::app::actions::PlayerActions;
@@ -18,6 +19,7 @@ fn on_level_loaded(
     mut level_loaded: EventReader<LevelLoaded>,
     mut messages: EventWriter<DelayedMessage>,
     prompt: ActionPrompt<PlayerActions>,
+    mut current_level: ResMut<CurrentLevel>,
 ) {
     let Some(loaded) = level_loaded.read().last() else { return; };
 
@@ -33,6 +35,9 @@ fn on_level_loaded(
                 )
                 .delay(Duration::from_millis(1200)),
             );
+        }
+        "two" => {
+            current_level.allow_starfield = true;
         }
         _ => warn!("no script for level {}", loaded.id),
     }

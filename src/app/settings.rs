@@ -57,6 +57,7 @@ pub struct GraphicalSettings {
     pub fullscreen: bool,
 
     pub shadows: bool,
+    pub starfield: bool,
 }
 
 impl Default for GraphicalSettings {
@@ -65,6 +66,7 @@ impl Default for GraphicalSettings {
             ui_scale: 2.,
             fullscreen: false,
             shadows: true,
+            starfield: true,
         }
     }
 }

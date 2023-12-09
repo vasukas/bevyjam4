@@ -24,8 +24,10 @@ fn spawn_terrain_wall(
     mut commands: Commands,
     assets: Res<ObjectAssets>,
 ) {
-    for (entity, _object) in new.iter() {
-        let scene = assets.scene_wall.clone();
+    for (entity, object) in new.iter() {
+        let scene = match object {
+            TerrainWall::Generic => assets.scene_wall.clone(),
+        };
 
         commands.try_with_children(entity, |parent| {
             parent.spawn(SceneBundle {
@@ -42,8 +44,15 @@ fn spawn_terrain_floor(
     mut commands: Commands,
     assets: Res<ObjectAssets>,
 ) {
-    for (entity, _object) in new.iter() {
-        let scene = assets.scene_floor.clone();
+    for (entity, object) in new.iter() {
+        let scene = match object {
+            TerrainFloor::Generic => assets.scene_floor.clone(),
+
+            TerrainFloor::VoidLta => assets.scene_void_lta.clone(),
+            TerrainFloor::VoidLtb => assets.scene_void_ltb.clone(),
+            TerrainFloor::VoidSquare => assets.scene_void_squ.clone(),
+            TerrainFloor::VoidTriangle => assets.scene_void_tri.clone(),
+        };
 
         commands.try_with_children(entity, |parent| {
             parent.spawn(SceneBundle {

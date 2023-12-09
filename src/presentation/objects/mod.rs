@@ -9,6 +9,7 @@ mod materials;
 mod particles;
 mod player;
 mod sprite;
+mod starfield;
 mod terrain;
 mod utils;
 
@@ -30,6 +31,7 @@ impl Plugin for ObjectsPlugin {
             barrels::BarrelsPlugin,
             elevators::ElevatorsPlugin,
             materials::MaterialsPlugin,
+            starfield::StarfieldPlugin,
         ));
     }
 }

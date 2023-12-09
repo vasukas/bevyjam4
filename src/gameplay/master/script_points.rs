@@ -14,7 +14,7 @@ pub struct ScriptPoint {
 }
 
 /// Marker used by scripts
-#[derive(Component, Serialize, Deserialize, Clone, Default, Debug)]
+#[derive(Component, Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum EnemySpawner {
     #[default]
     #[serde(other)]

@@ -18,7 +18,9 @@ pub enum LevelCommand {
     /// Despawn all game objects
     Unload,
 
-    /// Save current level to it's own file
+    /// Save current level to it's own file.
+    ///
+    /// Also updates data in [`LevelList`].
     Save,
 }
 
@@ -26,6 +28,8 @@ pub enum LevelCommand {
 pub struct CurrentLevel {
     pub id: String,
     pub data: LevelData,
+
+    pub allow_starfield: bool,
 }
 
 /// Sent when [`LevelCommand::Load`] is completed.
@@ -55,7 +59,7 @@ fn execute_level_commands(
     mut spawn_object: EventWriter<SpawnObject>,
     mut despawn_cmd: EventWriter<DespawnGameObjects>,
     mut current: ResMut<CurrentLevel>,
-    levels: Res<LevelList>,
+    mut levels: ResMut<LevelList>,
     mut loaded_event: EventWriter<LevelLoaded>,
 ) {
     if let Some(command) = level_commands.read_single("execute_level_commands") {
@@ -68,6 +72,7 @@ fn execute_level_commands(
                 *current = CurrentLevel {
                     id: id.clone(),
                     data: data.clone(),
+                    ..default()
                 };
 
                 loaded_event.send(LevelLoaded { id: id.clone() });
@@ -83,6 +88,7 @@ fn execute_level_commands(
                     ron::ser::to_string_pretty(&current.data, default()).unwrap(),
                 )
                 .unwrap();
+                levels.replace_data(&current.id, current.data.clone());
                 (false, false)
             }
         };

@@ -153,6 +153,9 @@ fn draw_editor_menu(
                 next_menu_state.set(MenuState::None);
                 next_editor_state.set(EditorEnabled::No);
             }
+            if ui.button("Reload").clicked() {
+                level_commands.send(LevelCommand::Reload);
+            }
 
             ui.label("Press ESC to toggle modes");
             ui.label("");
@@ -179,6 +182,40 @@ fn draw_editor_menu(
                 ui.group(|ui| {
                     edit_object(ui, &mut changed, &mut tools.add_object, None);
                 });
+            });
+            ui.label("");
+
+            ui.heading("DANGER ZONE");
+            ui.group(|ui| {
+                if ui.button("Delete all").clicked() {
+                    let objects: Vec<_> = level.objects().map(|v| (v.0, v.1.clone())).collect();
+                    for (id, _object) in objects {
+                        level.remove_object(id);
+                    }
+                    changed = true;
+                }
+
+                if ui.button("Delete all enemies").clicked() {
+                    let objects: Vec<_> = level.objects().map(|v| (v.0, v.1.clone())).collect();
+                    for (id, object) in objects {
+                        match &object.data {
+                            LevelObjectData::EnemySpawner(_) => level.remove_object(id),
+                            _ => (),
+                        }
+                    }
+                    changed = true;
+                }
+
+                if ui.button("Delete all barrels").clicked() {
+                    let objects: Vec<_> = level.objects().map(|v| (v.0, v.1.clone())).collect();
+                    for (id, object) in objects {
+                        match &object.data {
+                            LevelObjectData::Barrel(_) => level.remove_object(id),
+                            _ => (),
+                        }
+                    }
+                    changed = true;
+                }
             });
             ui.label("");
 
@@ -346,7 +383,6 @@ fn edit_object(
 
     match &mut object.data {
         LevelObjectData::ScriptPoint(object) => {
-            ui.label("Script point");
             text_field(ui, changed, "ID", &mut object.id);
 
             ui.small("Set ID:");
@@ -361,9 +397,9 @@ fn edit_object(
         }
 
         LevelObjectData::EnemySpawner(object) => {
-            match object {
-                EnemySpawner::Regular => ui.label("Enemy spawner"),
-            };
+            *changed |= ui
+                .radio_value(object, EnemySpawner::Regular, "Regular")
+                .changed();
         }
 
         LevelObjectData::Elevator(object) => {
@@ -378,15 +414,28 @@ fn edit_object(
 
         //
         LevelObjectData::TerrainWall(object) => {
-            match object {
-                TerrainWall::Generic => ui.label("Wall"),
-            };
+            *changed |= ui
+                .radio_value(object, TerrainWall::Generic, "Generic")
+                .changed();
         }
 
         LevelObjectData::TerrainFloor(object) => {
-            match object {
-                TerrainFloor::Generic => ui.label("Floor"),
-            };
+            *changed |= ui
+                .radio_value(object, TerrainFloor::Generic, "Generic")
+                .changed();
+
+            *changed |= ui
+                .radio_value(object, TerrainFloor::VoidLta, "Void: Long triangle A")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainFloor::VoidLtb, "Void: Long triangle B")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainFloor::VoidSquare, "Void: Square")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainFloor::VoidTriangle, "Void: Triangle")
+                .changed();
         }
 
         LevelObjectData::TerrainLight(object) => {
@@ -409,20 +458,15 @@ fn edit_object(
                     intensity,
                     shadows,
                 } => {
-                    ui.label("Light: Custom");
                     color_field_rgb(ui, changed, "color", color);
                     simple_slider_field(ui, changed, " intensity", intensity, 10. ..=400.);
                     *changed |= ui.checkbox(shadows, "shadows").changed();
                 }
-                TerrainLight::Generic => {
-                    ui.label("Light: Generic");
-                }
+                TerrainLight::Generic => (),
             }
         }
 
-        LevelObjectData::None => {
-            ui.label("None");
-        }
+        LevelObjectData::None => (),
     }
 }
 
