@@ -34,7 +34,10 @@ MVP goals (not neccessary in that order):
 - add game over screen (fade to black)
 
 - graphical bugs
-    - is procedural material stutter present on the web too? prob should fix that
+    + is procedural material stutter present on the web too? prob should fix that
+        it was much, much worse
+    - sometimes elevator lamp doesn't change color
+    - overload labels are visible on death screen
 
 
 

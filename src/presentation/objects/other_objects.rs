@@ -16,16 +16,19 @@ pub struct OtherObjectsPlugin;
 
 impl Plugin for OtherObjectsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, make_materials).add_systems(
-            PostUpdate,
-            (
-                spawn_projectiles,
-                spawn_particles,
-                spawn_elevators,
-                unlock_exit_elevator.run_if(on_event::<ExitUnlocked>()),
-            )
-                .in_set(SpawnSet::Controllers),
-        );
+        app.init_resource::<ShaderCompilationHackState>()
+            .add_systems(Startup, make_materials)
+            .add_systems(
+                PostUpdate,
+                (
+                    shader_compilation_hack.run_if(resource_exists::<ShaderCompilationHackState>()),
+                    spawn_projectiles,
+                    spawn_particles,
+                    spawn_elevators,
+                    unlock_exit_elevator.run_if(on_event::<ExitUnlocked>()),
+                )
+                    .in_set(SpawnSet::Controllers),
+            );
     }
 }
 
@@ -33,6 +36,12 @@ impl Plugin for OtherObjectsPlugin {
 struct Materials {
     projectile: Handle<StandardMaterial>,
     projectile_impact: Handle<StandardMaterial>,
+}
+
+impl Materials {
+    fn all(&self) -> impl Iterator<Item = &Handle<StandardMaterial>> {
+        [&self.projectile, &self.projectile_impact].into_iter()
+    }
 }
 
 fn make_materials(
@@ -54,6 +63,57 @@ fn make_materials(
             },
         ),
     });
+}
+
+#[derive(Component)]
+struct ShaderCompilationHack;
+
+#[derive(Resource, Default)]
+struct ShaderCompilationHackState(u32);
+
+// prevent shader stutter while in gameplay - do it only when camera is spawned
+fn shader_compilation_hack(
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    hacks: Query<Entity, With<ShaderCompilationHack>>,
+    mut commands: Commands,
+    materials: Res<Materials>,
+    assets: Res<ObjectAssets>,
+    mut state: ResMut<ShaderCompilationHackState>,
+) {
+    let distance = 10.;
+    let frame_count = 10;
+
+    if hacks.is_empty() {
+        let Ok(camera) = camera.get_single() else {return;};
+
+        for material in materials.all() {
+            let transform = {
+                let mut trans = Transform::from(*camera);
+                trans.translation += trans.forward() * distance;
+                trans
+            };
+            commands.spawn((
+                PbrBundle {
+                    mesh: assets.mesh_sphere.clone(),
+                    material: material.clone(),
+                    transform,
+                    global_transform: transform.into(),
+                    ..default()
+                },
+                ShaderCompilationHack,
+            ));
+        }
+    } else {
+        state.0 += 1;
+        if state.0 < frame_count {
+            return;
+        }
+
+        for entity in hacks.iter() {
+            commands.try_despawn_recursive(entity);
+        }
+        commands.remove_resource::<ShaderCompilationHackState>();
+    }
 }
 
 fn spawn_projectiles(

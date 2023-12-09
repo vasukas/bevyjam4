@@ -37,6 +37,8 @@ impl WorldCameraBundle {
         let vertical_size = 12.; // viewport height in world units
         let distance = (vertical_size / 2.) / (vertical_fov / 2.).tan();
 
+        info!("camera distance: {distance}");
+
         Self {
             name: Name::new(name),
             game_object: GameObject,
