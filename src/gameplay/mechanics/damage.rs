@@ -11,6 +11,7 @@ pub struct Projectile {
     pub damage: u32,
     pub speed: f32,
     pub radius: f32,
+    pub ty: DamageType,
 }
 
 impl Projectile {
@@ -36,27 +37,21 @@ impl Projectile {
     }
 }
 
-impl Default for Projectile {
-    fn default() -> Self {
-        Self {
-            damage: 1,
-            speed: 6.,
-            radius: 0.15,
-        }
-    }
+/// Damage is applied only if damage type and health type match
+#[derive(Component, Clone, Copy, PartialEq, Eq)]
+pub enum DamageType {
+    Player,
+    Barrels,
 }
 
 /// When reaches zero, [`Dead`] is added to the entity.
 #[derive(Component)]
 pub struct Health {
     pub value: u32,
+    pub ty: DamageType,
 }
 
 impl Health {
-    pub fn new(value: u32) -> Self {
-        Self { value }
-    }
-
     fn reduce(&mut self, by: u32) -> bool {
         self.value = self.value.saturating_sub(by);
         self.value == 0
@@ -76,30 +71,44 @@ pub struct ProjectileImpact {
     pub projectile: Projectile,
 }
 
+/// Send this to apply damage to an entity
+#[derive(Event)]
+pub struct ApplyDamage {
+    pub victim: Entity,
+    pub amount: u32,
+    pub ty: DamageType,
+}
+
 ///
 pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<ProjectileImpact>()
-            .add_systems(Update, projectile.in_set(MechanicSet::Reaction))
+            .add_event::<ApplyDamage>()
+            .add_systems(
+                Update,
+                (projectile, apply_damage)
+                    .chain()
+                    .in_set(MechanicSet::Reaction),
+            )
             .add_systems(PostUpdate, remove_dead_colliders);
     }
 }
 
 fn projectile(
     projectiles: Query<(Entity, &Projectile, &CollidingEntities, &GlobalTransform)>,
-    mut victims: Query<&mut Health, Without<Dead>>,
     mut commands: Commands,
     mut impacts: EventWriter<ProjectileImpact>,
+    mut apply_damage: EventWriter<ApplyDamage>,
 ) {
     for (proj_entity, projectile, colliding, pos) in projectiles.iter() {
         for victim in colliding.iter() {
-            if let Ok(mut health) = victims.get_mut(victim) {
-                if health.reduce(projectile.damage) {
-                    commands.try_insert(victim, Dead);
-                }
-            }
+            apply_damage.send(ApplyDamage {
+                victim,
+                amount: projectile.damage,
+                ty: projectile.ty,
+            })
         }
 
         if !colliding.is_empty() {
@@ -108,6 +117,20 @@ fn projectile(
                 pos: pos.translation().truncate(),
                 projectile: *projectile,
             })
+        }
+    }
+}
+
+fn apply_damage(
+    mut damage: EventReader<ApplyDamage>,
+    mut victims: Query<&mut Health, Without<Dead>>,
+    mut commands: Commands,
+) {
+    for damage in damage.read() {
+        if let Ok(mut health) = victims.get_mut(damage.victim) {
+            if health.ty == damage.ty && health.reduce(damage.amount) {
+                commands.try_insert(damage.victim, Dead);
+            }
         }
     }
 }

@@ -25,6 +25,8 @@ pub enum PlayerActions {
     Movement, // action_axis_xy
     ToggleHelp,
     Restart,
+    Fire,
+    Pull,
 }
 
 impl PlayerActions {
@@ -34,6 +36,8 @@ impl PlayerActions {
             .insert(KeyCode::I, Self::ToggleHelp)
             .insert(KeyCode::F1, Self::ToggleHelp)
             .insert(KeyCode::R, Self::Restart)
+            .insert(MouseButton::Left, Self::Fire)
+            .insert(MouseButton::Right, Self::Pull)
             .build()
     }
 }

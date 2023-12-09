@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 mod animation_ctl;
 mod assets;
+mod barrels;
 mod enemy;
 mod other_objects;
 mod player;
@@ -24,6 +25,7 @@ impl Plugin for ObjectsPlugin {
             utils::UtilsPlugin,
             enemy::EnemyPlugin,
             other_objects::OtherObjectsPlugin,
+            barrels::BarrelsPlugin,
         ));
     }
 }

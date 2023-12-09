@@ -7,6 +7,7 @@ use crate::gameplay::master::level::current::LevelCommand;
 use crate::gameplay::master::level::data::*;
 use crate::gameplay::master::level::spawn::SpawnObject;
 use crate::gameplay::master::script_points::EnemySpawner;
+use crate::gameplay::objects::barrels::Barrel;
 use crate::gameplay::objects::elevators::Elevator;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
@@ -170,6 +171,10 @@ fn draw_editor_menu(
                     if forced_center_align(&tools.add_object.data) {
                         tools.add_object.align = LevelAlign::Center;
                     }
+
+                    if forced_snap_tile(&tools.add_object.data) {
+                        tools.snap_to_tile = true;
+                    }
                 }
                 ui.group(|ui| {
                     edit_object(ui, &mut changed, &mut tools.add_object, None);
@@ -263,18 +268,37 @@ fn forced_center_align(object: &LevelObjectData) -> bool {
     }
 }
 
+fn forced_snap_tile(object: &LevelObjectData) -> bool {
+    match object {
+        LevelObjectData::TerrainFloor(_)
+        | LevelObjectData::TerrainWall(_)
+        | LevelObjectData::TerrainLight(_)
+        | LevelObjectData::Elevator(_) => true,
+        _ => false,
+    }
+}
+
 fn make_object(ui: &mut egui::Ui) -> Option<LevelObjectData> {
     [
         ("Script point", LevelObjectData::ScriptPoint(default())),
         ("Enemy spawner", LevelObjectData::EnemySpawner(default())),
         ("Elevator", LevelObjectData::Elevator(default())),
+        ("", LevelObjectData::None),
+        ("Barrel", LevelObjectData::Barrel(Barrel::Fire)),
+        ("", LevelObjectData::None),
         ("Wall", LevelObjectData::TerrainWall(default())),
         ("Floor", LevelObjectData::TerrainFloor(default())),
         ("Light", LevelObjectData::TerrainLight(default())),
     ]
     .into_iter()
     .fold(None, |acc, (name, object)| {
-        ui.button(name).clicked().then_some(object).or(acc)
+        match object {
+            LevelObjectData::None => {
+                ui.label(""); // separator
+                acc
+            }
+            object => ui.button(name).clicked().then_some(object).or(acc),
+        }
     })
 }
 
@@ -347,6 +371,12 @@ fn edit_object(
             *changed |= ui.radio_value(object, Elevator::Exit, "Exit").changed();
         }
 
+        //
+        LevelObjectData::Barrel(object) => {
+            *changed |= ui.radio_value(object, Barrel::Fire, "Fire").changed();
+        }
+
+        //
         LevelObjectData::TerrainWall(object) => {
             match object {
                 TerrainWall::Generic => ui.label("Wall"),
@@ -518,6 +548,12 @@ fn draw_tool_info(
 fn highlight_selected_tile(editor: Res<Editor>, mut gizmos: Gizmos) {
     let pos = pos_to_tile_center(editor.world_cursor);
     gizmos.rect_2d(pos, 0., Vec2::splat(TILE_SIZE), Color::GREEN.with_a(0.4));
+
+    // draw cursor
+    let cursor = editor.world_cursor;
+    let color = Color::rgb(1., 0., 1.);
+    gizmos.circle_2d(cursor, 0.55, color); // close to barrel size
+    gizmos.ray(cursor.extend(0.), cursor.extend(2.), color);
 }
 
 fn draw_labels(
@@ -538,6 +574,9 @@ fn draw_labels(
             LevelObjectData::ScriptPoint(object) => (1, format!("SP:{}", object.id)),
             LevelObjectData::EnemySpawner(_object) => (1, format!("Enemy")),
             LevelObjectData::Elevator(_object) => (1, format!("Elevator")),
+            //
+            LevelObjectData::Barrel(_object) => (2, format!("Barrel")),
+            //
             LevelObjectData::TerrainWall(_) => (2, "Wall".to_string()),
             LevelObjectData::TerrainFloor(_) => (3, "Floor".to_string()),
             LevelObjectData::TerrainLight(_) => (4, "Light".to_string()),

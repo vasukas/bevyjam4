@@ -17,9 +17,12 @@ use crate::gameplay::objects::player::Player;
 use crate::gameplay::objects::player::PLAYER_HEALTH;
 use crate::gameplay::utils::rotate_to_target;
 use crate::gameplay::utils::RotateToTarget;
+use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::bevy_egui::*;
+use crate::utils::math_algorithms::lerp;
 use bevy::prelude::*;
 use leafwing_input_manager::action_state::ActionState;
+use std::time::Duration;
 
 pub struct HudPlugin;
 
@@ -141,28 +144,33 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
     });
 }
 
+#[derive(Component)]
+struct DeadSince(Duration);
+
 fn draw_overload(
     mut egui_ctx: EguiContexts,
-    enemies: Query<(&GlobalTransform, &Overload)>,
+    enemies: Query<(&GlobalTransform, &Overload, Option<&DeadSince>)>,
     camera: Query<(&GlobalTransform, &Camera)>,
     ui_const: UiConst,
+    died: Query<Entity, (With<Overload>, Added<Dead>)>,
+    mut commands: Commands,
+    time: Res<Time<Real>>,
 ) {
-    let color = |t_overload| {
-        match t_overload {
-            t if t < 0.25 => Color::RED,
-            t if t < 0.66 => Color::ORANGE_RED,
-            t if t >= 1. => Color::WHITE,
-            _ => Color::YELLOW,
-        }
-        .to_egui()
+    let color = |t_overload| match t_overload {
+        t if t < 0.25 => Color::RED,
+        t if t < 0.66 => Color::ORANGE_RED,
+        t if t >= 1. => Color::WHITE,
+        _ => Color::YELLOW,
     };
-    let text = |t_overload| format!("{:2}% CPU", t_overload * 100.);
+    let text = |t_overload: f32| format!("{:2}% CPU", (t_overload * 100.).min(100.) as i32);
 
     let text_size = 10.;
     let slider_width = 20.;
 
     let offset = Vec2::new(HALF_TILE * 0.5, HALF_TILE);
     let approx_text_size = 0.7 * 7.;
+
+    let post_death_duration = Duration::from_millis(1600);
 
     //
 
@@ -176,7 +184,23 @@ fn draw_overload(
     let slider_width = slider_width * ui_const;
     let approx_text_size = text_size * ui_const * approx_text_size;
 
-    for (pos, overload) in enemies.iter() {
+    for entity in died.iter() {
+        commands.try_insert(entity, DeadSince(time.elapsed()));
+    }
+
+    for (pos, overload, dead_since) in enemies.iter() {
+        let alpha = match dead_since {
+            Some(since) => {
+                let t_passed = time.elapsed().saturating_sub(since.0).as_secs_f32()
+                    / post_death_duration.as_secs_f32();
+                if t_passed >= 1. {
+                    continue;
+                }
+                lerp(2., 0., t_passed).clamp(0., 1.)
+            }
+            None => 1.,
+        };
+
         let pos = pos.translation().truncate() + offset / scale_factor;
 
         let Some(center) = camera.world_to_viewport(camera_transform, pos.extend(0.)) else { return; };
@@ -186,7 +210,7 @@ fn draw_overload(
         );
 
         let t_overload = overload.current / overload.max;
-        let color = color(t_overload);
+        let color = color(t_overload).set_a(alpha).to_egui();
 
         let mut slider_rect = rect;
         slider_rect.set_width(slider_width * t_overload);

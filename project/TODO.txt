@@ -7,8 +7,24 @@ MVP goals (not neccessary in that order):
 + player has 2-3 HP, no healing
 
 - barrels-o-fire
+    + entity & states
+    + level editor
+    + graphics (normal)
+    - on fire
+        - particle logic
+        - particle graphics
+    - explosions
+        - particle logic
+        - particle graphics
+        - damage & physical impulse
+
 - gun: fire
+
 - gun: gravity
+    - pull barrels
+    - rotate barrels (graphically)
+
+- add guns to F1 help & explain how they work?
 
 + enemy overload
 + improve particles: many graphical entities, one physical entity

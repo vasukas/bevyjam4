@@ -1,5 +1,6 @@
 use super::elevators::Elevator;
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::mechanics::damage::DamageType;
 use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::mechanics::movement::MovementController;
 use crate::gameplay::mechanics::MechanicSet;
@@ -41,8 +42,8 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-const PLAYER_RADIUS: f32 = 0.2;
 pub const PLAYER_HEALTH: u32 = 30;
+const PLAYER_RADIUS: f32 = 0.2;
 
 fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
     for entity in new.iter() {
@@ -62,7 +63,10 @@ fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
                 }
                 .bundle(),
                 RotateToTarget::new_from_time(0.35),
-                Health::new(PLAYER_HEALTH),
+                Health {
+                    value: PLAYER_HEALTH,
+                    ty: DamageType::Player,
+                },
                 //
                 CollidingEntities::default(),
                 ActiveEvents::COLLISION_EVENTS,

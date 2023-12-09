@@ -1,5 +1,6 @@
 use crate::gameplay::master::script_points::EnemySpawner;
 use crate::gameplay::master::script_points::ScriptPoint;
+use crate::gameplay::objects::barrels::Barrel;
 use crate::gameplay::objects::elevators::Elevator;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
@@ -149,6 +150,8 @@ pub enum LevelObjectData {
     ScriptPoint(ScriptPoint),
     EnemySpawner(EnemySpawner),
     Elevator(Elevator),
+
+    Barrel(Barrel),
 
     TerrainWall(TerrainWall),
     TerrainFloor(TerrainFloor),

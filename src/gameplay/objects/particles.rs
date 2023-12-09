@@ -1,3 +1,4 @@
+use crate::gameplay::balance::OVERLOAD_PROJECTILE_IMPACT;
 use crate::gameplay::master::level::spawn::GameObjectBundle;
 use crate::gameplay::mechanics::damage::ProjectileImpact;
 use crate::gameplay::mechanics::overload::OverloadSource;
@@ -30,7 +31,7 @@ impl Particle {
                 size: 0.1,
                 distance: 1.,
                 graphical_count: 8,
-                overload_power: 1.,
+                overload_power: OVERLOAD_PROJECTILE_IMPACT,
                 lifetime: Duration::from_millis(1200),
             },
         }

@@ -16,6 +16,7 @@ pub struct ExitUnlocked;
 #[derive(Resource)]
 pub struct LevelList {
     levels: HashMap<String, LevelInfo>,
+    order: Vec<String>,
     first: String,
 }
 
@@ -25,7 +26,7 @@ impl LevelList {
     }
 
     pub fn all(&self) -> impl Iterator<Item = &String> {
-        self.levels.keys()
+        self.order.iter()
     }
 
     pub fn data(&self, id: &str) -> &LevelData {
@@ -95,6 +96,7 @@ fn load_levels(mut commands: Commands, mut track: TrackAssets) {
 
     commands.insert_resource(LevelList {
         first: sequence.first().unwrap().0.to_string(),
+        order: sequence.iter().map(|v| v.0.to_string()).collect(),
         levels: sequence
             .iter()
             .enumerate()

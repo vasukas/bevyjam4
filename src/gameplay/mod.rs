@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub mod balance;
 pub mod master;
 pub mod mechanics;
 pub mod objects;
