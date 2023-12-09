@@ -148,8 +148,8 @@ fn draw_editor_menu(
             } else {
                 let _ = ui.button("(no unsaved changes)");
             }
-            if ui.button("Exit level editor").clicked() {
-                next_menu_state.set(MenuState::MainMenu);
+            if ui.button("Stop editing").clicked() {
+                next_menu_state.set(MenuState::None);
                 next_editor_state.set(EditorEnabled::No);
             }
 
@@ -482,20 +482,20 @@ fn draw_tool_info(
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {
-        ui.label(format!("Add object: [{}]", prompt.get(EditorActions::Tool)));
+        ui.label(format!("Add object: {}", prompt.get(EditorActions::Tool)));
         ui.label(format!(
-            "Remove all objects on tile: [{}]",
+            "Remove all objects on tile: {}",
             prompt.get(EditorActions::ToolAlt)
         ));
         ui.label(format!(
-            "Toggle labels: [{}]",
+            "Toggle labels: {}",
             prompt.get(EditorActions::SwitchDisplay)
         ));
         ui.label(format!("Set align: arrows & zero"));
 
         ui.label("");
         ui.label(format!(
-            "Add object: [{}] {:?}",
+            "Add object: {} {:?}",
             tools.add_object.align.symbol(),
             tools.add_object.data
         ));

@@ -143,7 +143,7 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
 
 fn draw_overload(
     mut egui_ctx: EguiContexts,
-    enemies: Query<(&GlobalTransform, &Overload), Without<Dead>>,
+    enemies: Query<(&GlobalTransform, &Overload)>,
     camera: Query<(&GlobalTransform, &Camera)>,
     ui_const: UiConst,
 ) {
@@ -151,6 +151,7 @@ fn draw_overload(
         match t_overload {
             t if t < 0.25 => Color::RED,
             t if t < 0.66 => Color::ORANGE_RED,
+            t if t >= 1. => Color::WHITE,
             _ => Color::YELLOW,
         }
         .to_egui()

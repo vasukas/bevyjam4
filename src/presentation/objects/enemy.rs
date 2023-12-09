@@ -17,20 +17,19 @@ impl Plugin for EnemyPlugin {
     }
 }
 
-// /// Player graphical state
-// #[derive(Component)]
-// struct EnemyData {
-//     model: Entity,
-// }
+/// Player graphical state
+#[derive(Component)]
+struct EnemyData {
+    model: Entity,
+}
 
 fn spawn(new: Query<Entity, Added<Enemy>>, mut commands: Commands, assets: Res<ObjectAssets>) {
     for entity in new.iter() {
         let model = &assets.model_tripod;
-        // let model = &assets.model_jimbo;
         let scene = model.scene();
 
         commands.try_command(entity, |entity| {
-            let _id = entity.with_child(|parent| {
+            let model = entity.with_child(|parent| {
                 parent
                     .spawn((SceneBundle {
                         scene,
@@ -39,18 +38,20 @@ fn spawn(new: Query<Entity, Added<Enemy>>, mut commands: Commands, assets: Res<O
                     },))
                     .id()
             });
-            // entity.insert(EnemyData { model: id });
+            entity.insert(EnemyData { model });
         });
     }
 }
 
-fn on_death(died: Query<Entity, (With<Enemy>, Added<Dead>)>, mut commands: Commands) {
-    let duration = Duration::from_millis(800);
+fn on_death(died: Query<&EnemyData, (With<Enemy>, Added<Dead>)>, mut commands: Commands) {
+    let duration = Duration::from_millis(500);
 
-    for entity in died.iter() {
+    for data in died.iter() {
         commands.try_insert(
-            entity,
-            InterpolateTransformOnce::new(duration).rotation(default()),
+            data.model,
+            InterpolateTransformOnce::new(duration)
+                .rotation(default())
+                .pos(Vec3::Z * 0.5),
         );
     }
 }

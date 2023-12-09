@@ -6,14 +6,16 @@ use leafwing_input_manager::user_input::InputKind;
 #[derive(Actionlike, TypePath, Clone, Copy)]
 pub enum AppActions {
     Screenshot,
-    ToggleMenu,
+    CloseMenu,
+    LevelEditor,
 }
 
 impl AppActions {
     fn default_map() -> InputMap<Self> {
         InputMap::default()
             .insert(KeyCode::F12, Self::Screenshot)
-            .insert(KeyCode::Escape, Self::ToggleMenu)
+            .insert(KeyCode::Escape, Self::CloseMenu)
+            .insert_chord([KeyCode::ControlLeft, KeyCode::E], Self::LevelEditor)
             .build()
     }
 }
@@ -30,6 +32,7 @@ impl PlayerActions {
         InputMap::default()
             .insert(VirtualDPad::wasd(), Self::Movement)
             .insert(KeyCode::I, Self::ToggleHelp)
+            .insert(KeyCode::F1, Self::ToggleHelp)
             .insert(KeyCode::R, Self::Restart)
             .build()
     }
@@ -84,29 +87,30 @@ pub struct ActionPrompt<'w, A: Actionlike + 'static> {
 
 impl<'w, A: Actionlike + 'static> ActionPrompt<'w, A> {
     pub fn get(&self, action: A) -> String {
-        let mut inputs = self.map.get(action).iter();
-        let Some(input) = inputs.next() else { return "NOT SET".to_string(); };
+        let mut text = String::new();
 
-        let mut text = match input {
-            UserInput::Single(input) => match input {
-                InputKind::Keyboard(input) => format!("{input:?} key"),
-                InputKind::Mouse(input) => format!("{input:?} mouse button"),
-                _ => format!("Single:{input:?}"),
-            },
-            UserInput::Chord(input) => format!("Chord:{input:?}"),
-            UserInput::VirtualDPad(input) => {
-                if input == &VirtualDPad::wasd() {
-                    "W/A/S/D".to_string()
-                } else {
-                    format!("VirtualDPad:{input:?}")
+        for input in self.map.get(action).iter() {
+            let s = match input {
+                UserInput::Single(input) => match input {
+                    InputKind::Keyboard(input) => format!("[{input:?} key]"),
+                    InputKind::Mouse(input) => format!("[{input:?} mouse button]"),
+                    _ => format!("[Single: {input:?}]"),
+                },
+                UserInput::Chord(input) => format!("[Chord: {input:?}]"),
+                UserInput::VirtualDPad(input) => {
+                    if input == &VirtualDPad::wasd() {
+                        "[W/A/S/D]".to_string()
+                    } else {
+                        format!("[VirtualDPad: {input:?}]")
+                    }
                 }
-            }
-            UserInput::VirtualAxis(input) => format!("VirtualAxis:{input:?}"),
-        };
+                UserInput::VirtualAxis(input) => format!("[VirtualAxis: {input:?}]"),
+            };
 
-        let and_more = inputs.next().is_some();
-        if and_more {
-            text += "... and more";
+            if !text.is_empty() {
+                text += " or ";
+            }
+            text += &s;
         }
 
         text

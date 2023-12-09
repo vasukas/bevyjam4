@@ -15,9 +15,10 @@ MVP goals (not neccessary in that order):
 
 + level progression (via elevators)
 
-- critical bug!
-    - after progress to next level: menu stuck in loop
-    - can't exit from editor to game: menu stuck in loop
+- add game over screen (fade to black)
+
+- graphical bugs
+    - is procedural material stutter present on the web too? prob should fix that
 
 
 
@@ -46,7 +47,7 @@ Extra goals:
     - poster image, for itch page and menu background
 
 - technical
-    - fix overload render coordinates
+    - fix overload render coordinates (text and rect are misaligned relative to each other)
     - particle count multiplier (for increasing performance)
 
 

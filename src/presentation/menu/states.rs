@@ -3,6 +3,7 @@ use crate::app::scores::Scores;
 use crate::app::settings::AppSettings;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::game_states::GameRunning;
+use crate::gameplay::master::level_progress::LevelList;
 use crate::gameplay::master::time_master::TimeMaster;
 use crate::utils::plugins::load_assets::LoadedTrackedAssets;
 use bevy::prelude::*;
@@ -35,7 +36,6 @@ impl Plugin for StatesPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<MenuState>()
             .add_event::<CloseMenu>()
-            .init_resource::<PreviousMenu>()
             .add_systems(
                 Last,
                 update_game_controls.run_if(state_changed::<MenuState>()),
@@ -44,7 +44,7 @@ impl Plugin for StatesPlugin {
                 PostUpdate,
                 (
                     on_load_complete.run_if(on_event::<LoadedTrackedAssets>()),
-                    on_back,
+                    on_actions,
                 ),
             );
     }
@@ -64,61 +64,63 @@ fn on_load_complete(
     settings: Res<AppSettings>,
     mut game_commands: EventWriter<GameCommand>,
     scores: Res<Scores>,
+    levels: Res<LevelList>,
 ) {
     if settings.debug.quick_edit || settings.debug.quick_start {
-        if let Some(level) = &scores.last_level {
-            next_state.set(if settings.debug.quick_edit {
-                MenuState::LevelEditor
-            } else {
-                MenuState::None
-            });
+        let level_id = scores
+            .last_level
+            .as_ref()
+            .map(|level| level.id.clone())
+            .unwrap_or(levels.first());
 
-            game_commands.send(GameCommand::Start {
-                level_id: level.id.clone(),
-            });
-        }
+        next_state.set(if settings.debug.quick_edit {
+            MenuState::LevelEditor
+        } else {
+            MenuState::None
+        });
+
+        game_commands.send(GameCommand::Start { level_id });
     } else {
         next_state.set(MenuState::MainMenu);
     }
 }
 
-/// Last state menu was in
-#[derive(Resource)]
-struct PreviousMenu(pub MenuState);
-
-impl Default for PreviousMenu {
-    fn default() -> Self {
-        Self(MenuState::MainMenu)
-    }
-}
-
-fn on_back(
+fn on_actions(
     actions: Res<ActionState<AppActions>>,
-    event: EventReader<CloseMenu>,
+    close_menu: EventReader<CloseMenu>,
     state: Res<State<MenuState>>,
     mut next_state: ResMut<NextState<MenuState>>,
-    mut previous: ResMut<PreviousMenu>,
     game_running: Res<State<GameRunning>>,
 ) {
-    if actions.just_pressed(AppActions::ToggleMenu) || !event.is_empty() {
-        let new_state = match state.get() {
-            MenuState::Startup | MenuState::LevelLoading => {
-                return;
-            }
-            MenuState::None => previous.0,
+    if actions.just_pressed(AppActions::CloseMenu) || !close_menu.is_empty() {
+        match state.get() {
+            MenuState::Startup => (),
+            MenuState::None => next_state.set(MenuState::MainMenu),
+            MenuState::MainMenu => match game_running.get() {
+                GameRunning::Yes => next_state.set(MenuState::None),
+                GameRunning::No => (),
+            },
+            MenuState::LevelSelect => next_state.set(MenuState::MainMenu),
+            MenuState::Settings => next_state.set(MenuState::MainMenu),
+            MenuState::LevelEditor => (),
             MenuState::ModalMessage => match game_running.get() {
-                GameRunning::Yes => MenuState::None,
-                GameRunning::No => MenuState::MainMenu,
+                GameRunning::Yes => next_state.set(MenuState::None),
+                GameRunning::No => next_state.set(MenuState::MainMenu),
             },
-            _ => match game_running.get() {
-                GameRunning::Yes => {
-                    previous.0 = *state.get();
-                    MenuState::None
-                }
-                GameRunning::No => return,
-            },
+            MenuState::Help => next_state.set(MenuState::None),
+            MenuState::LevelLoading => (),
         };
+    }
 
-        next_state.set(new_state);
+    if actions.just_pressed(AppActions::LevelEditor) {
+        match state.get() {
+            MenuState::None => {
+                if game_running.get().is_yes() {
+                    next_state.set(MenuState::LevelEditor)
+                }
+            }
+            MenuState::LevelEditor => next_state.set(MenuState::None),
+            _ => (),
+        }
     }
 }

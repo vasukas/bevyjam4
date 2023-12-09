@@ -144,6 +144,7 @@ fn draw_and_update_messages(
     mut egui_ctx: EguiContexts,
     ui_const: UiConst,
     mut close_menu: EventWriter<CloseMenu>,
+    mut menu_state: ResMut<NextState<MenuState>>,
     primary_window: Query<(), With<PrimaryWindow>>,
 ) {
     let ui_const = ui_const.scale();
@@ -166,6 +167,10 @@ fn draw_and_update_messages(
     //
 
     if let Some(message) = data.queue.front() {
+        if data.current_started_at.is_none() && message.ty.modal() {
+            menu_state.set(MenuState::ModalMessage);
+        }
+
         let started_at = *data.current_started_at.get_or_insert(time.elapsed());
         let passed = time.elapsed().saturating_sub(started_at);
 

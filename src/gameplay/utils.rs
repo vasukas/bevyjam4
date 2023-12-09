@@ -3,6 +3,7 @@ use super::master::level::data::TILE_SIZE;
 use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::bevy::misc_utils::ExtendedTimer;
 use crate::utils::math_algorithms::lerp;
+use crate::utils::random::RandomVec;
 use bevy::prelude::*;
 use leafwing_input_manager::orientation::Orientation;
 use leafwing_input_manager::orientation::Rotation;
@@ -61,6 +62,11 @@ impl RotateToTarget {
 
     pub fn new_from_time(seconds_full_360: f32) -> Self {
         Self::new(TAU / seconds_full_360)
+    }
+
+    pub fn random(mut self) -> Self {
+        self.target_dir = Vec2::random_dir();
+        self
     }
 }
 

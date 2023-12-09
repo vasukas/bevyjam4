@@ -35,7 +35,7 @@ fn spawn_player(new: Query<Entity, Added<Enemy>>, mut commands: Commands) {
                         .mass(120.)
                 },
                 PhysicsType::Enemy.groups(),
-                RotateToTarget::new_from_time(0.5),
+                RotateToTarget::new_from_time(0.5).random(),
                 //
                 Target::default(),
                 Shoot {

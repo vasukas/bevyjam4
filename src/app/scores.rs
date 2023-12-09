@@ -66,10 +66,9 @@ fn update_visited_levels(
     mut next_level: EventReader<GotoNextLevel>,
 ) {
     if let Some(next) = next_level.read().last() {
+        scores.completed_levels.insert(current.id.clone());
         match &next.id {
-            Some(_) => {
-                scores.completed_levels.insert(current.id.clone());
-            }
+            Some(_) => {}
             None => {
                 // final level completed!
                 scores.last_level = None;

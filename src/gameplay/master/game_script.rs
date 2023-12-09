@@ -27,7 +27,7 @@ fn on_level_loaded(
                 Message::notify(
                     "Tutorial",
                     format!(
-                        "Press [{}] to show objective and controls",
+                        "Press {} to show objective and controls",
                         prompt.get(PlayerActions::ToggleHelp)
                     ),
                 )

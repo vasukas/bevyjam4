@@ -93,7 +93,7 @@ fn level_loading(
     levels: Res<LevelList>,
     ui_const: UiConst,
 ) {
-    let fade_duration = Duration::from_millis(3000);
+    let fade_duration = Duration::from_millis(1500);
     let text_size = 80. * ui_const.scale();
 
     if let Some(next) = next_level.read().last() {
@@ -112,7 +112,7 @@ fn level_loading(
 
                 messages.send(Message {
                     header: "Congratulations!".into(),
-                    text: "You've completed the game!\nThere was supposed to be victory screen, but we ran out of time\nC:".into(),
+                    text: "You've completed the game!\nThere was supposed to be nice victory screen, but we ran out of time\nC:".into(),
                     ty: MessageType::ModalNotification,
                 });
             }
@@ -124,7 +124,7 @@ fn level_loading(
 
         if state.timer.finished() {
             *res_state = None;
-            next_state.set(MenuState::MainMenu);
+            next_state.set(MenuState::None);
             return;
         }
 
@@ -135,12 +135,14 @@ fn level_loading(
         }
 
         let t = state.timer.t_elapsed();
-        let alpha = if t < 0.5 {
-            map_linear_range(t, 0., 0.5, 0., 1., true)
+        let brek = 0.3;
+        let alpha = if t < brek {
+            map_linear_range(t, 0., brek, 0., 1., true)
+        } else if t < 1. - brek {
+            1.
         } else {
-            map_linear_range(t, 0.5, 1., 1., 0., true)
+            map_linear_range(t, 1. - brek, 1., 1., 0., true)
         };
-        let alpha = alpha.powf(0.5);
 
         EguiPopup {
             name: "level_loading background",
@@ -172,6 +174,7 @@ fn level_loading(
         }
         .show(egui_ctx.ctx_mut(), |ui| {
             // level name
+            ui.visuals_mut().override_text_color = Color::WHITE.with_a(alpha).to_egui().into();
             ui.label(egui::RichText::new(levels.name(&state.id)).size(text_size));
         });
     }

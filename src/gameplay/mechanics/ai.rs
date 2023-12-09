@@ -89,7 +89,7 @@ fn spawn(new_shoot: Query<Entity, Added<Shoot>>, mut commands: Commands) {
 }
 
 fn find_target(
-    target: Query<&GlobalTransform, With<Player>>,
+    target: Query<&GlobalTransform, (With<Player>, Without<Dead>)>,
     mut finders: Query<(&GlobalTransform, &mut Target), Without<Dead>>,
     phy_world: Res<RapierContext>,
     time: Res<Time>,
@@ -100,15 +100,6 @@ fn find_target(
         .ok();
 
     for (pos, mut target) in finders.iter_mut() {
-        // target.found = target_pos.map(|target| {
-        //     let pos = pos.translation().truncate();
-
-        //     let dir = (target - pos).try_normalize().unwrap_or(Vec2::Y);
-        //     let distance = (target - pos).length();
-
-        //     TargetData { dir, distance }
-        // });
-
         // update target data
         target.found = target_pos.and_then(|target| {
             let pos = pos.translation().truncate();
