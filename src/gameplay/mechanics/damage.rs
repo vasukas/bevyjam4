@@ -2,8 +2,10 @@ use super::MechanicSet;
 use crate::gameplay::master::level::spawn::GameObjectBundle;
 use crate::gameplay::physics::*;
 use crate::gameplay::utils::rotation_from_dir;
+use crate::gameplay::utils::Lifetime;
 use crate::utils::bevy::commands::FallibleCommands;
 use bevy::prelude::*;
+use std::time::Duration;
 
 ///
 #[derive(Component, Clone, Copy)]
@@ -30,8 +32,9 @@ impl Projectile {
             ColliderMassProperties::Mass(5.),
             CollidingEntities::default(),
             ActiveEvents::COLLISION_EVENTS,
-            PhysicsType::EnemyProjectile.groups(),
+            PhysicsType::Projectile.groups(),
             //
+            Lifetime(Duration::from_millis(5000)),
             self,
         )
     }

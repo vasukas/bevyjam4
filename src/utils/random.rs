@@ -1,5 +1,6 @@
 //! Random number generation
 
+use super::math_algorithms::dir_vec2;
 use bevy::math::*;
 use rand::distributions::uniform::SampleUniform;
 pub use rand::{thread_rng, Rng};
@@ -25,7 +26,7 @@ pub trait RandomVec {
 
 impl RandomVec for Vec2 {
     fn random_dir() -> Self {
-        Affine2::from_angle((0. ..TAU).random()).transform_vector2(Vec2::X)
+        dir_vec2((0. ..TAU).random())
     }
 }
 

@@ -3,8 +3,10 @@ use bevy::prelude::*;
 mod animation_ctl;
 mod assets;
 mod barrels;
+mod elevators;
 mod enemy;
-mod other_objects;
+mod materials;
+mod particles;
 mod player;
 mod sprite;
 mod terrain;
@@ -24,8 +26,10 @@ impl Plugin for ObjectsPlugin {
             animation_ctl::AnimationCtlPlugin,
             utils::UtilsPlugin,
             enemy::EnemyPlugin,
-            other_objects::OtherObjectsPlugin,
+            particles::OtherObjectsPlugin,
             barrels::BarrelsPlugin,
+            elevators::ElevatorsPlugin,
+            materials::MaterialsPlugin,
         ));
     }
 }

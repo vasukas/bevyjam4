@@ -28,3 +28,13 @@ pub fn map_linear_range(
     let t = if clamp { t.clamp(0., 1.) } else { t };
     lerp(out_min, out_max, t)
 }
+
+/// Rotate 2D vector
+pub fn rotate_vec2(vec: Vec2, angle: f32) -> Vec2 {
+    Affine2::from_angle(angle).transform_vector2(vec)
+}
+
+/// Normalized direction from angle
+pub fn dir_vec2(angle: f32) -> Vec2 {
+    rotate_vec2(Vec2::X, angle)
+}

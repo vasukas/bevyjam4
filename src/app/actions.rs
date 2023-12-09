@@ -38,6 +38,8 @@ impl PlayerActions {
             .insert(KeyCode::R, Self::Restart)
             .insert(MouseButton::Left, Self::Fire)
             .insert(MouseButton::Right, Self::Pull)
+            .insert(KeyCode::K, Self::Fire)
+            .insert(KeyCode::L, Self::Pull)
             .build()
     }
 }

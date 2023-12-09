@@ -4,9 +4,6 @@ use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::core_pipeline::fxaa::Fxaa;
 use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::prelude::*;
-use bevy::utils::HashMap;
-use serde::Deserialize;
-use serde::Serialize;
 use std::f32::consts::FRAC_PI_2;
 
 /// Rotate normal 3D coordinates to pseudo-2D ones
@@ -67,85 +64,11 @@ impl WorldCameraBundle {
     }
 }
 
-/// For procedurally-made [`StandardMaterial`]
-#[derive(Resource, Default)]
-pub struct MaterialCache {
-    map: HashMap<ParticleMaterial, Handle<StandardMaterial>>,
-}
-
-impl MaterialCache {
-    pub fn get(
-        &mut self,
-        materials: &mut Assets<StandardMaterial>,
-        descr: ParticleMaterial,
-    ) -> Handle<StandardMaterial> {
-        self.map
-            .entry(descr)
-            .or_insert_with(|| {
-                let color = match descr {
-                    ParticleMaterial::Simple { color } => color,
-                };
-                materials.add(StandardMaterial {
-                    base_color: color,
-                    unlit: true,
-                    alpha_mode: AlphaMode::Add,
-                    ..default()
-                })
-            })
-            .clone()
-    }
-}
-
-/// Descriptor for [`MaterialCache`]
-#[derive(Clone, Copy, Serialize, Deserialize)]
-pub enum ParticleMaterial {
-    /// Unlit, additive blending
-    Simple { color: Color },
-}
-
-impl PartialEq for ParticleMaterial {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (ParticleMaterial::Simple { color }, ParticleMaterial::Simple { color: color2 }) => {
-                color_as_u64(color) == color_as_u64(color2)
-            }
-        }
-    }
-}
-
-impl Eq for ParticleMaterial {}
-
-impl std::hash::Hash for ParticleMaterial {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        std::mem::discriminant(self).hash(state);
-        match self {
-            ParticleMaterial::Simple { color } => state.write_u64(color_as_u64(color)),
-        }
-    }
-}
-
-fn color_as_u64(color: &Color) -> u64 {
-    match color.as_rgba() {
-        Color::Rgba {
-            red,
-            green,
-            blue,
-            alpha,
-        } => {
-            let c = |c: f32| (c.clamp(0., 255.) * 255.) as u64;
-            let x = 65536;
-            c(red) + c(green) * x + c(blue) * x * x + c(alpha) * x * x * x
-        }
-        _ => unimplemented!(),
-    }
-}
-
 pub struct UtilsPlugin;
 
 impl Plugin for UtilsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<MaterialCache>()
-            .add_systems(Last, fix_lights);
+        app.add_systems(Last, fix_lights);
     }
 }
 

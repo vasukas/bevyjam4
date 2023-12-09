@@ -12,13 +12,13 @@ MVP goals (not neccessary in that order):
     + graphics (normal)
     - on fire
         - particle logic
-        - particle graphics
+        + particle graphics
     - explosions
         - particle logic
-        - particle graphics
+        + particle graphics
         - damage & physical impulse
 
-- gun: fire
++ gun: fire
 
 - gun: gravity
     - pull barrels
@@ -31,13 +31,19 @@ MVP goals (not neccessary in that order):
 
 + level progression (via elevators)
 
-- add game over screen (fade to black)
++ add game over screen (fade to black)
 
 - graphical bugs
     + is procedural material stutter present on the web too? prob should fix that
         it was much, much worse
     - sometimes elevator lamp doesn't change color
     - overload labels are visible on death screen
+
+- particles kinda obstruct vision too much
+
+- flavor text!
+
+- (maybe) change weapons to directional?
 
 
 
@@ -55,9 +61,10 @@ Extra goals:
 
 - improve visuals
     - level decorations
-    - sounds
+    / [NO: web performance is atrocious] sounds
     - real graphics for projectiles and particles
     - lightning/explosion effect (for overload, at least)
+    - camera shake from explosions
 
 - nice visuals
     - rework jimbo anims

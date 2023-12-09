@@ -65,7 +65,7 @@ pub enum PhysicsType {
     Object,
 
     Enemy,
-    EnemyProjectile,
+    Projectile,
 
     /// Collides only with itself
     Overload,
@@ -85,7 +85,7 @@ impl PhysicsType {
             PhysicsType::WallOnly => (wall_only, wall),
             PhysicsType::Object => (object, Group::all()),
             PhysicsType::Enemy => (enemy, Group::all()),
-            PhysicsType::EnemyProjectile => (enemy_proj, wall | object),
+            PhysicsType::Projectile => (enemy_proj, wall | object),
             PhysicsType::Overload => (overload, overload),
         };
 

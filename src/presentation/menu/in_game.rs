@@ -31,8 +31,10 @@ impl Plugin for HudPlugin {
         app.add_systems(
             Update,
             (
+                died_since,
                 (
                     draw_hud,
+                    death_screen,
                     player_input
                         .before(MechanicSet::Input)
                         .before(rotate_to_target),
@@ -43,6 +45,15 @@ impl Plugin for HudPlugin {
                 draw_help_menu.run_if(in_state(MenuState::Help)),
             ),
         );
+    }
+}
+
+#[derive(Component)]
+struct DeadSince(Duration);
+
+fn died_since(died: Query<Entity, Added<Dead>>, mut commands: Commands, time: Res<Time<Real>>) {
+    for entity in died.iter() {
+        commands.try_insert(entity, DeadSince(time.elapsed()));
     }
 }
 
@@ -84,6 +95,57 @@ fn draw_hud(
     });
 }
 
+fn death_screen(
+    mut egui_ctx: EguiContexts,
+    dead_player: Query<&DeadSince, With<Player>>,
+    prompt: ActionPrompt<PlayerActions>,
+    time: Res<Time<Real>>,
+) {
+    let fade_duration = Duration::from_millis(1000);
+
+    if let Ok(dead_since) = dead_player.get_single() {
+        let t_passed = (time.elapsed().saturating_sub(dead_since.0).as_secs_f32()
+            / fade_duration.as_secs_f32())
+        .min(1.);
+
+        EguiPopup {
+            name: "death_screen background",
+            anchor: egui::Align2::LEFT_TOP,
+            order: egui::Order::Background,
+            background: false,
+            interactable: false,
+            ..default()
+        }
+        .show(egui_ctx.ctx_mut(), |ui| {
+            // allocate entire screen
+            let size = ui.available_size();
+            let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());
+
+            // black background
+            ui.painter().rect_filled(
+                rect,
+                egui::Rounding::ZERO,
+                Color::BLACK.with_a(t_passed).to_egui(),
+            );
+        });
+
+        EguiPopup {
+            name: "death_screen text",
+            order: egui::Order::Foreground,
+            interactable: false,
+            ..default()
+        }
+        .show(egui_ctx.ctx_mut(), |ui| {
+            ui.label(egui::RichText::new("GAME OVER").heading().strong());
+
+            ui.label(format!(
+                "Press {} to restart level",
+                prompt.get(PlayerActions::Restart)
+            ));
+        });
+    }
+}
+
 fn player_input(
     actions: Res<ActionState<PlayerActions>>,
     mut players: Query<(&mut RotateToTarget, &mut MovementController, &mut Player), Without<Dead>>,
@@ -98,6 +160,9 @@ fn player_input(
         }
 
         mvmt.target_dir = dir;
+
+        player.input_fire = actions.pressed(PlayerActions::Fire);
+        player.input_pull = actions.pressed(PlayerActions::Pull);
     }
 
     if actions.just_pressed(PlayerActions::Restart) {
@@ -137,6 +202,14 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
             ui.label(prompt.get(PlayerActions::Movement));
             ui.end_row();
 
+            ui.label("Emit fire");
+            ui.label(prompt.get(PlayerActions::Fire));
+            ui.end_row();
+
+            ui.label("Pull objects");
+            ui.label(prompt.get(PlayerActions::Pull));
+            ui.end_row();
+
             ui.label("Restart level");
             ui.label(prompt.get(PlayerActions::Restart));
             ui.end_row();
@@ -144,16 +217,11 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
     });
 }
 
-#[derive(Component)]
-struct DeadSince(Duration);
-
 fn draw_overload(
     mut egui_ctx: EguiContexts,
     enemies: Query<(&GlobalTransform, &Overload, Option<&DeadSince>)>,
     camera: Query<(&GlobalTransform, &Camera)>,
     ui_const: UiConst,
-    died: Query<Entity, (With<Overload>, Added<Dead>)>,
-    mut commands: Commands,
     time: Res<Time<Real>>,
 ) {
     let color = |t_overload| match t_overload {
@@ -183,10 +251,6 @@ fn draw_overload(
     let font = egui::FontId::monospace(text_size * ui_const);
     let slider_width = slider_width * ui_const;
     let approx_text_size = text_size * ui_const * approx_text_size;
-
-    for entity in died.iter() {
-        commands.try_insert(entity, DeadSince(time.elapsed()));
-    }
 
     for (pos, overload, dead_since) in enemies.iter() {
         let alpha = match dead_since {
