@@ -69,6 +69,8 @@ pub enum PhysicsType {
 
     /// Collides only with itself
     Overload,
+
+    GravityPull,
 }
 
 impl PhysicsType {
@@ -76,17 +78,19 @@ impl PhysicsType {
         let wall = Group::GROUP_1;
         let object = Group::GROUP_2;
         let enemy = Group::GROUP_3;
-        let enemy_proj = Group::GROUP_4;
+        let projectile = Group::GROUP_4;
         let wall_only = Group::GROUP_5;
         let overload = Group::GROUP_6;
+        let gravity_pull = Group::GROUP_7;
 
         let (memberships, filters) = match self {
             PhysicsType::Wall => (wall, Group::all()),
             PhysicsType::WallOnly => (wall_only, wall),
             PhysicsType::Object => (object, Group::all()),
             PhysicsType::Enemy => (enemy, Group::all()),
-            PhysicsType::Projectile => (enemy_proj, wall | object),
+            PhysicsType::Projectile => (projectile, wall | object | gravity_pull),
             PhysicsType::Overload => (overload, overload),
+            PhysicsType::GravityPull => (Group::all(), object | projectile),
         };
 
         CollisionGroups {

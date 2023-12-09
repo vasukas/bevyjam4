@@ -14,10 +14,10 @@ impl Plugin for BarrelsPlugin {
     }
 }
 
-#[derive(Component)]
-struct BarrelData {
-    scene: Entity,
-}
+// #[derive(Component)]
+// struct BarrelData {
+//     scene: Entity,
+// }
 
 fn spawn_barrels(
     new: Query<(Entity, &Barrel), Added<Barrel>>,
@@ -30,7 +30,7 @@ fn spawn_barrels(
         };
 
         commands.try_command(entity, |entity| {
-            let scene = entity.with_child(|parent| {
+            let _scene = entity.with_child(|parent| {
                 parent
                     .spawn(SceneBundle {
                         scene,
@@ -39,7 +39,7 @@ fn spawn_barrels(
                     })
                     .id()
             });
-            entity.insert(BarrelData { scene });
+            // entity.insert(BarrelData { scene });
         });
     }
 }

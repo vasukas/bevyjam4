@@ -22,28 +22,33 @@ MVP goals (not neccessary in that order):
 
 + tweak overload so game is actually playable
 
-- make itch.io page
++ make itch.io page
     disable "Automatically start on page load" for sound to work
     maybe use other screen size than 1280x720? this will require changes in main.rs!
 
 - credit all used libraries and assets
-
 - add more levels, improve gameplay
+
+- explain (to player) how guns work (in F1 menu or somehow else)
+- flavor text!
+    - intro and outro
 
 
 
 
 Polish:
 
+- playtest
+
 - particles kinda obstruct vision too much
     - add gizmo-based helpers?
 - (maybe) make weapons directional (cursor-based)?
 
-- explain (to player) how guns work (in F1 menu or somehow else)
-- flavor text!
-    - intro and outro
+- poster & screenshots for itch page
 
-- poster image, for itch page and menu background
+- gather time statistics and display them to player
+
+- add native builds (use github)
 
 
 
@@ -60,6 +65,8 @@ Extra goals:
 - background: scrolling stars, partially hidden by the ship
 
 - final boss (respawning barrels; speed challenge)
+
+- make barrels rotate when pulled
 
 
 

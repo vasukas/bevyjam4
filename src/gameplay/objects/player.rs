@@ -10,6 +10,7 @@ use crate::gameplay::utils::RotateToTarget;
 use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::bevy::misc_utils::ExtendedTimer;
 use crate::utils::math_algorithms::dir_vec2;
+use crate::utils::math_algorithms::lerp;
 use crate::utils::random::RandomRange;
 use crate::utils::random::RandomVec;
 use bevy::prelude::*;
@@ -45,9 +46,6 @@ pub enum PlayerEvent {
     ReachedExitElevator,
 }
 
-#[derive(Component)]
-pub struct PulledObject;
-
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -57,7 +55,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
-                    weapon_input.in_set(MechanicSet::Action),
+                    (fire_input, update_pull).in_set(MechanicSet::Action),
                     (update_player_state, on_collisions).after(MechanicSet::Reaction),
                 ),
             );
@@ -121,13 +119,10 @@ fn on_collisions(
     }
 }
 
-fn weapon_input(
+fn fire_input(
     mut player: Query<(&GlobalTransform, &mut Player)>,
     time: Res<Time>,
     mut commands: Commands,
-    objects: Query<(Entity, &GlobalTransform), (Without<Player>, With<Collider>)>,
-    pulled: Query<(Entity, &GlobalTransform), With<PulledObject>>,
-    physics: Res<RapierContext>,
 ) {
     for (pos, mut player) in player.iter_mut() {
         let pos = pos.translation().truncate();
@@ -159,32 +154,60 @@ fn weapon_input(
                 );
             }
         }
+    }
+}
 
-        let pull_still_active = match player.pull_cooldown.as_mut() {
-            Some(timer) => {
-                timer.tick(time.delta());
-                match timer.finished() {
-                    true => {
-                        player.pull_cooldown = None;
-                        false
-                    }
-                    false => true,
-                }
+fn update_pull(
+    mut player: Query<(&GlobalTransform, &mut Player)>,
+    time: Res<Time>,
+    mut commands: Commands,
+    objects: Query<&GlobalTransform, (Without<Player>, With<Collider>)>,
+    physics: Res<RapierContext>,
+) {
+    let max_distance = 6_f32;
+    let scale_in = 0.35;
+    let scale_out = 0.6;
+    let impulse = 500.;
+    let min_time = Duration::from_millis(400);
+
+    for (pos, mut player) in player.iter_mut() {
+        // check if input is active
+        if let Some(timer) = player.pull_cooldown.as_mut() {
+            if timer.tick(time.delta()).finished() {
+                player.pull_cooldown = None;
             }
-            None => false,
+        }
+        let input_pull = std::mem::take(&mut player.input_pull) || player.pull_cooldown.is_some();
+
+        // decide what to do
+        let scale = if player.pull_active && !input_pull {
+            // disable pull (once)
+
+            player.pull_active = false;
+            player.pull_cooldown = None;
+
+            Some(scale_out)
+        } else if input_pull {
+            // apply pull (continiuosly)
+
+            if !player.pull_active {
+                player.pull_cooldown = Some(Timer::once(min_time));
+            }
+            player.pull_active = true;
+
+            Some(-scale_in * time.delta_seconds())
+        } else {
+            None
         };
 
-        let input_pull = std::mem::take(&mut player.input_pull) || pull_still_active;
-        if input_pull != player.pull_active {
-            player.pull_active = input_pull;
+        // apply effect
+        if let Some(scale) = scale {
+            let pos = pos.translation().truncate();
+            let radius = Collider::ball(max_distance - 0.5);
 
-            let max_distance = 6_f32;
-            let scale_in = 10.;
-            let scale_out = 0.5;
-            let impulse = 1_000.;
-            let min_time = Duration::from_millis(200);
+            let mut callback = |entity| {
+                let Ok(transform) = objects.get(entity) else { return; };
 
-            let impulse = |transform: &GlobalTransform, scale: f32| {
                 let target = transform.translation().truncate();
                 let delta = target - pos;
 
@@ -193,38 +216,42 @@ fn weapon_input(
                     .cast_ray(pos, delta, 1., false, PhysicsType::WallOnly.filter())
                     .is_some()
                 {
-                    return None;
+                    return;
                 }
 
-                if delta.length_squared() < max_distance.powi(2) {
-                    let dir = (delta + Vec2::random_dir() * 0.5).normalize_or_zero();
-                    Some(ExternalImpulse {
-                        impulse: dir * scale * impulse,
+                let distance = delta.length();
+                let pull_closer = scale < 0.;
+
+                let power = match pull_closer {
+                    true => {
+                        // reduce if close
+                        lerp(0., 1., distance / (max_distance - 0.5))
+                    }
+                    false => 1.,
+                };
+
+                let dir = (delta + Vec2::random_dir() * 0.5).normalize_or_zero();
+                let impulse = dir * scale * impulse * power;
+
+                commands.try_insert(
+                    entity,
+                    ExternalImpulse {
+                        impulse,
                         ..default()
-                    })
-                } else {
-                    None
-                }
+                    },
+                )
             };
 
-            if player.pull_active {
-                player.pull_cooldown = Some(Timer::once(min_time));
-
-                for (entity, transform) in objects.iter() {
-                    if let Some(bundle) = impulse(transform, -scale_in * time.delta_seconds()) {
-                        commands.try_insert(entity, (bundle, PulledObject));
-                    }
-                }
-            } else {
-                player.pull_cooldown = None;
-
-                for (entity, transform) in pulled.iter() {
-                    commands.try_remove::<PulledObject>(entity);
-                    if let Some(bundle) = impulse(transform, scale_out) {
-                        commands.try_insert(entity, bundle);
-                    }
-                }
-            }
+            physics.intersections_with_shape(
+                pos,
+                0.,
+                &radius,
+                PhysicsType::GravityPull.filter(),
+                |entity| {
+                    callback(entity);
+                    true
+                },
+            );
         }
     }
 }

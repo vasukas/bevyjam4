@@ -545,15 +545,18 @@ fn draw_tool_info(
     });
 }
 
-fn highlight_selected_tile(editor: Res<Editor>, mut gizmos: Gizmos) {
+fn highlight_selected_tile(editor: Res<Editor>, mut gizmos: Gizmos, tools: Res<EditorTools>) {
+    let color = Color::rgb(1., 0., 1.);
+
     let pos = pos_to_tile_center(editor.world_cursor);
-    gizmos.rect_2d(pos, 0., Vec2::splat(TILE_SIZE), Color::GREEN.with_a(0.4));
+    gizmos.rect_2d(pos, 0., Vec2::splat(TILE_SIZE), color);
 
     // draw cursor
-    let cursor = editor.world_cursor;
-    let color = Color::rgb(1., 0., 1.);
-    gizmos.circle_2d(cursor, 0.55, color); // close to barrel size
-    gizmos.ray(cursor.extend(0.), cursor.extend(2.), color);
+    if !tools.snap_to_tile {
+        let cursor = editor.world_cursor;
+        gizmos.circle_2d(cursor, 0.55, color); // close to barrel size
+        gizmos.ray(cursor.extend(0.), cursor.extend(2.), color);
+    }
 }
 
 fn draw_labels(
