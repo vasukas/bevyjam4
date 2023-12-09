@@ -206,7 +206,7 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
             ui.label(prompt.get(PlayerActions::Fire));
             ui.end_row();
 
-            ui.label("Pull objects");
+            ui.label("Hold to pull objects");
             ui.label(prompt.get(PlayerActions::Pull));
             ui.end_row();
 

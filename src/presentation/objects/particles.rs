@@ -63,8 +63,9 @@ fn spawn_particles(
                     Particle::ProjectileImpact => materials.projectile_impact.clone(),
                     Particle::FireImpact => materials.fire_spark.clone(),
                     Particle::ColdFire => materials.fire_cold.clone(),
+                    Particle::Shockwave => materials.shockwave.clone(),
                 },
-                transform: Transform::from_xyz(0., 0., 1.2).with_scale(scale),
+                transform: Transform::from_xyz(0., 0., descr.z_offset).with_scale(scale),
                 ..default()
             },
             InterpolateTransformOnce::new(descr.lifetime).scale(scale * 0.1),

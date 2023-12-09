@@ -14,18 +14,13 @@ MVP goals (not neccessary in that order):
 + level progression (via elevators)
 + add game over screen (fade to black)
 
-- barrels-o-fire
-    - on fire
-        - particle logic
-        + particle graphics
-    - explosions
-        - particle logic
-        + particle graphics
-        - damage & physical impulse
++ barrels-o-fire
 
 - gun: gravity
     - pull barrels
     - rotate barrels (graphically)
+
+- tweak overload so game is actually playable
 
 - make itch.io page
     disable "Automatically start on page load" for sound to work

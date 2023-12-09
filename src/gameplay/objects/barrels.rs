@@ -1,8 +1,10 @@
 use crate::app::scheduling::SpawnSet;
 use crate::gameplay::balance::BARREL_HEALTH;
+use crate::gameplay::balance::OVERLOAD_BURNING_BARREL;
 use crate::gameplay::mechanics::damage::DamageType;
 use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::mechanics::damage::Health;
+use crate::gameplay::mechanics::overload::OverloadSource;
 use crate::gameplay::mechanics::MechanicSet;
 use crate::gameplay::physics::*;
 use crate::utils::bevy::commands::FallibleCommands;
@@ -20,6 +22,7 @@ pub enum Barrel {
 /// Added when barrel is ignited
 #[derive(Component)]
 pub struct OnFire {
+    pub started_at: Duration,
     explode_at: Duration,
 }
 
@@ -39,7 +42,7 @@ impl Plugin for BarrelsPlugin {
             .add_systems(PostUpdate, spawn_barrels.in_set(SpawnSet::Roots))
             .add_systems(
                 Update,
-                (put_barrels_on_fire, explode_barrels).after(MechanicSet::Reaction),
+                (put_barrels_on_fire, explode_barrels).in_set(MechanicSet::PostReaction),
             );
     }
 }
@@ -57,6 +60,7 @@ fn spawn_barrels(new: Query<Entity, Added<Barrel>>, mut commands: Commands) {
                     linear_damping: 0.8,
                     angular_damping: 0.5,
                 },
+                Velocity::default(),
                 //
                 Health {
                     value: BARREL_HEALTH,
@@ -78,9 +82,15 @@ fn put_barrels_on_fire(
                 if health.value != BARREL_HEALTH {
                     commands.try_insert(
                         entity,
-                        OnFire {
-                            explode_at: time.elapsed() + ON_FIRE_DURATION,
-                        },
+                        (
+                            OnFire {
+                                started_at: time.elapsed(),
+                                explode_at: time.elapsed() + ON_FIRE_DURATION,
+                            },
+                            OverloadSource {
+                                power: OVERLOAD_BURNING_BARREL,
+                            },
+                        ),
                     );
                 }
             }

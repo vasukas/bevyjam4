@@ -74,14 +74,15 @@ impl<'w, 's, E: Event> ExtendedEventReader<E> for EventReader<'w, 's, E> {
 /// Weird helper methods for [`Time`]
 pub trait ExtendedTime {
     /// Returns true at specified period. First period starts at zero-o-clock plus offset.
-    fn is_tick(&self, period: Duration) -> bool;
+    fn is_tick(&self, period: Duration, offset: Duration) -> bool;
 }
 
 impl<T: Default> ExtendedTime for Time<T> {
-    fn is_tick(&self, period: Duration) -> bool {
+    fn is_tick(&self, period: Duration, offset: Duration) -> bool {
         let period = period.as_secs_f64();
-        let current = self.elapsed_seconds_f64() / period;
-        let previous = (self.elapsed_seconds_f64() - self.delta_seconds_f64()) / period;
+        let now = self.elapsed_seconds_f64() + offset.as_secs_f64();
+        let current = now / period;
+        let previous = (now - self.delta_seconds_f64()) / period;
         current as isize != previous as isize
     }
 }

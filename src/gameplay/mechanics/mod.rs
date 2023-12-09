@@ -16,6 +16,8 @@ pub enum MechanicSet {
 
     /// Reacts to events
     Reaction,
+
+    PostReaction,
 }
 
 pub struct MechanicsPlugin;
@@ -28,6 +30,7 @@ impl Plugin for MechanicsPlugin {
                 MechanicSet::Input,
                 MechanicSet::Action,
                 MechanicSet::Reaction,
+                MechanicSet::PostReaction,
             )
                 .chain(),
         )

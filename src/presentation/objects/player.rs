@@ -183,7 +183,7 @@ fn update_player_animation(
             data.idle_for += time.delta();
 
             if data.idle_for > idle_after
-                && time.is_tick(idle_check_period)
+                && time.is_tick(idle_check_period, default())
                 && bool::true_with_chance(idle_chance)
             {
                 let anim = match bool::true_with_chance(idle_chance_around) {

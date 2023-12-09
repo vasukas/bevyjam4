@@ -7,6 +7,7 @@ pub struct Materials {
     pub projectile_impact: Handle<StandardMaterial>,
     pub fire_spark: Handle<StandardMaterial>,
     pub fire_cold: Handle<StandardMaterial>,
+    pub shockwave: Handle<StandardMaterial>,
     // don't forget to add new ones to all() method!
 }
 
@@ -17,6 +18,7 @@ impl Materials {
             &self.projectile_impact,
             &self.fire_spark,
             &self.fire_cold,
+            &self.shockwave,
         ]
         .into_iter()
     }
@@ -39,7 +41,12 @@ impl Plugin for MaterialsPlugin {
 #[derive(Clone, Copy)]
 pub enum ParticleMaterial {
     /// Unlit, additive blending
-    Simple { color: Color },
+    Simple {
+        color: Color,
+    },
+    Multiply {
+        color: Color,
+    },
 }
 
 impl Into<StandardMaterial> for ParticleMaterial {
@@ -49,6 +56,11 @@ impl Into<StandardMaterial> for ParticleMaterial {
                 base_color: color,
                 unlit: true,
                 alpha_mode: AlphaMode::Add,
+                ..default()
+            },
+            ParticleMaterial::Multiply { color } => StandardMaterial {
+                base_color: color,
+                alpha_mode: AlphaMode::Multiply,
                 ..default()
             },
         }
@@ -78,6 +90,12 @@ fn make_materials(mut materials: ResMut<Assets<StandardMaterial>>, mut commands:
         fire_cold: materials.add(
             ParticleMaterial::Simple {
                 color: Color::ORANGE_RED.with_a(0.5),
+            }
+            .into(),
+        ),
+        shockwave: materials.add(
+            ParticleMaterial::Multiply {
+                color: Color::WHITE * 0.65,
             }
             .into(),
         ),
