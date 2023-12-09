@@ -5,6 +5,7 @@ use crate::utils::bevy_egui::*;
 use crate::utils::math_algorithms::lerp;
 use crate::utils::misc_utils::DurationDivF32 as _;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use bevy_egui::EguiSet;
 use std::collections::VecDeque;
 use std::time::Duration;
@@ -26,14 +27,6 @@ impl Message {
         }
     }
 
-    pub fn error(text: impl Into<String>) -> Self {
-        Self {
-            header: "ERROR".into(),
-            text: text.into(),
-            ty: MessageType::Error,
-        }
-    }
-
     pub fn delay(self, by: Duration) -> DelayedMessage {
         DelayedMessage { message: self, by }
     }
@@ -44,9 +37,6 @@ impl Message {
 pub enum MessageType {
     /// Pop-up notification intended for gameplay
     Notification,
-
-    /// System errors?
-    Error,
 
     /// Locks menu. Not real modal window - has only "OK" option.
     ModalNotification,
@@ -154,6 +144,7 @@ fn draw_and_update_messages(
     mut egui_ctx: EguiContexts,
     ui_const: UiConst,
     mut close_menu: EventWriter<CloseMenu>,
+    primary_window: Query<(), With<PrimaryWindow>>,
 ) {
     let ui_const = ui_const.scale();
     let margin = 20. * ui_const;
@@ -161,6 +152,12 @@ fn draw_and_update_messages(
     let popup_offset = Vec2::new(0., -20.) * ui_const;
 
     //
+
+    if primary_window.is_empty() {
+        // Don't panic on exiting app.
+        // This happens only when ctx_mut() is used in PostUpdate after window was closed.
+        return;
+    }
 
     let data = &mut *data;
 
@@ -184,7 +181,6 @@ fn draw_and_update_messages(
 
             let text_color = match message.ty {
                 MessageType::Notification => Color::WHITE,
-                MessageType::Error => Color::ORANGE_RED,
                 MessageType::ModalNotification => Color::WHITE,
             };
 

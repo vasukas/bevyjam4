@@ -21,7 +21,7 @@ bevy = { version = "0.12", default-features = false, features = [
     "bevy_core_pipeline",
     "bevy_pbr",
     "bevy_render",
-    "multi-threaded",
+    #"multi-threaded",  # there is only one thread in WASM anyway, and that's our target platform
     "png",
     "x11",
 

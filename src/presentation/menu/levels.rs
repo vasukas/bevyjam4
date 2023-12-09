@@ -22,7 +22,7 @@ impl Plugin for LevelsPlugin {
             Update,
             (
                 level_select.run_if(in_state(MenuState::LevelSelect)),
-                level_loading.run_if(in_state(MenuState::LevelLoading)),
+                level_loading,
             ),
         );
     }
@@ -47,7 +47,7 @@ fn level_select(
             for id in levels.all() {
                 let name = levels.name(id);
                 let completed = scores.completed_levels.contains(id);
-    
+
                 ui.horizontal(|ui| {
                     if level_editor {
                         if ui.button("EDIT").clicked() {
@@ -57,14 +57,14 @@ fn level_select(
                             });
                         }
                     }
-    
+
                     if ui.button(name).clicked() {
                         next_state.set(MenuState::None);
                         game_commands.send(GameCommand::Start {
                             level_id: id.clone(),
                         });
                     }
-    
+
                     if completed {
                         ui.label("(Completed)");
                     }
@@ -103,7 +103,8 @@ fn level_loading(
                     timer: Timer::once(fade_duration),
                     id: id.clone(),
                     gone_to: false,
-                })
+                });
+                next_state.set(MenuState::LevelLoading);
             }
             None => {
                 next_state.set(MenuState::MainMenu);
@@ -123,6 +124,7 @@ fn level_loading(
 
         if state.timer.finished() {
             *res_state = None;
+            next_state.set(MenuState::MainMenu);
             return;
         }
 

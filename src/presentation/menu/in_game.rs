@@ -1,14 +1,17 @@
 use super::level_editor::EditorEnabled;
 use super::states::MenuState;
+use super::ui_const::UiConst;
 use crate::app::actions::action_axis_xy;
 use crate::app::actions::ActionPrompt;
 use crate::app::actions::PlayerActions;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::level::current::CurrentLevel;
+use crate::gameplay::master::level::data::HALF_TILE;
 use crate::gameplay::master::level_progress::LevelList;
 use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::mechanics::movement::MovementController;
+use crate::gameplay::mechanics::overload::Overload;
 use crate::gameplay::mechanics::MechanicSet;
 use crate::gameplay::objects::player::Player;
 use crate::gameplay::objects::player::PLAYER_HEALTH;
@@ -30,6 +33,7 @@ impl Plugin for HudPlugin {
                     player_input
                         .before(MechanicSet::Input)
                         .before(rotate_to_target),
+                    draw_overload,
                 )
                     .run_if(in_state(MenuState::None).and_then(in_state(EditorEnabled::No))),
                 toggle_help_menu,
@@ -130,9 +134,69 @@ fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions
             ui.label(prompt.get(PlayerActions::Movement));
             ui.end_row();
 
-            ui.label("Restart levle");
+            ui.label("Restart level");
             ui.label(prompt.get(PlayerActions::Restart));
             ui.end_row();
         });
     });
+}
+
+fn draw_overload(
+    mut egui_ctx: EguiContexts,
+    enemies: Query<(&GlobalTransform, &Overload), Without<Dead>>,
+    camera: Query<(&GlobalTransform, &Camera)>,
+    ui_const: UiConst,
+) {
+    let color = |t_overload| {
+        match t_overload {
+            t if t < 0.25 => Color::RED,
+            t if t < 0.66 => Color::ORANGE_RED,
+            _ => Color::YELLOW,
+        }
+        .to_egui()
+    };
+    let text = |t_overload| format!("{:2}% CPU", t_overload * 100.);
+
+    let text_size = 10.;
+    let slider_width = 20.;
+
+    let offset = Vec2::new(HALF_TILE * 0.5, HALF_TILE);
+    let approx_text_size = 0.7 * 7.;
+
+    //
+
+    let Ok((camera_transform, camera)) = camera.get_single() else { return; };
+
+    let painter = egui_ctx.ctx_mut().debug_painter();
+    let scale_factor = ui_const.egui_scale_factor();
+    let ui_const = ui_const.scale();
+
+    let font = egui::FontId::monospace(text_size * ui_const);
+    let slider_width = slider_width * ui_const;
+    let approx_text_size = text_size * ui_const * approx_text_size;
+
+    for (pos, overload) in enemies.iter() {
+        let pos = pos.translation().truncate() + offset / scale_factor;
+
+        let Some(center) = camera.world_to_viewport(camera_transform, pos.extend(0.)) else { return; };
+        let rect = egui::Rect::from_center_size(
+            (center / scale_factor).to_egui_pos(),
+            Vec2::new(slider_width + approx_text_size, text_size).to_egui(),
+        );
+
+        let t_overload = overload.current / overload.max;
+        let color = color(t_overload);
+
+        let mut slider_rect = rect;
+        slider_rect.set_width(slider_width * t_overload);
+
+        painter.rect(slider_rect, egui::Rounding::ZERO, color, egui::Stroke::NONE);
+        painter.text(
+            rect.max,
+            egui::Align2::RIGHT_BOTTOM,
+            text(t_overload),
+            font.clone(),
+            color,
+        );
+    }
 }

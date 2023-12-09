@@ -127,26 +127,31 @@ fn on_loaded_assets(mut levels: ResMut<LevelList>, mut assets: ResMut<Assets<Lev
 #[derive(Resource, Default)]
 struct LevelProgressState {
     exit_unlocked: bool,
+    goto_sent: bool,
 }
 
 fn on_level_loaded(mut state: ResMut<LevelProgressState>) {
-    state.exit_unlocked = false;
+    *state = default();
 }
 
 fn on_player_event(
     mut player_events: EventReader<PlayerEvent>,
     mut events: EventWriter<GotoNextLevel>,
     levels: Res<LevelList>,
-    state: Res<LevelProgressState>,
+    mut state: ResMut<LevelProgressState>,
     current: Res<CurrentLevel>,
 ) {
     for event in player_events.read() {
         match event {
             PlayerEvent::ReachedExitElevator => {
-                if state.exit_unlocked {
-                    events.send(GotoNextLevel {
-                        id: levels.next(&current.id),
-                    })
+                if state.exit_unlocked && !state.goto_sent {
+                    state.goto_sent = true;
+
+                    let id = levels.next(&current.id);
+
+                    info!("GotoNextLevel: {id:?}");
+
+                    events.send(GotoNextLevel { id });
                 }
             }
             #[allow(unreachable_patterns)] // flock off
@@ -160,7 +165,7 @@ fn check_enemies(
     mut state: ResMut<LevelProgressState>,
     mut event: EventWriter<ExitUnlocked>,
 ) {
-    if !enemies.is_empty() {
+    if !enemies.is_empty() && !state.exit_unlocked {
         let all_dead = enemies.iter().all(|dead| dead);
         if all_dead {
             state.exit_unlocked = true;

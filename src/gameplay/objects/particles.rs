@@ -15,50 +15,63 @@ pub enum Particle {
     ProjectileImpact,
 }
 
+struct ParticleDescriptor {
+    size: f32,
+    distance: f32,
+    graphical_count: usize,
+    overload_power: f32,
+    lifetime: Duration,
+}
+
 impl Particle {
-    pub fn size(self) -> f32 {
+    fn descriptor(self) -> ParticleDescriptor {
         match self {
-            Self::ProjectileImpact => 0.1,
+            Self::ProjectileImpact => ParticleDescriptor {
+                size: 0.1,
+                distance: 1.,
+                graphical_count: 8,
+                overload_power: 1.,
+                lifetime: Duration::from_millis(1200),
+            },
         }
     }
 
-    fn count(self) -> usize {
-        match self {
-            Self::ProjectileImpact => 8,
-        }
-    }
-
-    fn overload_power(self) -> f32 {
-        match self {
-            Self::ProjectileImpact => 1. / self.count() as f32,
-        }
-    }
-
-    fn bundle(self, pos: Vec2, end_delta: Vec2) -> impl Bundle {
-        let lifetime = match self {
-            Particle::ProjectileImpact => Duration::from_millis(1200),
-        };
+    fn graphical_bundle(self, pos: Vec2, end_delta: Vec2) -> impl Bundle {
+        let descr = self.descriptor();
         (
             GameObjectBundle::new("projectile", Transform::from_translation(pos.extend(0.))),
-            Lifetime(lifetime),
+            Lifetime(descr.lifetime),
             // InterpolateTransformOnce::new(lifetime)
             //     .pos((pos + end_delta).extend(0.))
             //     .scale(Vec3::ZERO), // to use without physics
-            InterpolateTransformOnce::new(lifetime).scale(Vec3::ZERO),
+            InterpolateTransformOnce::new(descr.lifetime).scale(Vec3::ZERO),
             //
             RigidBody::Dynamic,
-            Collider::ball(self.size()),
+            Collider::ball(descr.size),
             Restitution {
                 coefficient: 1.,
                 combine_rule: CoefficientCombineRule::Max,
             },
-            Velocity::linear(end_delta / lifetime.as_secs_f32()),
+            Velocity::linear(end_delta / descr.lifetime.as_secs_f32()),
             PhysicsType::WallOnly.groups(),
             //
-            OverloadSource {
-                power: self.overload_power(),
-            },
             self,
+        )
+    }
+
+    fn overload_bundle(self, pos: Vec2) -> impl Bundle {
+        let descr = self.descriptor();
+        (
+            GameObjectBundle::new(
+                "projectile overload",
+                Transform::from_translation(pos.extend(0.)),
+            ),
+            Lifetime(descr.lifetime),
+            Collider::ball(descr.size),
+            PhysicsType::Overload.groups(),
+            OverloadSource {
+                power: descr.overload_power,
+            },
         )
     }
 }
@@ -73,14 +86,16 @@ impl Plugin for ParticlesPlugin {
 
 fn particle_events(mut projectile_impact: EventReader<ProjectileImpact>, mut commands: Commands) {
     for ProjectileImpact { pos, projectile } in projectile_impact.read().copied() {
-        let (ty, base_distance) = match projectile.damage {
-            _ => (Particle::ProjectileImpact, 1.),
+        let ty = match projectile.damage {
+            _ => Particle::ProjectileImpact,
         };
-        let count = ty.count();
+        let descr = ty.descriptor();
 
-        for _ in 0..count {
-            let dir = Vec2::random_dir() * (base_distance * 0.5..base_distance * 1.5).random();
-            commands.spawn(ty.bundle(pos, dir));
+        for _ in 0..descr.graphical_count {
+            let dir = Vec2::random_dir() * (descr.distance * 0.5..descr.distance * 1.5).random();
+            commands.spawn(ty.graphical_bundle(pos, dir));
         }
+
+        commands.spawn(ty.overload_bundle(pos));
     }
 }

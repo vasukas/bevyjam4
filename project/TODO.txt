@@ -6,49 +6,48 @@ MVP goals (not neccessary in that order):
 + enemies standing and shooting (slow projectiles, periodic);
 + player has 2-3 HP, no healing
 
-- barrels
+- barrels-o-fire
 - gun: fire
 - gun: gravity
 
-- fire effect
-- enemy overload
++ enemy overload
++ improve particles: many graphical entities, one physical entity
 
 + level progression (via elevators)
+
+- critical bug!
+    - after progress to next level: menu stuck in loop
+    - can't exit from editor to game: menu stuck in loop
 
 
 
 
 Extra goals:
 
-- on-screen indicator for being hit
-- rework jimbo anims
+- improve gameplay
+    - on-screen indicator for being hit
+    - breakable pipes with water and electric panels
+    - slowdown effect
+    - "Application is not responding. .... Well done!" message
 
-- breakable pipes with water and electric panels
-- level decorations
+- extra gameplay
+    - final boss (respawning barrels; speed challenge)
 
-- sounds
-- real graphics for projectiles and particles
+- improve visuals
+    - level decorations
+    - sounds
+    - real graphics for projectiles and particles
+    - lightning/explosion effect (for overload, at least)
 
-- slowdown effect
-- "Application is not responding. .... Well done!" message
+- nice visuals
+    - rework jimbo anims
+    - intro and outro
+    - backgrounds (scrolling stars, partially hidden by the ship)
+    - poster image, for itch page and menu background
 
-- intro and outro
-- final boss (respawning barrels; speed challenge)
-
-- backgrounds (scrolling stars, partially hidden by the ship)
-- poster image, for itch page and menu background
-
-- particle count multiplier (for increasing performance)
-
-
-
-
-Bugs
-
-- elevator light position is invalid (and God knows where)
-- elevator light looks weird on exit cable
-
-- can't exit from editor to game: menu stuck in loop
+- technical
+    - fix overload render coordinates
+    - particle count multiplier (for increasing performance)
 
 
 
@@ -69,6 +68,10 @@ Release
 
 
 Improvements (post-release)
+
+- fix bugs
+    - elevator light position is invalid (and God knows where)
+    - elevator light looks weird on exit cable
 
 - show controls & objectives in-world instead of separate menu
 

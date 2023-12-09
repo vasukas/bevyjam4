@@ -11,6 +11,7 @@ pub struct UiConst<'w, 's> {
 }
 
 impl<'w, 's> UiConst<'w, 's> {
+    /// Scale for constants in code
     pub fn scale(&self) -> f32 {
         let dev_window_height = 720.;
         let window_height = self
@@ -25,5 +26,10 @@ impl<'w, 's> UiConst<'w, 's> {
         let k_scale = scale / dev_scale;
 
         k_window * k_scale
+    }
+
+    /// Scale set in [`EguiSettings`]
+    pub fn egui_scale_factor(&self) -> f32 {
+        self.egui_settings.scale_factor as f32
     }
 }

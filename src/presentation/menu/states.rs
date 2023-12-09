@@ -106,6 +106,10 @@ fn on_back(
                 return;
             }
             MenuState::None => previous.0,
+            MenuState::ModalMessage => match game_running.get() {
+                GameRunning::Yes => MenuState::None,
+                GameRunning::No => MenuState::MainMenu,
+            },
             _ => match game_running.get() {
                 GameRunning::Yes => {
                     previous.0 = *state.get();
