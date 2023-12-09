@@ -16,17 +16,19 @@ MVP goals (not neccessary in that order):
 
 + barrels-o-fire
 
-- gun: gravity
-    - pull barrels
++ gun: gravity
+    + pull barrels
     - rotate barrels (graphically)
 
-- tweak overload so game is actually playable
++ tweak overload so game is actually playable
 
 - make itch.io page
     disable "Automatically start on page load" for sound to work
     maybe use other screen size than 1280x720? this will require changes in main.rs!
 
 - credit all used libraries and assets
+
+- add more levels, improve gameplay
 
 
 

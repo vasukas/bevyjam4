@@ -29,7 +29,7 @@ impl Projectile {
             RigidBody::Dynamic,
             Collider::ball(self.radius),
             Velocity::linear(direction * self.speed),
-            ColliderMassProperties::Mass(5.),
+            ColliderMassProperties::Mass(20.),
             CollidingEntities::default(),
             ActiveEvents::COLLISION_EVENTS,
             PhysicsType::Projectile.groups(),

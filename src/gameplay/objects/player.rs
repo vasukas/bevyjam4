@@ -11,6 +11,7 @@ use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::bevy::misc_utils::ExtendedTimer;
 use crate::utils::math_algorithms::dir_vec2;
 use crate::utils::random::RandomRange;
+use crate::utils::random::RandomVec;
 use bevy::prelude::*;
 use bevy_rapier2d::geometry::CollidingEntities;
 use std::f32::consts::TAU;
@@ -28,6 +29,7 @@ pub struct Player {
     fire_count: usize,
 
     pull_active: bool,
+    pull_cooldown: Option<Timer>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
@@ -125,6 +127,7 @@ fn weapon_input(
     mut commands: Commands,
     objects: Query<(Entity, &GlobalTransform), (Without<Player>, With<Collider>)>,
     pulled: Query<(Entity, &GlobalTransform), With<PulledObject>>,
+    physics: Res<RapierContext>,
 ) {
     for (pos, mut player) in player.iter_mut() {
         let pos = pos.translation().truncate();
@@ -157,21 +160,44 @@ fn weapon_input(
             }
         }
 
-        let input_pull = std::mem::take(&mut player.input_pull);
+        let pull_still_active = match player.pull_cooldown.as_mut() {
+            Some(timer) => {
+                timer.tick(time.delta());
+                match timer.finished() {
+                    true => {
+                        player.pull_cooldown = None;
+                        false
+                    }
+                    false => true,
+                }
+            }
+            None => false,
+        };
+
+        let input_pull = std::mem::take(&mut player.input_pull) || pull_still_active;
         if input_pull != player.pull_active {
             player.pull_active = input_pull;
 
             let max_distance = 6_f32;
-            let scale_in = 5.;
+            let scale_in = 10.;
             let scale_out = 0.5;
-            let impulse = 5_000.;
+            let impulse = 1_000.;
+            let min_time = Duration::from_millis(200);
 
             let impulse = |transform: &GlobalTransform, scale: f32| {
                 let target = transform.translation().truncate();
                 let delta = target - pos;
 
+                // don't go through walls
+                if physics
+                    .cast_ray(pos, delta, 1., false, PhysicsType::WallOnly.filter())
+                    .is_some()
+                {
+                    return None;
+                }
+
                 if delta.length_squared() < max_distance.powi(2) {
-                    let dir = delta.normalize_or_zero();
+                    let dir = (delta + Vec2::random_dir() * 0.5).normalize_or_zero();
                     Some(ExternalImpulse {
                         impulse: dir * scale * impulse,
                         ..default()
@@ -182,12 +208,16 @@ fn weapon_input(
             };
 
             if player.pull_active {
+                player.pull_cooldown = Some(Timer::once(min_time));
+
                 for (entity, transform) in objects.iter() {
                     if let Some(bundle) = impulse(transform, -scale_in * time.delta_seconds()) {
                         commands.try_insert(entity, (bundle, PulledObject));
                     }
                 }
             } else {
+                player.pull_cooldown = None;
+
                 for (entity, transform) in pulled.iter() {
                     commands.try_remove::<PulledObject>(entity);
                     if let Some(bundle) = impulse(transform, scale_out) {
