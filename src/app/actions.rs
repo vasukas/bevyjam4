@@ -8,6 +8,7 @@ pub enum AppActions {
     Screenshot,
     CloseMenu,
     LevelEditor,
+    Continue,
 }
 
 impl AppActions {
@@ -16,6 +17,7 @@ impl AppActions {
             .insert(KeyCode::F12, Self::Screenshot)
             .insert(KeyCode::Escape, Self::CloseMenu)
             .insert_chord([KeyCode::ControlLeft, KeyCode::E], Self::LevelEditor)
+            .insert(KeyCode::Space, Self::Continue)
             .build()
     }
 }

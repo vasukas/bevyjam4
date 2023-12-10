@@ -325,6 +325,7 @@ fn tutorial(
                 format!(
                     concat!(
                         "Press {} to make\ncircle of fire and ignite barrels.\n",
+                        "That might take a few tries.\n",
                         "\n",
                         "Ignited barrels explode after some time.\n",
                         "They also explode if they receive too much damage.\n",

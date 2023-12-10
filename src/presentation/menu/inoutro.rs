@@ -1,3 +1,4 @@
+use super::states::CloseMenu;
 use super::states::MenuState;
 use crate::app::actions::ActionPrompt;
 use crate::app::actions::AppActions;
@@ -6,6 +7,7 @@ use crate::utils::plugins::load_assets::TrackAssets;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode;
+use leafwing_input_manager::action_state::ActionState;
 
 pub struct InoutroPlugin;
 
@@ -14,7 +16,7 @@ impl Plugin for InoutroPlugin {
         app.add_systems(Startup, load_assets)
             .add_systems(
                 Update,
-                ((show_escape, show_text)
+                ((escape, show_text)
                     .run_if(in_state(MenuState::Intro).or_else(in_state(MenuState::Outro))),),
             )
             .add_systems(OnEnter(MenuState::Intro), spawn_background)
@@ -24,7 +26,12 @@ impl Plugin for InoutroPlugin {
     }
 }
 
-fn show_escape(mut egui_ctx: EguiContexts, app_prompt: ActionPrompt<AppActions>) {
+fn escape(
+    mut egui_ctx: EguiContexts,
+    app_prompt: ActionPrompt<AppActions>,
+    mut close_menu: EventWriter<CloseMenu>,
+    actions: Res<ActionState<AppActions>>,
+) {
     EguiPopup {
         name: "show_escape",
         anchor: egui::Align2::RIGHT_BOTTOM,
@@ -40,6 +47,10 @@ fn show_escape(mut egui_ctx: EguiContexts, app_prompt: ActionPrompt<AppActions>)
             ));
         });
     });
+
+    if actions.just_pressed(AppActions::Continue) {
+        close_menu.send_default();
+    }
 }
 
 fn show_text(
@@ -86,7 +97,8 @@ fn show_text(
             }
 
             ui.label(format!(
-                "[Press {} to continue]",
+                "[Press {} or {} to continue]",
+                app_prompt.get(AppActions::Continue),
                 app_prompt.get(AppActions::CloseMenu)
             ));
         });
