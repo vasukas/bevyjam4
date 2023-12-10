@@ -32,14 +32,8 @@ MVP goals (not neccessary in that order):
 + flavor text!
     + intro and outro
 
-- add more levels
-- add final boss (respawning barrels; speed challenge)
-    - boss creature
-    - boss attacks
-    - barrel conveyor
-
-- gameplay kind of isn't there
-- minor bugs/stuff
+? gameplay kind of isn't there
++ minor bugs/stuff
     / fix pull: put timer on activating it, not disabling! (or don't "fix" that?)
     + player fire just appears, doesn't look good
     / player fire spawns outside of walls if standing too close to them
@@ -50,10 +44,11 @@ MVP goals (not neccessary in that order):
     + limit fire projectile lifetime
     / exit elevator still stays red sometimes
 
-- release
-    + poster for itch page
-    - add screenshots to itch page
-    - add native builds
+- add more levels
+- add final boss (respawning barrels; speed challenge)
+    - boss creature
+    - boss attacks
+    - barrel conveyor
 
 - graphics
     - conveyors (+ animation)
@@ -63,6 +58,11 @@ MVP goals (not neccessary in that order):
     - loading cranes
     - pipes
     - alternate walls / floors
+
+- release
+    + poster for itch page
+    - add screenshots to itch page
+    - add native builds
 
 
 
