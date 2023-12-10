@@ -1331,6 +1331,18 @@
             align: Center,
             data: TerrainFloor(VoidSquare),
         ),
+        (375): (
+            pos: (-23.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: TerrainFloor(VoidSquare),
+        ),
+        (376): (
+            pos: (1.0, 7.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: TerrainFloor(VoidSquare),
+        ),
     },
-    last_object_id: 374,
+    last_object_id: 376,
 )

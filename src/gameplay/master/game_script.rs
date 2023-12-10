@@ -44,7 +44,9 @@ fn on_level_loaded(
             current_level.allow_starfield = true;
         }
         "03_loadbay" => (),
-        "04_storage" => (),
+        "04_storage" => {
+            current_level.allow_starfield = true;
+        }
         "05_process" => (),
         "06_tunnels" => (),
         "07_engine" => (),

@@ -31,7 +31,7 @@ pub struct WorldCameraBundle {
 impl WorldCameraBundle {
     pub const VERTICAL_SIZE: f32 = 12.; // viewport height in world units
 
-    pub fn new(name: impl Into<std::borrow::Cow<'static, str>>) -> Self {
+    pub fn new(name: impl Into<std::borrow::Cow<'static, str>>, is_editor: bool) -> Self {
         let vertical_fov = 28.8_f32.to_radians(); // 70 mm
         let vertical_size = Self::VERTICAL_SIZE;
         let distance = (vertical_size / 2.) / (vertical_fov / 2.).tan();
@@ -50,7 +50,10 @@ impl WorldCameraBundle {
                 }
                 .into(),
                 camera_3d: Camera3d {
-                    clear_color: ClearColorConfig::Custom(Color::rgb(0., 0.04, 0.09)),
+                    clear_color: ClearColorConfig::Custom(match is_editor {
+                        false => Color::BLACK,
+                        true => Color::DARK_GRAY,
+                    }),
                     ..default()
                 },
                 tonemapping: Tonemapping::AgX,

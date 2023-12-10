@@ -720,7 +720,7 @@ fn spawn_editor_camera(mut commands: Commands, camera: Query<(), With<EditorCame
     if camera.is_empty() {
         commands.spawn((
             {
-                let mut camera = WorldCameraBundle::new("editor camera");
+                let mut camera = WorldCameraBundle::new("editor camera", true);
                 camera.camera.camera.order = 1; // after player camera
                 camera
             },
