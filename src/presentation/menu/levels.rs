@@ -75,7 +75,7 @@ fn level_select(
 #[derive(Default)]
 struct LoadingState {
     timer: Timer,
-    id: String,
+    id: Option<String>,
     gone_to: bool,
 }
 
@@ -94,20 +94,12 @@ fn level_loading(
     let text_size = 80. * ui_const.scale();
 
     if let Some(next) = next_level.read().last() {
-        match &next.id {
-            Some(id) => {
-                *res_state = Some(LoadingState {
-                    timer: Timer::once(fade_duration),
-                    id: id.clone(),
-                    gone_to: false,
-                });
-                next_state.set(MenuState::LevelLoading);
-            }
-            None => {
-                next_state.set(MenuState::Outro);
-                game_commands.send(GameCommand::Exit);
-            }
-        }
+        *res_state = Some(LoadingState {
+            timer: Timer::once(fade_duration),
+            id: next.id.clone(),
+            gone_to: false,
+        });
+        next_state.set(MenuState::LevelLoading);
     }
 
     if let Some(state) = res_state.as_mut() {
@@ -122,7 +114,16 @@ fn level_loading(
         if state.timer.elapsed() >= fade_duration / 2 && !state.gone_to {
             state.gone_to = true;
 
-            level_commands.send(LevelCommand::Load(state.id.clone()));
+            match &state.id {
+                Some(id) => level_commands.send(LevelCommand::Load(id.clone())),
+                None => {
+                    next_state.set(MenuState::Outro);
+                    game_commands.send(GameCommand::Exit);
+
+                    *res_state = None;
+                    return;
+                }
+            }
         }
 
         let t = state.timer.t_elapsed();
@@ -156,17 +157,19 @@ fn level_loading(
             );
         });
 
-        EguiPopup {
-            name: "level_loading name",
-            order: egui::Order::Tooltip,
-            background: false,
-            interactable: false,
-            ..default()
+        if let Some(id) = &state.id {
+            EguiPopup {
+                name: "level_loading name",
+                order: egui::Order::Tooltip,
+                background: false,
+                interactable: false,
+                ..default()
+            }
+            .show(egui_ctx.ctx_mut(), |ui| {
+                // level name
+                ui.visuals_mut().override_text_color = Color::WHITE.with_a(alpha).to_egui().into();
+                ui.label(egui::RichText::new(levels.name(id)).size(text_size));
+            });
         }
-        .show(egui_ctx.ctx_mut(), |ui| {
-            // level name
-            ui.visuals_mut().override_text_color = Color::WHITE.with_a(alpha).to_egui().into();
-            ui.label(egui::RichText::new(levels.name(&state.id)).size(text_size));
-        });
     }
 }

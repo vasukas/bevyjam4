@@ -33,7 +33,7 @@ fn on_level_loaded(
                         prompt.get(PlayerActions::ToggleHelp)
                     ),
                 )
-                .delay(Duration::from_millis(1200)),
+                .delay(Duration::from_millis(1200), true),
             );
         }
         "two" => {

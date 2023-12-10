@@ -17,10 +17,12 @@ impl Plugin for MainPlugin {
                 draw_main_menu.run_if(in_state(MenuState::MainMenu)),
                 draw_menu_background.run_if(
                     // draw background only if in menu and game is running,
-                    // but don't draw it in level editor menu
+                    // but don't draw it in level editor menu, intro & outro
                     not(in_state(MenuState::None))
                         .and_then(in_state(GameRunning::Yes))
-                        .and_then(not(in_state(MenuState::LevelEditor))),
+                        .and_then(not(in_state(MenuState::LevelEditor)))
+                        .and_then(not(in_state(MenuState::Intro)))
+                        .and_then(not(in_state(MenuState::Outro))),
                 ),
                 crab,
             ),

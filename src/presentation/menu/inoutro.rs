@@ -2,19 +2,25 @@ use super::states::MenuState;
 use crate::app::actions::ActionPrompt;
 use crate::app::actions::AppActions;
 use crate::utils::bevy_egui::*;
+use crate::utils::plugins::load_assets::TrackAssets;
+use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
+use bevy::render::camera::ScalingMode;
 
 pub struct InoutroPlugin;
 
 impl Plugin for InoutroPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (
-                (show_escape, intro).run_if(in_state(MenuState::Intro)),
-                (show_escape, outro).run_if(in_state(MenuState::Outro)),
-            ),
-        );
+        app.add_systems(Startup, load_assets)
+            .add_systems(
+                Update,
+                ((show_escape, show_text)
+                    .run_if(in_state(MenuState::Intro).or_else(in_state(MenuState::Outro))),),
+            )
+            .add_systems(OnEnter(MenuState::Intro), spawn_background)
+            .add_systems(OnEnter(MenuState::Outro), spawn_background)
+            .add_systems(OnExit(MenuState::Intro), despawn_background)
+            .add_systems(OnExit(MenuState::Outro), despawn_background);
     }
 }
 
@@ -36,7 +42,11 @@ fn show_escape(mut egui_ctx: EguiContexts, app_prompt: ActionPrompt<AppActions>)
     });
 }
 
-fn intro(mut egui_ctx: EguiContexts) {
+fn show_text(
+    mut egui_ctx: EguiContexts,
+    app_prompt: ActionPrompt<AppActions>,
+    state: Res<State<MenuState>>,
+) {
     EguiPopup {
         name: "intro",
         background: false,
@@ -44,19 +54,101 @@ fn intro(mut egui_ctx: EguiContexts) {
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {
-        ui.heading("INTRO");
+        let style = ui.style_mut();
+        style.visuals.window_fill = Color::BLACK.with_a(0.5).to_egui();
+        style.visuals.window_stroke = egui::Stroke::NONE;
+        style.visuals.override_text_color = Some(Color::WHITE.to_egui());
+
+        egui::Frame::popup(style).show(ui, |ui| {
+            match state.get() {
+                MenuState::Intro => {
+                    ui.label(concat!(
+                        "Jim was walking in a forest, when bright light appeared in the sky.\n",
+                        "Next thing he remembers, he is on an alien ship!\n",
+                        "\n",
+                        "Something has happened to Jim, now he can create fire and move\n",
+                        "objects with his will!\n",
+                        "\n",
+                        "Using his newfound powers, Jim escapes from his cell...\n",
+                    ));
+                }
+                MenuState::Outro => {
+                    ui.label(concat!(
+                        "Jim reached the ship's bridge.\n",
+                        "No one was where, just lights on console blinking in total silence.\n",
+                        "\n",
+                        "After some trial and error Jim had figured the controls\n",
+                        "and set course back to Earth.\n",
+                    ));
+                    ui.heading("Thank you for playing!\n");
+                }
+                _ => error!("invalid state"),
+            }
+
+            ui.label(format!(
+                "[Press {} to continue]",
+                app_prompt.get(AppActions::CloseMenu)
+            ));
+        });
     });
 }
 
-fn outro(mut egui_ctx: EguiContexts) {
-    EguiPopup {
-        name: "outro",
-        background: false,
-        interactable: false,
-        ..default()
+#[derive(Resource)]
+struct MenuAssets {
+    intro: Handle<Image>,
+    outro: Handle<Image>,
+}
+
+fn load_assets(mut track: TrackAssets, mut commands: Commands) {
+    commands.insert_resource(MenuAssets {
+        intro: track.load_and_track("forest.png"),
+        outro: track.load_and_track("bridge.png"),
+    })
+}
+
+#[derive(Component)]
+struct Background;
+
+fn spawn_background(assets: Res<MenuAssets>, mut commands: Commands, state: Res<State<MenuState>>) {
+    let texture = match state.get() {
+        MenuState::Intro => assets.intro.clone(),
+        MenuState::Outro => assets.outro.clone(),
+        _ => {
+            error!("invalid state");
+            return;
+        }
+    };
+
+    commands.spawn((
+        Camera2dBundle {
+            camera: Camera {
+                order: 1000,
+                ..default()
+            },
+            projection: OrthographicProjection {
+                scaling_mode: ScalingMode::FixedVertical(720.),
+                ..default()
+            },
+            camera_2d: Camera2d {
+                clear_color: ClearColorConfig::Custom(Color::BLACK),
+            },
+            ..default()
+        },
+        Background,
+    ));
+
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_xyz(0., 0., -1.),
+            texture,
+            ..default()
+        },
+        Background,
+    ));
+}
+
+fn despawn_background(entities: Query<Entity, With<Background>>, mut commands: Commands) {
+    for entity in entities.iter() {
+        commands.entity(entity).despawn_recursive()
     }
-    .show(egui_ctx.ctx_mut(), |ui| {
-        ui.heading("Congratulations!");
-        ui.label("You've completed the game!\nThere was supposed to be nice victory screen, but I ran out of time\nC:");
-    });
 }

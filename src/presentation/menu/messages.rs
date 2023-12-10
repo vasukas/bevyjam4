@@ -27,8 +27,12 @@ impl Message {
         }
     }
 
-    pub fn delay(self, by: Duration) -> DelayedMessage {
-        DelayedMessage { message: self, by }
+    pub fn delay(self, by: Duration, virtual_time: bool) -> DelayedMessage {
+        DelayedMessage {
+            message: self,
+            by,
+            virtual_time,
+        }
     }
 }
 
@@ -67,6 +71,7 @@ impl MessageType {
 pub struct DelayedMessage {
     pub message: Message,
     pub by: Duration,
+    pub virtual_time: bool,
 }
 
 pub struct MessagesPlugin;
@@ -91,17 +96,25 @@ impl Plugin for MessagesPlugin {
 fn delayed_message(
     mut delayed: ResMut<Events<DelayedMessage>>,
     time: Res<Time<Real>>,
-    mut data: Local<Vec<(Duration, Message)>>,
+    time_virtual: Res<Time>,
+    mut data: Local<Vec<(Duration, Message, bool)>>,
     mut messages: EventWriter<Message>,
 ) {
-    data.extend(
-        delayed
-            .drain()
-            .map(|delay| (time.elapsed() + delay.by, delay.message)),
-    );
+    let time_elapsed = |virtuall| match virtuall {
+        true => time_virtual.elapsed(),
+        false => time.elapsed(),
+    };
 
-    data.retain(|(after, message)| {
-        let retain = time.elapsed() < *after;
+    data.extend(delayed.drain().map(|delay| {
+        (
+            time_elapsed(delay.virtual_time) + delay.by,
+            delay.message,
+            delay.virtual_time,
+        )
+    }));
+
+    data.retain(|(after, message, virtual_time)| {
+        let retain = time_elapsed(*virtual_time) < *after;
         if !retain {
             messages.send(message.clone());
         }

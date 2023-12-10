@@ -28,9 +28,9 @@ MVP goals (not neccessary in that order):
 
 + credit all used libraries
 
-- explain (to player) how guns work (in F1 menu or somehow else)
-- flavor text!
-    - intro and outro
+- rework first level into proper tutorial & explain (to player) how guns work
++ flavor text!
+    + intro and outro
 
 - gameplay kind of isn't there
 - add more levels
@@ -38,6 +38,8 @@ MVP goals (not neccessary in that order):
     - boss creature
     - boss attacks
     - barrel conveyor
+
+- fix pull: put timer on activating it, not disabling! (or don't "fix" that?)
 
 - CRITICAL BUGS (web)
     - mouse buttons are wonky: seems only one works at a time & they don't de-press correctly

@@ -99,7 +99,7 @@ impl Plugin for LevelProgressPlugin {
 }
 
 fn load_levels(mut commands: Commands, mut track: TrackAssets) {
-    let sequence = [("ground_zero", "Ground Zero"), ("two", "Test II")];
+    let sequence = [("ground_zero", "Ground Zero"), ("two", "Connector")];
 
     commands.insert_resource(LevelList {
         first: sequence.first().unwrap().0.to_string(),

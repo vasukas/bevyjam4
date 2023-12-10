@@ -139,8 +139,10 @@ fn death_screen(
         .show(egui_ctx.ctx_mut(), |ui| {
             ui.label(egui::RichText::new("GAME OVER").heading().strong());
 
+            ui.label("You were captured and brought back to the cell.\n");
+
             ui.label(format!(
-                "Press {} to restart level",
+                "[Press {} to restart level]",
                 prompt.get(PlayerActions::Restart)
             ));
         });
