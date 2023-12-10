@@ -43,11 +43,12 @@ MVP goals (not neccessary in that order):
     / fix pull: put timer on activating it, not disabling! (or don't "fix" that?)
     + player fire just appears, doesn't look good
     / player fire spawns outside of walls if standing too close to them
-    ? improve visibility of fire particles produced by exploding barrels
-    - improve visibility in general
+    + improve visibility of fire particles produced by exploding barrels
+    ? improve visibility in general
     + remove halt when using kick (animation: replace with roundhouse jump)
     / maybe? remove push-away from pull
     + limit fire projectile lifetime
+    / exit elevator still stays red sometimes
 
 - release
     + poster for itch page
@@ -56,17 +57,19 @@ MVP goals (not neccessary in that order):
 
 - graphics
     - conveyors (+ animation)
+    - conveyor chutes
     - engine furnace (+ animation)
     - holding cells
     - loading cranes
     - pipes
+    - alternate walls / floors
 
 
 
 
 Extra goals:
 
-- more stuff
+/ more stuff
     - add even more levels
     - more level graphics (decorations)
         + scorchmarks
