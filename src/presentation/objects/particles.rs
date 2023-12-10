@@ -1,11 +1,19 @@
+use std::f32::consts::TAU;
+
 use super::assets::ObjectAssets;
 use super::materials::Materials;
+use super::utils::rotate_3to2;
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::master::level::spawn::GameObjectBundle;
 use crate::gameplay::mechanics::damage::DamageType;
+use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::mechanics::damage::Projectile;
+use crate::gameplay::mechanics::overload::Overload;
+use crate::gameplay::objects::barrels::Explosion;
 use crate::gameplay::objects::particles::Particle;
 use crate::gameplay::utils::InterpolateTransformOnce;
 use crate::utils::bevy::commands::FallibleCommands;
+use crate::utils::random::RandomRange;
 use bevy::prelude::*;
 
 pub struct OtherObjectsPlugin;
@@ -14,7 +22,7 @@ impl Plugin for OtherObjectsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PostUpdate,
-            (spawn_projectiles, spawn_particles).in_set(SpawnSet::Controllers),
+            (spawn_projectiles, spawn_particles, on_explosion).in_set(SpawnSet::Controllers),
         );
     }
 }
@@ -75,5 +83,32 @@ fn spawn_particles(
         commands.try_with_children(entity, |parent| {
             parent.spawn(bundle);
         });
+    }
+}
+
+fn on_explosion(
+    mut explosions: EventReader<Explosion>,
+    overloaded: Query<&GlobalTransform, (With<Overload>, Added<Dead>)>,
+    mut commands: Commands,
+    assets: Res<ObjectAssets>,
+) {
+    let events = explosions
+        .read()
+        .map(|event| (event.at.truncate(), 0.8))
+        .chain(
+            overloaded
+                .iter()
+                .map(|pos| (pos.translation().truncate(), 0.3)),
+        );
+    for (pos, scale) in events {
+        commands.spawn((
+            GameObjectBundle::new(
+                "scorchmark",
+                Transform::from_xyz(pos.x, pos.y, 0.01)
+                    .with_rotation(Quat::from_rotation_z((0. ..TAU).random()) * rotate_3to2())
+                    .with_scale(Vec3::splat(scale)),
+            ),
+            assets.scorchmark.clone(),
+        ));
     }
 }

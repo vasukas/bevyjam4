@@ -25,6 +25,8 @@ pub struct ObjectAssets {
     pub scene_void_tri: Handle<Scene>,
     pub scene_star: Handle<Scene>,
 
+    pub scorchmark: Handle<Scene>,
+
     /// 1x1x1 cube
     pub mesh_cube: Handle<Mesh>,
     /// 0.5-radius UV-sphere
@@ -87,6 +89,8 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
         scene_void_squ: track.load_and_track("models/void_squ.glb#Scene0"),
         scene_void_tri: track.load_and_track("models/void_tri.glb#Scene0"),
         scene_star: track.load_and_track("models/star.glb#Scene0"),
+
+        scorchmark: track.load_and_track("models/scorchmark.glb#Scene0"),
 
         mesh_cube: meshes.add(shape::Cube::default().into()),
         mesh_sphere: meshes.add(
