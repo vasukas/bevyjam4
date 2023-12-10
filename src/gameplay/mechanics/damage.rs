@@ -1,4 +1,5 @@
 use super::MechanicSet;
+use crate::gameplay::balance::DURATION_FIREBALL;
 use crate::gameplay::master::level::spawn::GameObjectBundle;
 use crate::gameplay::physics::*;
 use crate::gameplay::utils::rotation_from_dir;
@@ -19,6 +20,10 @@ pub struct Projectile {
 impl Projectile {
     /// Game object bundle for moving projectile
     pub fn bundle(self, position: Vec2, direction: Vec2) -> impl Bundle {
+        let lifetime = match self.ty {
+            DamageType::Player => Duration::from_millis(5000),
+            DamageType::Barrels => DURATION_FIREBALL,
+        };
         (
             GameObjectBundle::new(
                 "projectile",
@@ -34,7 +39,7 @@ impl Projectile {
             ActiveEvents::COLLISION_EVENTS,
             PhysicsType::Projectile.groups(),
             //
-            Lifetime(Duration::from_millis(5000)),
+            Lifetime(lifetime),
             self,
         )
     }
@@ -72,6 +77,7 @@ pub struct Dead;
 pub struct ProjectileImpact {
     pub pos: Vec2,
     pub projectile: Projectile,
+    pub hit: bool,
 }
 
 /// Send this to apply damage to an entity
@@ -119,6 +125,7 @@ fn projectile(
             impacts.send(ProjectileImpact {
                 pos: pos.translation().truncate(),
                 projectile: *projectile,
+                hit: true,
             })
         }
     }

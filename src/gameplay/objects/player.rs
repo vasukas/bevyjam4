@@ -1,7 +1,8 @@
 use super::elevators::Elevator;
-use super::particles::Particle;
 use super::particles::spawn_particle;
+use super::particles::Particle;
 use crate::app::scheduling::SpawnSet;
+use crate::gameplay::balance::SPEED_FIREBALL_PLAYER;
 use crate::gameplay::mechanics::damage::DamageType;
 use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::mechanics::damage::Projectile;
@@ -157,14 +158,19 @@ fn fire_input(
                 commands.spawn(
                     Projectile {
                         damage: 1,
-                        speed: 8.,
+                        speed: SPEED_FIREBALL_PLAYER,
                         radius,
                         ty: DamageType::Barrels,
                     }
                     .bundle(pos + direction * (PLAYER_RADIUS + radius + 0.5), direction),
                 );
 
-                spawn_particle(&mut commands, pos + direction * (PLAYER_RADIUS + radius + 0.5), Particle::FireImpact);
+                spawn_particle(
+                    &mut commands,
+                    pos + direction * (PLAYER_RADIUS + radius + 0.5),
+                    Particle::FireImpact,
+                    true,
+                );
             }
         }
     }

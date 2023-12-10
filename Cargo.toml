@@ -26,8 +26,8 @@ bevy = { version = "0.12", default-features = false, features = [
     "png",
     "x11",
 
-    "bevy_audio",
-    "vorbis",
+    #"bevy_audio",
+    #"vorbis",
 
     # avoid compilation errors with web-sys; also should increase compatibility
     "webgl2",

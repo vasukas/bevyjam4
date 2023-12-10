@@ -47,11 +47,19 @@ MVP goals (not neccessary in that order):
     - improve visibility in general
     + remove halt when using kick (animation: replace with roundhouse jump)
     / maybe? remove push-away from pull
+    + limit fire projectile lifetime
 
 - release
     + poster for itch page
     - add screenshots to itch page
     - add native builds
+
+- graphics
+    - conveyors (+ animation)
+    - engine furnace (+ animation)
+    - holding cells
+    - loading cranes
+    - pipes
 
 
 

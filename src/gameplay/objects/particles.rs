@@ -152,7 +152,7 @@ impl Plugin for ParticlesPlugin {
     }
 }
 
-pub fn spawn_particle(commands: &mut Commands, pos: Vec2, ty: Particle) {
+pub fn spawn_particle(commands: &mut Commands, pos: Vec2, ty: Particle, overload: bool) {
     let descr = ty.descriptor();
 
     for _ in 0..descr.graphical_count {
@@ -160,14 +160,19 @@ pub fn spawn_particle(commands: &mut Commands, pos: Vec2, ty: Particle) {
         commands.spawn(ty.graphical_bundle(pos, dir));
     }
 
-    if descr.overload_power > 0. {
+    if descr.overload_power > 0. && overload {
         commands.spawn(ty.overload_bundle(pos));
     }
 }
 
 fn particle_events(mut projectile_impact: EventReader<ProjectileImpact>, mut commands: Commands) {
-    for ProjectileImpact { pos, projectile } in projectile_impact.read().copied() {
-        let mut spawn = |ty| spawn_particle(&mut commands, pos, ty);
+    for ProjectileImpact {
+        pos,
+        projectile,
+        hit,
+    } in projectile_impact.read().copied()
+    {
+        let mut spawn = |ty| spawn_particle(&mut commands, pos, ty, hit);
 
         match projectile.ty {
             DamageType::Player => spawn(Particle::ProjectileImpact),
@@ -243,7 +248,7 @@ fn on_explosion(
                     commands.spawn(
                         Projectile {
                             damage: 1,
-                            speed: 6.,
+                            speed: SPEED_FIREBALL_EXPLOSION,
                             radius: 0.5,
                             ty: DamageType::Barrels,
                         }
@@ -346,7 +351,7 @@ fn on_overload(
 
         if time.is_tick(period, since.0) {
             let pos = pos.translation().truncate();
-            spawn_particle(&mut commands, pos, Particle::OverloadedSparks);
+            spawn_particle(&mut commands, pos, Particle::OverloadedSparks, true);
         }
     }
 }

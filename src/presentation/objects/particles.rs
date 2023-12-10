@@ -10,6 +10,7 @@ use crate::gameplay::mechanics::overload::Overload;
 use crate::gameplay::objects::barrels::Explosion;
 use crate::gameplay::objects::particles::Particle;
 use crate::gameplay::utils::InterpolateTransformOnce;
+use crate::gameplay::utils::Lifetime;
 use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::random::RandomRange;
 use bevy::pbr::NotShadowCaster;
@@ -28,26 +29,29 @@ impl Plugin for OtherObjectsPlugin {
 }
 
 fn spawn_projectiles(
-    new: Query<(Entity, &Projectile), Added<Projectile>>,
+    new: Query<(Entity, &Projectile, &Lifetime), Added<Projectile>>,
     mut commands: Commands,
     assets: Res<ObjectAssets>,
     materials: Res<Materials>,
 ) {
-    for (entity, object) in new.iter() {
+    for (entity, object, lifetime) in new.iter() {
         let (material, scale) = match object.ty {
             DamageType::Player => (materials.projectile.clone(), 2.),
             DamageType::Barrels => (materials.fireball.clone(), 1.),
         };
 
-        let bundle = PbrBundle {
-            mesh: assets.mesh_sphere.clone(),
-            material,
-            transform: {
-                let scale = object.radius * scale;
-                Transform::from_xyz(0., 0., 0.8).with_scale(Vec3::new(scale * 1.5, scale, scale))
+        let scale = object.radius * scale;
+        let scale = Vec3::new(scale * 1.5, scale, scale);
+
+        let bundle = (
+            PbrBundle {
+                mesh: assets.mesh_sphere.clone(),
+                material,
+                transform: { Transform::from_xyz(0., 0., 0.8).with_scale(scale) },
+                ..default()
             },
-            ..default()
-        };
+            InterpolateTransformOnce::new(lifetime.0).scale(scale * 0.3),
+        );
 
         commands.try_with_children(entity, |parent| {
             parent.spawn(bundle);

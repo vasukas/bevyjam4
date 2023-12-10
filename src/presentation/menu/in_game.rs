@@ -64,6 +64,7 @@ fn draw_hud(
     level: Res<CurrentLevel>,
     levels: Res<LevelList>,
     player: Query<&Health, (With<Player>, Without<Dead>)>,
+    enemies: Query<(), (With<Overload>, Without<Dead>)>,
 ) {
     let Ok(health) = player.get_single() else { return; };
 
@@ -93,6 +94,9 @@ fn draw_hud(
 
             ui.visuals_mut().override_text_color = egui::Color32::from_gray(192).into();
             ui.small(format!("\"{}\"", levels.name(&level.id)));
+
+            ui.visuals_mut().override_text_color = Color::WHITE.to_egui().into();
+            ui.small(format!("Enemies left: {}", enemies.iter().count()));
         });
     });
 }
