@@ -64,6 +64,7 @@ fn spawn_particles(
                     Particle::FireImpact => materials.fire_spark.clone(),
                     Particle::ColdFire => materials.fire_cold.clone(),
                     Particle::Shockwave => materials.shockwave.clone(),
+                    Particle::OverloadedSparks => materials.electric_sparks.clone(),
                 },
                 transform: Transform::from_xyz(0., 0., descr.z_offset).with_scale(scale),
                 ..default()

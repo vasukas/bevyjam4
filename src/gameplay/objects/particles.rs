@@ -5,9 +5,11 @@ use crate::gameplay::balance::*;
 use crate::gameplay::master::level::spawn::GameObjectBundle;
 use crate::gameplay::mechanics::damage::ApplyDamage;
 use crate::gameplay::mechanics::damage::DamageType;
+use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::mechanics::damage::Health;
 use crate::gameplay::mechanics::damage::Projectile;
 use crate::gameplay::mechanics::damage::ProjectileImpact;
+use crate::gameplay::mechanics::overload::Overload;
 use crate::gameplay::mechanics::overload::OverloadSource;
 use crate::gameplay::mechanics::MechanicSet;
 use crate::gameplay::physics::*;
@@ -27,6 +29,7 @@ pub enum Particle {
     FireImpact,
     ColdFire,
     Shockwave,
+    OverloadedSparks,
 }
 
 pub struct ParticleDescriptor {
@@ -81,6 +84,16 @@ impl Particle {
                 lifetime: Duration::from_millis(300),
                 z_offset: 0.6,
             },
+
+            Particle::OverloadedSparks => ParticleDescriptor {
+                size: 0.1,
+                graphical_size: 0.1,
+                distance: 1.,
+                graphical_count: 4,
+                overload_power: OVERLOAD_OVERLOADED,
+                lifetime: Duration::from_millis(300),
+                z_offset: 2.,
+            },
         }
     }
 
@@ -127,26 +140,27 @@ impl Plugin for ParticlesPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (particle_events, on_fire, on_explosion).after(MechanicSet::PostReaction),
+            (particle_events, on_fire, on_explosion, on_overload).after(MechanicSet::PostReaction),
         );
+    }
+}
+
+fn spawn_particle(commands: &mut Commands, pos: Vec2, ty: Particle) {
+    let descr = ty.descriptor();
+
+    for _ in 0..descr.graphical_count {
+        let dir = Vec2::random_dir() * (descr.distance * 0.5..descr.distance * 1.5).random();
+        commands.spawn(ty.graphical_bundle(pos, dir));
+    }
+
+    if descr.overload_power > 0. {
+        commands.spawn(ty.overload_bundle(pos));
     }
 }
 
 fn particle_events(mut projectile_impact: EventReader<ProjectileImpact>, mut commands: Commands) {
     for ProjectileImpact { pos, projectile } in projectile_impact.read().copied() {
-        let mut spawn = |ty: Particle| {
-            let descr = ty.descriptor();
-
-            for _ in 0..descr.graphical_count {
-                let dir =
-                    Vec2::random_dir() * (descr.distance * 0.5..descr.distance * 1.5).random();
-                commands.spawn(ty.graphical_bundle(pos, dir));
-            }
-
-            if descr.overload_power > 0. {
-                commands.spawn(ty.overload_bundle(pos));
-            }
-        };
+        let mut spawn = |ty| spawn_particle(&mut commands, pos, ty);
 
         match projectile.ty {
             DamageType::Player => spawn(Particle::ProjectileImpact),
@@ -277,6 +291,41 @@ fn on_explosion(
                     },
                 );
             }
+        }
+    }
+}
+
+#[derive(Component)]
+struct OverloadedSince(Duration);
+
+fn on_overload(
+    new: Query<Entity, (With<Overload>, Added<Dead>)>,
+    overloaded: Query<(Entity, &OverloadedSince, &GlobalTransform)>,
+    mut commands: Commands,
+    time: Res<Time>,
+) {
+    let period_1 = Duration::from_millis(30);
+    let duration_1 = Duration::from_millis(1500);
+    let period_2 = Duration::from_millis(300);
+    let duration_2 = Duration::from_millis(8000);
+
+    for entity in new.iter() {
+        commands.try_insert(entity, OverloadedSince(time.elapsed()));
+    }
+
+    for (entity, since, pos) in overloaded.iter() {
+        let passed = time.elapsed().saturating_sub(since.0);
+        let period = if passed < duration_1 {
+            period_1
+        } else if passed < duration_2 {
+            period_2
+        } else {
+            commands.try_remove::<OverloadedSince>(entity);
+            continue;
+        };
+        if time.is_tick(period, since.0) {
+            let pos = pos.translation().truncate();
+            spawn_particle(&mut commands, pos, Particle::OverloadedSparks);
         }
     }
 }

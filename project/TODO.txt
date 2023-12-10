@@ -56,7 +56,7 @@ Extra goals:
 
 - very extra
     + background: scrolling stars, partially hidden by the ship
-    - lightning-explosion effect (for overload, at least)
+    + lightning-explosion effect (for overload, at least)
     - slowdown effect
     - "Application is not responding. .... Well done!" message
 

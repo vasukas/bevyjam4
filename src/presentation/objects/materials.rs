@@ -8,6 +8,7 @@ pub struct Materials {
     pub fire_spark: Handle<StandardMaterial>,
     pub fire_cold: Handle<StandardMaterial>,
     pub shockwave: Handle<StandardMaterial>,
+    pub electric_sparks: Handle<StandardMaterial>,
     // don't forget to add new ones to all() method!
 }
 
@@ -19,6 +20,7 @@ impl Materials {
             &self.fire_spark,
             &self.fire_cold,
             &self.shockwave,
+            &self.electric_sparks,
         ]
         .into_iter()
     }
@@ -96,6 +98,12 @@ fn make_materials(mut materials: ResMut<Assets<StandardMaterial>>, mut commands:
         shockwave: materials.add(
             ParticleMaterial::Multiply {
                 color: Color::WHITE * 0.65,
+            }
+            .into(),
+        ),
+        electric_sparks: materials.add(
+            ParticleMaterial::Simple {
+                color: Color::rgb(0.7, 1., 1.) * 4.,
             }
             .into(),
         ),
