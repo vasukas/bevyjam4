@@ -11,6 +11,7 @@ use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::bevy::misc_utils::ExtendedTimer;
 use crate::utils::math_algorithms::dir_vec2;
 use crate::utils::math_algorithms::lerp;
+use crate::utils::math_algorithms::rotate_vec2;
 use crate::utils::random::RandomRange;
 use crate::utils::random::RandomVec;
 use bevy::prelude::*;
@@ -22,6 +23,10 @@ use std::time::Duration;
 pub struct Player {
     pub state: PlayerState,
     pub input_walking: bool,
+
+    pub input_kick: bool,
+    pub input_locked: Timer,
+    pub kick_animation: bool,
 
     pub input_fire: bool,
     pub input_pull: bool,
@@ -55,8 +60,8 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
-                    (fire_input, update_pull).in_set(MechanicSet::Action),
                     (update_player_state, on_collisions).after(MechanicSet::Reaction),
+                    (fire_input, update_pull, kick).in_set(MechanicSet::Action),
                 ),
             );
     }
@@ -95,8 +100,10 @@ fn spawn_player(new: Query<Entity, Added<Player>>, mut commands: Commands) {
     }
 }
 
-fn update_player_state(mut player: Query<&mut Player>) {
+fn update_player_state(mut player: Query<&mut Player>, time: Res<Time>) {
     for mut player in player.iter_mut() {
+        player.input_locked.tick(time.delta());
+
         if std::mem::take(&mut player.input_walking) {
             player.state = PlayerState::Walking;
         } else {
@@ -246,6 +253,60 @@ fn update_pull(
                 pos,
                 0.,
                 &radius,
+                PhysicsType::GravityPull.filter(),
+                |entity| {
+                    callback(entity);
+                    true
+                },
+            );
+        }
+    }
+}
+
+fn kick(
+    mut player: Query<(&GlobalTransform, &mut Player)>,
+    objects: Query<&GlobalTransform, (Without<Player>, With<Collider>)>,
+    physics: Res<RapierContext>,
+    mut commands: Commands,
+) {
+    let cooldown = Duration::from_millis(500);
+    let impulse = 500.;
+    let distance = 0.8;
+    let width = PLAYER_RADIUS * 2.;
+
+    for (transform, mut player) in player.iter_mut() {
+        if std::mem::take(&mut player.input_kick) {
+            player.input_locked = Timer::once(cooldown);
+            player.kick_animation = true;
+
+            let transform = Transform::from(*transform);
+            let pos = transform.translation.truncate();
+
+            let mut callback = |entity| {
+                let Ok(transform) = objects.get(entity) else { return; };
+
+                let target = transform.translation().truncate();
+                let delta = target - pos;
+
+                let dir = delta.normalize_or_zero();
+                let impulse = dir * impulse;
+
+                commands.try_insert(
+                    entity,
+                    ExternalImpulse {
+                        impulse,
+                        ..default()
+                    },
+                )
+            };
+
+            let angle = transform.rotation.to_euler(EulerRot::ZYX).0;
+            let forward = rotate_vec2(Vec2::X, angle);
+
+            physics.intersections_with_shape(
+                pos + forward * (distance / 2.),
+                angle,
+                &Collider::cuboid(distance / 2., width / 2.),
                 PhysicsType::GravityPull.filter(),
                 |entity| {
                     callback(entity);

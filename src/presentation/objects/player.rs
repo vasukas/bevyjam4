@@ -53,6 +53,7 @@ enum PlayerAnimation {
     LookBack,
     Walking,
     Hit,
+    Kick,
     Dead,
     Death,
     // don't forget to add new ones to all()
@@ -72,6 +73,7 @@ impl PlayerAnimation {
             Self::LookBack => ("look_back", false, 3.),
             Self::Walking => ("walk", true, 0.8),
             Self::Hit => ("hit", false, 0.4),
+            Self::Kick => ("kick", false, 0.7),
             Self::Dead => ("dead", true, 1.),
             Self::Death => ("death", false, 1.),
         };
@@ -85,6 +87,7 @@ impl PlayerAnimation {
             Self::LookBack,
             Self::Walking,
             Self::Hit,
+            Self::Kick,
             Self::Dead,
             Self::Death,
         ]
@@ -154,17 +157,17 @@ fn camera_tracking(
 }
 
 fn update_player_animation(
-    mut player: Query<(&Player, &mut PlayerData, &Health)>,
+    mut player: Query<(&mut Player, &mut PlayerData, &Health)>,
     mut animations: Query<&mut AnimationCtl>,
     time: Res<Time>,
     died: Query<(), (With<Player>, Added<Dead>)>,
 ) {
     let idle_after = Duration::from_secs(1);
     let idle_check_period = Duration::from_secs(3);
-    let idle_chance = 0.5;
-    let idle_chance_around = 0.7;
+    let idle_chance = 0.8;
+    let idle_chance_around = 0.6;
 
-    for (player, mut data, health) in player.iter_mut() {
+    for (mut player, mut data, health) in player.iter_mut() {
         let Ok(mut animation) = animations.get_mut(data.model) else { continue; };
 
         // Hit animation is disabled - it looks janky and can't be seen through particles anyway
@@ -176,6 +179,10 @@ fn update_player_animation(
         if !died.is_empty() {
             animation.set_active(PlayerAnimation::Dead, true);
             animation.set_active(PlayerAnimation::Death, true);
+        }
+
+        if std::mem::take(&mut player.kick_animation) {
+            animation.set_active(PlayerAnimation::Kick, true);
         }
 
         // random idle animations

@@ -29,6 +29,7 @@ pub enum PlayerActions {
     Restart,
     Fire,
     Pull,
+    Kick,
 }
 
 impl PlayerActions {
@@ -42,6 +43,7 @@ impl PlayerActions {
             .insert(MouseButton::Right, Self::Pull)
             .insert(KeyCode::K, Self::Fire)
             .insert(KeyCode::L, Self::Pull)
+            .insert(KeyCode::F, Self::Kick)
             .build()
     }
 }

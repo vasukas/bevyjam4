@@ -156,17 +156,20 @@ fn player_input(
     mut game_commands: EventWriter<GameCommand>,
 ) {
     for (mut rotate, mut mvmt, mut player) in players.iter_mut() {
-        let dir = action_axis_xy(&actions, PlayerActions::Movement);
+        if player.input_locked.finished() {
+            let dir = action_axis_xy(&actions, PlayerActions::Movement);
 
-        if dir.length() > 0.01 {
-            rotate.target_dir = dir;
-            player.input_walking = true;
+            if dir.length() > 0.01 {
+                rotate.target_dir = dir;
+                player.input_walking = true;
+            }
+
+            mvmt.target_dir = dir;
+
+            player.input_fire = actions.pressed(PlayerActions::Fire);
+            player.input_pull = actions.pressed(PlayerActions::Pull);
+            player.input_kick = actions.pressed(PlayerActions::Kick);
         }
-
-        mvmt.target_dir = dir;
-
-        player.input_fire = actions.pressed(PlayerActions::Fire);
-        player.input_pull = actions.pressed(PlayerActions::Pull);
     }
 
     if actions.just_pressed(PlayerActions::Restart) {
@@ -218,16 +221,20 @@ fn draw_help_menu(
             ui.label("Hold to pull objects, release to push");
             ui.end_row();
 
+            ui.label(prompt.get(PlayerActions::Kick));
+            ui.label("Kick");
+            ui.end_row();
+
             ui.label(prompt.get(PlayerActions::Restart));
             ui.label("Restart level");
             ui.end_row();
 
             ui.label(prompt.get(PlayerActions::ToggleHelp));
-            ui.label("Toggle this window");
+            ui.label("Open/close this window");
             ui.end_row();
 
             ui.label(app_prompt.get(AppActions::CloseMenu));
-            ui.label("Toggle menu");
+            ui.label("Open/close menu");
             ui.end_row();
         });
     });
@@ -318,7 +325,11 @@ fn tutorial(
         let messages = [
             (
                 Vec2::new(-19., 0.),
-                format!("Press {} to walk", prompt.get(PlayerActions::Movement)),
+                format!(
+                    concat!("Press {} to walk\n", "Press {} to kick",),
+                    prompt.get(PlayerActions::Movement),
+                    prompt.get(PlayerActions::Kick)
+                ),
             ),
             (
                 Vec2::new(-11., 0.),

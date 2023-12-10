@@ -947,6 +947,12 @@
             align: Center,
             data: Barrel(Fire),
         ),
+        (311): (
+            pos: (-16.081629, -1.0101049),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
     },
-    last_object_id: 310,
+    last_object_id: 311,
 )

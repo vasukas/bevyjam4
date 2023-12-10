@@ -38,6 +38,7 @@ pub struct ParticleDescriptor {
     distance: f32,
     graphical_count: usize,
     overload_power: f32,
+    overload_lifetime: Option<Duration>,
     pub lifetime: Duration,
     pub z_offset: f32,
 }
@@ -51,6 +52,7 @@ impl Particle {
                 distance: 1.,
                 graphical_count: 8,
                 overload_power: OVERLOAD_PROJECTILE_IMPACT,
+                overload_lifetime: Some(OVERLOAD_DURATION_PARTICLE),
                 lifetime: Duration::from_millis(1200),
                 z_offset: 1.,
             },
@@ -61,6 +63,7 @@ impl Particle {
                 distance: 0.5,
                 graphical_count: 4,
                 overload_power: OVERLOAD_FIRE_IMPACT,
+                overload_lifetime: Some(OVERLOAD_DURATION_PARTICLE),
                 lifetime: Duration::from_millis(600),
                 z_offset: 1.2,
             },
@@ -71,6 +74,7 @@ impl Particle {
                 distance: 1.,
                 graphical_count: 8,
                 overload_power: 0.,
+                overload_lifetime: None,
                 lifetime: Duration::from_millis(800),
                 z_offset: 1.2,
             },
@@ -81,6 +85,7 @@ impl Particle {
                 distance: 1.,
                 graphical_count: 1,
                 overload_power: 0.,
+                overload_lifetime: None,
                 lifetime: Duration::from_millis(300),
                 z_offset: 0.6,
             },
@@ -90,7 +95,8 @@ impl Particle {
                 graphical_size: 0.1,
                 distance: 1.,
                 graphical_count: 4,
-                overload_power: OVERLOAD_OVERLOADED,
+                overload_power: 0.,
+                overload_lifetime: None,
                 lifetime: Duration::from_millis(300),
                 z_offset: 2.,
             },
@@ -118,12 +124,13 @@ impl Particle {
 
     fn overload_bundle(self, pos: Vec2) -> impl Bundle {
         let descr = self.descriptor();
+        let lifetime = descr.overload_lifetime.unwrap_or(descr.lifetime);
         (
             GameObjectBundle::new(
                 "projectile overload",
                 Transform::from_translation(pos.extend(0.)),
             ),
-            Lifetime(descr.lifetime),
+            Lifetime(lifetime),
             //
             Collider::ball(descr.size),
             PhysicsType::Overload.groups(),
@@ -247,7 +254,7 @@ fn on_explosion(
                 // overload
                 commands.spawn((
                     GameObjectBundle::new("explosion", Transform::from_translation(pos.extend(0.))),
-                    Lifetime(Duration::from_secs(3)),
+                    Lifetime(OVERLOAD_DURATION_EXPLOSION),
                     //
                     Collider::ball(1.),
                     PhysicsType::Overload.groups(),
@@ -299,7 +306,7 @@ fn on_explosion(
 struct OverloadedSince(Duration);
 
 fn on_overload(
-    new: Query<Entity, (With<Overload>, Added<Dead>)>,
+    new: Query<(Entity, &GlobalTransform), (With<Overload>, Added<Dead>)>,
     overloaded: Query<(Entity, &OverloadedSince, &GlobalTransform)>,
     mut commands: Commands,
     time: Res<Time>,
@@ -309,12 +316,25 @@ fn on_overload(
     let period_2 = Duration::from_millis(300);
     let duration_2 = Duration::from_millis(8000);
 
-    for entity in new.iter() {
+    for (entity, pos) in new.iter() {
         commands.try_insert(entity, OverloadedSince(time.elapsed()));
+
+        let pos = pos.translation().truncate();
+        commands.spawn((
+            GameObjectBundle::new("overloaded", Transform::from_translation(pos.extend(0.))),
+            Lifetime(OVERLOAD_DURATION_OVERLOADED),
+            //
+            Collider::ball(1.),
+            PhysicsType::Overload.groups(),
+            OverloadSource {
+                power: OVERLOAD_OVERLOADED,
+            },
+        ));
     }
 
     for (entity, since, pos) in overloaded.iter() {
         let passed = time.elapsed().saturating_sub(since.0);
+
         let period = if passed < duration_1 {
             period_1
         } else if passed < duration_2 {
@@ -323,6 +343,7 @@ fn on_overload(
             commands.try_remove::<OverloadedSince>(entity);
             continue;
         };
+
         if time.is_tick(period, since.0) {
             let pos = pos.translation().truncate();
             spawn_particle(&mut commands, pos, Particle::OverloadedSparks);
