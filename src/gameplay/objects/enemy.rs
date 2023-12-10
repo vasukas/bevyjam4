@@ -28,7 +28,7 @@ const ENEMY_RADIUS: f32 = 0.7;
 fn spawn_player(mut new: Query<(Entity, &mut Transform), Added<Enemy>>, mut commands: Commands) {
     for (entity, mut transform) in new.iter_mut() {
         let target_dir = Vec2::random_dir();
-        transform.rotation = Quat::from_rotation_z(target_dir.angle_between(Vec2::X));
+        transform.rotation = Quat::from_rotation_z(-target_dir.angle_between(Vec2::X));
 
         commands.try_insert(
             entity,

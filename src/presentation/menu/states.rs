@@ -87,12 +87,12 @@ fn on_load_complete(
 
 fn on_actions(
     actions: Res<ActionState<AppActions>>,
-    close_menu: EventReader<CloseMenu>,
+    mut close_menu: EventReader<CloseMenu>,
     state: Res<State<MenuState>>,
     mut next_state: ResMut<NextState<MenuState>>,
     game_running: Res<State<GameRunning>>,
 ) {
-    if actions.just_pressed(AppActions::CloseMenu) || !close_menu.is_empty() {
+    if actions.just_pressed(AppActions::CloseMenu) || close_menu.read().count() != 0 {
         match state.get() {
             MenuState::Startup => (),
             MenuState::None => next_state.set(MenuState::MainMenu),

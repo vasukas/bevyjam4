@@ -131,7 +131,7 @@ impl MessageData {
 
 fn pop_modal_message(mut data: ResMut<MessageData>) {
     if let Some(message) = data.queue.front() {
-        if message.ty.modal() && data.current_started_at != None {
+        if message.ty.modal() {
             data.pop();
         }
     }
