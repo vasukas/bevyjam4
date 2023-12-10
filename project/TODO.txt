@@ -32,13 +32,13 @@ MVP goals (not neccessary in that order):
 + flavor text!
     + intro and outro
 
-- gameplay kind of isn't there
 - add more levels
 - add final boss (respawning barrels; speed challenge)
     - boss creature
     - boss attacks
     - barrel conveyor
 
+- gameplay kind of isn't there
 - minor bugs/stuff
     / fix pull: put timer on activating it, not disabling! (or don't "fix" that?)
     - player fire is just appears, doesn't look good
@@ -48,12 +48,10 @@ MVP goals (not neccessary in that order):
     + remove halt when using kick (animation: replace with roundhouse jump)
     - maybe? remove push-away from pull
 
-- web bugs
-    - no shadows on most lights
-    / does material hack actually work? seems only partially
-    / huge delayed lag first time starting first level
-
-- add screenshots to itch page
+- release
+    - poster for itch page
+    - add screenshots to itch page
+    - add native builds
 
 
 
@@ -67,9 +65,10 @@ Extra goals:
         - different walls & floors
         - other stuff
 
-- release
-    - poster for itch page
-    - add native builds (use github CI)
+/ web bugs
+    / no shadows on most lights
+    / does material hack actually work? seems only partially
+    / huge delayed lag first time starting first level
 
 / potential gameplay improvements
     - particles kinda obstruct vision too much

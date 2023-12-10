@@ -156,10 +156,10 @@ fn shader_compilation_hack(
 
         let remains = hacks.iter().any(|(entity, visible)| {
             let visible = visible.get();
-            if !visible {
+            if visible {
                 commands.entity(entity).despawn_recursive();
             }
-            visible
+            !visible
         });
         if !remains {
             commands.remove_resource::<ShaderCompilationHackState>();
