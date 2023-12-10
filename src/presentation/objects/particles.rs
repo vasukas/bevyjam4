@@ -36,7 +36,7 @@ fn spawn_projectiles(
     for (entity, object) in new.iter() {
         let (material, scale) = match object.ty {
             DamageType::Player => (materials.projectile.clone(), 2.),
-            DamageType::Barrels => (materials.fire_spark.clone(), 1.),
+            DamageType::Barrels => (materials.fireball.clone(), 1.),
         };
 
         let bundle = PbrBundle {

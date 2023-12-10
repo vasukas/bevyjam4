@@ -5,6 +5,7 @@ use bevy::prelude::*;
 pub struct Materials {
     pub projectile: Handle<StandardMaterial>,
     pub projectile_impact: Handle<StandardMaterial>,
+    pub fireball: Handle<StandardMaterial>,
     pub fire_spark: Handle<StandardMaterial>,
     pub fire_cold: Handle<StandardMaterial>,
     pub shockwave: Handle<StandardMaterial>,
@@ -17,6 +18,7 @@ impl Materials {
         [
             &self.projectile,
             &self.projectile_impact,
+            &self.fireball,
             &self.fire_spark,
             &self.fire_cold,
             &self.shockwave,
@@ -83,9 +85,15 @@ fn make_materials(mut materials: ResMut<Assets<StandardMaterial>>, mut commands:
             }
             .into(),
         ),
+        fireball: materials.add(
+            ParticleMaterial::Simple {
+                color: Color::WHITE * 4.,
+            }
+            .into(),
+        ),
         fire_spark: materials.add(
             ParticleMaterial::Simple {
-                color: Color::rgb(3., 2.5, 1.5),
+                color: Color::rgb(3., 2., 1.2),
             }
             .into(),
         ),

@@ -8,10 +8,6 @@ use crate::utils::plugins::load_assets::TrackAssets;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
-/// Sent when level exit is unlocked
-#[derive(Event)]
-pub struct ExitUnlocked;
-
 /// IDs of all levels in the game
 #[derive(Resource)]
 pub struct LevelList {
@@ -80,7 +76,6 @@ pub struct LevelProgressPlugin;
 impl Plugin for LevelProgressPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<LevelProgressState>()
-            .add_event::<ExitUnlocked>()
             .add_event::<GotoNextLevel>()
             .add_systems(Startup, load_levels)
             .add_systems(
@@ -138,9 +133,11 @@ fn on_loaded_assets(mut levels: ResMut<LevelList>, mut assets: ResMut<Assets<Lev
 }
 
 #[derive(Resource, Default)]
-struct LevelProgressState {
+pub struct LevelProgressState {
     exit_unlocked: bool,
     goto_sent: bool,
+
+    pub green_lamp_hack: bool,
 }
 
 fn on_level_loaded(mut state: ResMut<LevelProgressState>) {
@@ -176,13 +173,12 @@ fn on_player_event(
 fn check_enemies(
     enemies: Query<Has<Dead>, With<ImportantEnemy>>,
     mut state: ResMut<LevelProgressState>,
-    mut event: EventWriter<ExitUnlocked>,
 ) {
     if !enemies.is_empty() && !state.exit_unlocked {
         let all_dead = enemies.iter().all(|dead| dead);
         if all_dead {
             state.exit_unlocked = true;
-            event.send(ExitUnlocked);
+            state.green_lamp_hack = true;
         }
     }
 }

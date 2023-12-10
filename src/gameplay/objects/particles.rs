@@ -152,7 +152,7 @@ impl Plugin for ParticlesPlugin {
     }
 }
 
-fn spawn_particle(commands: &mut Commands, pos: Vec2, ty: Particle) {
+pub fn spawn_particle(commands: &mut Commands, pos: Vec2, ty: Particle) {
     let descr = ty.descriptor();
 
     for _ in 0..descr.graphical_count {

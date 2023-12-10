@@ -1,4 +1,6 @@
 use super::elevators::Elevator;
+use super::particles::Particle;
+use super::particles::spawn_particle;
 use crate::app::scheduling::SpawnSet;
 use crate::gameplay::mechanics::damage::DamageType;
 use crate::gameplay::mechanics::damage::Health;
@@ -161,6 +163,8 @@ fn fire_input(
                     }
                     .bundle(pos + direction * (PLAYER_RADIUS + radius + 0.5), direction),
                 );
+
+                spawn_particle(&mut commands, pos + direction * (PLAYER_RADIUS + radius + 0.5), Particle::FireImpact);
             }
         }
     }

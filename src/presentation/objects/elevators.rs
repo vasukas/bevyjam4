@@ -1,7 +1,7 @@
 use super::assets::ObjectAssets;
 use super::utils::rotate_3to2_tr;
 use crate::app::scheduling::SpawnSet;
-use crate::gameplay::master::level_progress::ExitUnlocked;
+use crate::gameplay::master::level_progress::LevelProgressState;
 use crate::gameplay::objects::elevators::Elevator;
 use crate::gameplay::objects::terrain::TerrainLight;
 use crate::utils::bevy::commands::ExtendedEntityMut;
@@ -14,11 +14,7 @@ impl Plugin for ElevatorsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PostUpdate,
-            (
-                spawn_elevators,
-                unlock_exit_elevator.run_if(on_event::<ExitUnlocked>()),
-            )
-                .in_set(SpawnSet::Controllers),
+            (spawn_elevators, unlock_exit_elevator).in_set(SpawnSet::Controllers),
         );
     }
 }
@@ -56,18 +52,18 @@ struct ElevatorLamp(Entity);
 fn unlock_exit_elevator(
     elevators: Query<(Entity, &Elevator, &ElevatorLamp)>,
     mut commands: Commands,
-    mut triggered: EventReader<ExitUnlocked>,
+    mut state: ResMut<LevelProgressState>,
 ) {
-    let _ = triggered.read(); // TODO: maybe this will fix the bug?
+    if std::mem::take(&mut state.green_lamp_hack) {
+        for (entity, object, lamp) in elevators.iter() {
+            if object == &Elevator::Exit {
+                commands.try_despawn_recursive(lamp.0);
 
-    for (entity, object, lamp) in elevators.iter() {
-        if object == &Elevator::Exit {
-            commands.try_despawn_recursive(lamp.0);
-
-            let bundle2 = elevator_lamp_bundle(object, true);
-            commands.try_with_children(entity, |parent| {
-                parent.spawn(bundle2);
-            });
+                let bundle2 = elevator_lamp_bundle(object, true);
+                commands.try_with_children(entity, |parent| {
+                    parent.spawn(bundle2);
+                });
+            }
         }
     }
 }
