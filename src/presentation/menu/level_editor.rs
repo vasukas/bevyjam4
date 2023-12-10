@@ -556,6 +556,8 @@ fn draw_tool_info(
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {
+        ui.label(format!("Cursor pos: {}", editor.world_cursor));
+
         ui.label(format!("Add object: {}", prompt.get(EditorActions::Tool)));
         ui.label(format!(
             "Remove all objects on tile: {}",

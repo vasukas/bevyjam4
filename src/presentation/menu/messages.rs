@@ -1,3 +1,5 @@
+#![allow(unused)] // TODO: remove
+
 use super::states::CloseMenu;
 use super::states::MenuState;
 use super::ui_const::UiConst;

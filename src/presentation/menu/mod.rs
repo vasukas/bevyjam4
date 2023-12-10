@@ -14,6 +14,7 @@ mod states;
 mod ui_const;
 
 pub use messages::{DelayedMessage, Message, MessageType};
+pub use ui_const::UiConst;
 
 pub struct MenuPlugin;
 

@@ -40,6 +40,7 @@ impl Plugin for HudPlugin {
                         .before(MechanicSet::Input)
                         .before(rotate_to_target),
                     draw_overload,
+                    tutorial,
                 )
                     .run_if(in_state(MenuState::None).and_then(in_state(EditorEnabled::No))),
                 toggle_help_menu,
@@ -302,5 +303,83 @@ fn draw_overload(
             font.clone(),
             color,
         );
+    }
+}
+
+fn tutorial(
+    mut egui_ctx: EguiContexts,
+    current_level: Res<CurrentLevel>,
+    player: Query<&GlobalTransform, With<Player>>,
+    prompt: ActionPrompt<PlayerActions>,
+) {
+    if current_level.id == "ground_zero" {
+        let max_distance = 5_f32;
+
+        let messages = [
+            (
+                Vec2::new(-19., 0.),
+                format!("Press {} to walk", prompt.get(PlayerActions::Movement)),
+            ),
+            (
+                Vec2::new(-11., 0.),
+                format!(
+                    concat!(
+                        "Press {} to make\ncircle of fire and ignite barrels.\n",
+                        "\n",
+                        "Ignited barrels explode after some time.\n",
+                        "They also explode if they receive too much damage.\n",
+                        "\n",
+                        "Explosions damage both you and the barrels.",
+                    ),
+                    prompt.get(PlayerActions::Fire)
+                ),
+            ),
+            (
+                Vec2::new(-4., 0.),
+                format!(
+                    concat!(
+                        "Hold {} to pull nearby objects to you.\n",
+                        "\n",
+                        "On release objects are pushed away.\n",
+                        "\n",
+                        "Pull/push also affects projectiles.",
+                    ),
+                    prompt.get(PlayerActions::Pull)
+                ),
+            ),
+            (
+                Vec2::new(1.5, 0.),
+                format!(concat!(
+                    "Robots are invincible, but their sensors can be overloaded.\n",
+                    "\n",
+                    "Explosions are the best way to overload robots.\n",
+                    "\n",
+                    "Exit elevator won't open until all robots are overloaded.",
+                ),),
+            ),
+        ];
+
+        let player = player
+            .get_single()
+            .map(|v| v.translation().truncate())
+            .unwrap_or_default();
+
+        if let Some((_, text)) = messages
+            .into_iter()
+            .map(|v| (v.0.distance_squared(player), v.1))
+            .filter(|v| v.0 < max_distance.powi(2))
+            .min_by_key(|v| (v.0 * 10000.) as i64)
+        {
+            EguiPopup {
+                name: "tutorial",
+                anchor: egui::Align2::LEFT_BOTTOM,
+                interactable: false,
+                ..default()
+            }
+            .show(egui_ctx.ctx_mut(), move |ui| {
+                ui.heading("Tutorial");
+                ui.small(text);
+            });
+        }
     }
 }

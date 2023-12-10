@@ -91,7 +91,7 @@ fn level_loading(
     ui_const: UiConst,
 ) {
     let fade_duration = Duration::from_millis(1500);
-    let text_size = 80. * ui_const.scale();
+    let text_size = 64. * ui_const.scale();
 
     if let Some(next) = next_level.read().last() {
         *res_state = Some(LoadingState {

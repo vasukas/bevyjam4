@@ -1,12 +1,12 @@
 #![allow(dead_code)] // TODO: temporary (used only for debug)
 
+use super::menu::UiConst;
 use crate::utils::bevy_egui::*;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use bevy::window::PrimaryWindow;
 use bevy_egui::EguiSet;
-use bevy_egui::EguiSettings;
 use itertools::Itertools;
 
 #[derive(SystemParam)]
@@ -39,7 +39,7 @@ impl Plugin for AdvancedGizmosPlugin {
     }
 }
 
-const TEXT_SIZE: f32 = 10.;
+const TEXT_SIZE: f32 = 12.;
 
 #[derive(Resource, Default)]
 struct AdvancedGizmosData {
@@ -53,7 +53,7 @@ fn draw_advanced_gizmos(
     cameras: Query<(&GlobalTransform, &Camera)>,
     primary_window: Query<(), With<PrimaryWindow>>,
     transforms: Query<&GlobalTransform>,
-    egui_settings: Res<EguiSettings>,
+    ui_const: UiConst,
 ) {
     let Some((camera_transform, camera)) = cameras.iter().sorted_by_key(|v| v.1.order).last() else {
         *gizmos = default();
@@ -66,13 +66,13 @@ fn draw_advanced_gizmos(
         return;
     }
     let painter = egui_ctx.ctx_mut().debug_painter();
-    let scale = egui_settings.scale_factor as f32;
-    let font = egui::FontId::monospace(TEXT_SIZE / scale);
+    let scale = ui_const.egui_scale_factor();
+    let font = egui::FontId::monospace(TEXT_SIZE * ui_const.scale());
 
     let text_at_pos = |pos: Vec2, text| {
         painter.text(
             (pos / scale).to_egui_pos(),
-            egui::Align2::LEFT_TOP,
+            egui::Align2::CENTER_CENTER,
             text,
             font.clone(),
             Color::WHITE.to_egui(),

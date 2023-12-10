@@ -28,7 +28,7 @@ MVP goals (not neccessary in that order):
 
 + credit all used libraries
 
-- rework first level into proper tutorial & explain (to player) how guns work
++ rework first level into proper tutorial & explain (to player) how guns work
 + flavor text!
     + intro and outro
 
