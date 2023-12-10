@@ -54,10 +54,10 @@ fn spawn_barrels(new: Query<Entity, Added<Barrel>>, mut commands: Commands) {
         commands.try_insert(
             entity,
             (
-                TypicalBody::new_ball(0.45).mass(50.),
+                TypicalBody::new_ball(0.45).mass(50.).restitution(0.8),
                 PhysicsType::Object.groups(),
                 Damping {
-                    linear_damping: 0.8,
+                    linear_damping: 0.7,
                     angular_damping: 0.5,
                 },
                 Velocity::default(),

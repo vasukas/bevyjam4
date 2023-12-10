@@ -119,14 +119,14 @@ struct ShaderCompilationHackState(u32);
 // prevent shader stutter while in gameplay - do it only when camera is spawned
 fn shader_compilation_hack(
     camera: Query<&GlobalTransform, With<Camera3d>>,
-    hacks: Query<Entity, With<ShaderCompilationHack>>,
+    hacks: Query<(Entity, &ViewVisibility), With<ShaderCompilationHack>>,
     mut commands: Commands,
     materials: Res<Materials>,
     assets: Res<ObjectAssets>,
     mut state: ResMut<ShaderCompilationHackState>,
 ) {
     let distance = 10.;
-    let frame_count = 2;
+    let frame_count = 3; // minimal time on screen
 
     if hacks.is_empty() {
         let Ok(camera) = camera.get_single() else {return;};
@@ -149,14 +149,20 @@ fn shader_compilation_hack(
             ));
         }
     } else {
-        state.0 += 1;
         if state.0 < frame_count {
+            state.0 += 1;
             return;
         }
 
-        for entity in hacks.iter() {
-            commands.entity(entity).despawn_recursive();
+        let remains = hacks.iter().any(|(entity, visible)| {
+            let visible = visible.get();
+            if !visible {
+                commands.entity(entity).despawn_recursive();
+            }
+            visible
+        });
+        if !remains {
+            commands.remove_resource::<ShaderCompilationHackState>();
         }
-        commands.remove_resource::<ShaderCompilationHackState>();
     }
 }

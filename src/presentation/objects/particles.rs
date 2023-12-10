@@ -1,5 +1,3 @@
-use std::f32::consts::TAU;
-
 use super::assets::ObjectAssets;
 use super::materials::Materials;
 use super::utils::rotate_3to2;
@@ -14,7 +12,9 @@ use crate::gameplay::objects::particles::Particle;
 use crate::gameplay::utils::InterpolateTransformOnce;
 use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::random::RandomRange;
+use bevy::pbr::NotShadowCaster;
 use bevy::prelude::*;
+use std::f32::consts::TAU;
 
 pub struct OtherObjectsPlugin;
 
@@ -64,24 +64,30 @@ fn spawn_particles(
     for (entity, object) in new.iter() {
         let descr = object.descriptor();
         let scale = Vec3::splat(descr.graphical_size);
+
+        let (material, shadows) = match object {
+            Particle::ProjectileImpact => (materials.projectile_impact.clone(), true),
+            Particle::FireImpact => (materials.fire_spark.clone(), true),
+            Particle::ColdFire => (materials.fire_cold.clone(), true),
+            Particle::Shockwave => (materials.shockwave.clone(), true),
+            Particle::OverloadedSparks => (materials.electric_sparks.clone(), false),
+        };
+
         let bundle = (
             PbrBundle {
                 mesh: assets.mesh_sphere.clone(),
-                material: match object {
-                    Particle::ProjectileImpact => materials.projectile_impact.clone(),
-                    Particle::FireImpact => materials.fire_spark.clone(),
-                    Particle::ColdFire => materials.fire_cold.clone(),
-                    Particle::Shockwave => materials.shockwave.clone(),
-                    Particle::OverloadedSparks => materials.electric_sparks.clone(),
-                },
+                material,
                 transform: Transform::from_xyz(0., 0., descr.z_offset).with_scale(scale),
                 ..default()
             },
             InterpolateTransformOnce::new(descr.lifetime).scale(scale * 0.1),
         );
 
-        commands.try_with_children(entity, |parent| {
-            parent.spawn(bundle);
+        commands.try_with_children(entity, move |parent| {
+            let mut child = parent.spawn(bundle);
+            if !shadows {
+                child.insert(NotShadowCaster);
+            }
         });
     }
 }

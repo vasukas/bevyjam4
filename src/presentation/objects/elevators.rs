@@ -56,7 +56,10 @@ struct ElevatorLamp(Entity);
 fn unlock_exit_elevator(
     elevators: Query<(Entity, &Elevator, &ElevatorLamp)>,
     mut commands: Commands,
+    mut triggered: EventReader<ExitUnlocked>,
 ) {
+    let _ = triggered.read(); // TODO: maybe this will fix the bug?
+
     for (entity, object, lamp) in elevators.iter() {
         if object == &Elevator::Exit {
             commands.try_despawn_recursive(lamp.0);

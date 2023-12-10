@@ -39,10 +39,20 @@ MVP goals (not neccessary in that order):
     - boss attacks
     - barrel conveyor
 
-- fix pull: put timer on activating it, not disabling! (or don't "fix" that?)
+- minor bugs/stuff
+    / fix pull: put timer on activating it, not disabling! (or don't "fix" that?)
+    - player fire is just appears, doesn't look good
+    - player fire spawns outside of walls if standing too close to them
+    - improve visibility of fire particles produced by exploding barrels
+    - improve visibility in general
+    + remove halt when using kick (animation: replace with roundhouse jump)
+    - maybe? remove push-away from pull
 
-- CRITICAL BUGS (web)
-    - mouse buttons are wonky: seems only one works at a time & they don't de-press correctly
+- web bugs
+    - no shadows on most lights
+    / does material hack actually work? seems only partially
+    / huge delayed lag first time starting first level
+
 - add screenshots to itch page
 
 

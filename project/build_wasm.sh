@@ -190,6 +190,9 @@ else
 <html lang="en">
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <style type="text/css">
+        * { margin: 0; padding: 0; }
+    </style>
 </head>
 <body>
     <script>

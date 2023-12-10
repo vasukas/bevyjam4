@@ -27,6 +27,8 @@ pub struct Player {
     pub input_kick: bool,
     pub input_locked: Timer,
     pub kick_animation: bool,
+    kick_cooldown: Timer,
+    kick_hit: Option<Timer>,
 
     pub input_fire: bool,
     pub input_pull: bool,
@@ -268,51 +270,63 @@ fn kick(
     objects: Query<&GlobalTransform, (Without<Player>, With<Collider>)>,
     physics: Res<RapierContext>,
     mut commands: Commands,
+    time: Res<Time>,
 ) {
     let cooldown = Duration::from_millis(500);
-    let impulse = 500.;
+    let hit_time = Duration::from_secs_f32(0.7 * 0.33); // sync to animation
+    let impulse = 800.;
     let distance = 0.8;
     let width = PLAYER_RADIUS * 2.;
 
     for (transform, mut player) in player.iter_mut() {
-        if std::mem::take(&mut player.input_kick) {
-            player.input_locked = Timer::once(cooldown);
+        player.kick_cooldown.tick(time.delta());
+
+        if std::mem::take(&mut player.input_kick) && player.kick_cooldown.finished() {
+            // player.input_locked = Timer::once(cooldown);
+            player.kick_cooldown = Timer::once(cooldown);
+            player.kick_hit = Some(Timer::once(hit_time));
             player.kick_animation = true;
+        }
 
-            let transform = Transform::from(*transform);
-            let pos = transform.translation.truncate();
+        if let Some(timer) = player.kick_hit.as_mut() {
+            if timer.tick(time.delta()).finished() {
+                player.kick_hit = None;
 
-            let mut callback = |entity| {
-                let Ok(transform) = objects.get(entity) else { return; };
+                let transform = Transform::from(*transform);
+                let pos = transform.translation.truncate();
 
-                let target = transform.translation().truncate();
-                let delta = target - pos;
+                let mut callback = |entity| {
+                    let Ok(transform) = objects.get(entity) else { return; };
 
-                let dir = delta.normalize_or_zero();
-                let impulse = dir * impulse;
+                    let target = transform.translation().truncate();
+                    let delta = target - pos;
 
-                commands.try_insert(
-                    entity,
-                    ExternalImpulse {
-                        impulse,
-                        ..default()
+                    let dir = delta.normalize_or_zero();
+                    let impulse = dir * impulse;
+
+                    commands.try_insert(
+                        entity,
+                        ExternalImpulse {
+                            impulse,
+                            ..default()
+                        },
+                    )
+                };
+
+                let angle = transform.rotation.to_euler(EulerRot::ZYX).0;
+                let forward = rotate_vec2(Vec2::X, angle);
+
+                physics.intersections_with_shape(
+                    pos + forward * (distance / 2.),
+                    angle,
+                    &Collider::cuboid(distance / 2., width / 2.),
+                    PhysicsType::GravityPull.filter(),
+                    |entity| {
+                        callback(entity);
+                        true
                     },
-                )
-            };
-
-            let angle = transform.rotation.to_euler(EulerRot::ZYX).0;
-            let forward = rotate_vec2(Vec2::X, angle);
-
-            physics.intersections_with_shape(
-                pos + forward * (distance / 2.),
-                angle,
-                &Collider::cuboid(distance / 2., width / 2.),
-                PhysicsType::GravityPull.filter(),
-                |entity| {
-                    callback(entity);
-                    true
-                },
-            );
+                );
+            }
         }
     }
 }
