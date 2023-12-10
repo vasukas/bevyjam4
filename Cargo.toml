@@ -10,6 +10,7 @@ dev_build = [
     "bevy/dynamic_linking",
     "bevy_rapier2d/debug-render-2d",
 ]
+multi-threaded = ["bevy/multi-threaded"]
 
 [dependencies]
 bevy = { version = "0.12", default-features = false, features = [
