@@ -39,6 +39,7 @@ pub enum MessageType {
     Notification,
 
     /// Locks menu. Not real modal window - has only "OK" option.
+    #[allow(unused)]
     ModalNotification,
 }
 

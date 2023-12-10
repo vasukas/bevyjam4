@@ -3,6 +3,7 @@ use super::states::MenuState;
 use super::ui_const::UiConst;
 use crate::app::actions::action_axis_xy;
 use crate::app::actions::ActionPrompt;
+use crate::app::actions::AppActions;
 use crate::app::actions::PlayerActions;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::level::current::CurrentLevel;
@@ -184,34 +185,46 @@ fn toggle_help_menu(
     }
 }
 
-fn draw_help_menu(mut egui_ctx: EguiContexts, prompt: ActionPrompt<PlayerActions>) {
+fn draw_help_menu(
+    mut egui_ctx: EguiContexts,
+    prompt: ActionPrompt<PlayerActions>,
+    app_prompt: ActionPrompt<AppActions>,
+) {
     EguiPopup {
         name: "draw_help_menu",
         interactable: false,
         ..default()
     }
     .show(egui_ctx.ctx_mut(), |ui| {
-        ui.heading("Objective");
-        ui.label("1. Overload aliens!");
+        ui.heading("Escape!");
+        ui.label("1. Overload aliens");
         ui.label("2. Reach elevator");
         ui.label("");
 
         ui.heading("Controls");
         egui::Grid::new("Controls").show(ui, |ui| {
-            ui.label("Walk");
             ui.label(prompt.get(PlayerActions::Movement));
+            ui.label("Walk");
             ui.end_row();
 
-            ui.label("Emit fire");
             ui.label(prompt.get(PlayerActions::Fire));
+            ui.label("Emit fire");
             ui.end_row();
 
-            ui.label("Hold to pull objects");
             ui.label(prompt.get(PlayerActions::Pull));
+            ui.label("Hold to pull objects, release to push");
             ui.end_row();
 
-            ui.label("Restart level");
             ui.label(prompt.get(PlayerActions::Restart));
+            ui.label("Restart level");
+            ui.end_row();
+
+            ui.label(prompt.get(PlayerActions::ToggleHelp));
+            ui.label("Toggle this window");
+            ui.end_row();
+
+            ui.label(app_prompt.get(AppActions::CloseMenu));
+            ui.label("Toggle menu");
             ui.end_row();
         });
     });

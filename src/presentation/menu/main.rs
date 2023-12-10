@@ -66,7 +66,7 @@ fn draw_main_menu(
                 }
 
                 if ui.button("New game").clicked() {
-                    next_state.set(MenuState::None);
+                    next_state.set(MenuState::Intro);
                     game_commands.send(GameCommand::Start {
                         level_id: levels.first(),
                     });
@@ -143,7 +143,9 @@ fn crab(mut egui_ctx: EguiContexts, state: Res<State<MenuState>>, mut hovered: L
         | MenuState::LevelEditor
         | MenuState::ModalMessage
         | MenuState::Help
-        | MenuState::LevelLoading => false,
+        | MenuState::LevelLoading
+        | MenuState::Intro
+        | MenuState::Outro => false,
     };
 
     if show {

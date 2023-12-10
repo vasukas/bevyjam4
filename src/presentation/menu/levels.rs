@@ -1,7 +1,5 @@
 use super::states::MenuState;
 use super::ui_const::UiConst;
-use super::Message;
-use super::MessageType;
 use crate::app::scores::Scores;
 use crate::app::settings::AppSettings;
 use crate::gameplay::master::game_states::GameCommand;
@@ -86,7 +84,6 @@ fn level_loading(
     mut next_state: ResMut<NextState<MenuState>>,
     mut game_commands: EventWriter<GameCommand>,
     mut res_state: Local<Option<LoadingState>>,
-    mut messages: EventWriter<Message>,
     mut next_level: EventReader<GotoNextLevel>,
     time: Res<Time<Real>>,
     mut level_commands: EventWriter<LevelCommand>,
@@ -107,14 +104,8 @@ fn level_loading(
                 next_state.set(MenuState::LevelLoading);
             }
             None => {
-                next_state.set(MenuState::MainMenu);
+                next_state.set(MenuState::Outro);
                 game_commands.send(GameCommand::Exit);
-
-                messages.send(Message {
-                    header: "Congratulations!".into(),
-                    text: "You've completed the game!\nThere was supposed to be nice victory screen, but we ran out of time\nC:".into(),
-                    ty: MessageType::ModalNotification,
-                });
             }
         }
     }

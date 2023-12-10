@@ -25,6 +25,8 @@ pub enum MenuState {
     ModalMessage,
     Help,
     LevelLoading,
+    Intro,
+    Outro,
 }
 
 #[derive(Event, Default)]
@@ -109,6 +111,8 @@ fn on_actions(
             },
             MenuState::Help => next_state.set(MenuState::None),
             MenuState::LevelLoading => (),
+            MenuState::Intro => next_state.set(MenuState::None),
+            MenuState::Outro => next_state.set(MenuState::MainMenu),
         };
     }
 

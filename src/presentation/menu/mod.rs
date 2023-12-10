@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 mod debug;
 mod in_game;
+mod inoutro;
 mod level_editor;
 mod levels;
 mod log;
@@ -29,6 +30,7 @@ impl Plugin for MenuPlugin {
             in_game::HudPlugin,
             messages::MessagesPlugin,
             levels::LevelsPlugin,
+            inoutro::InoutroPlugin,
         ));
     }
 }

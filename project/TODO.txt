@@ -33,10 +33,14 @@ MVP goals (not neccessary in that order):
     - intro and outro
 
 - gameplay kind of isn't there
+- add more levels
+- add final boss (respawning barrels; speed challenge)
+    - boss creature
+    - boss attacks
+    - barrel conveyor
 
 - CRITICAL BUGS (web)
     - mouse buttons are wonky: seems only one works at a time & they don't de-press correctly
-
 - add screenshots to itch page
 
 
@@ -45,14 +49,11 @@ MVP goals (not neccessary in that order):
 Extra goals:
 
 - more stuff
-    - add more levels
+    - add even more levels
     - more level graphics (decorations)
         + scorchmarks
         - different walls & floors
-    - final boss (respawning barrels; speed challenge)
-        - boss creature
-        - boss attacks
-        - barrel conveyor
+        - other stuff
 
 - release
     - poster for itch page
