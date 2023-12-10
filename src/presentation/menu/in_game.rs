@@ -373,6 +373,7 @@ fn tutorial(
                 Vec2::new(1.5, 0.),
                 format!(concat!(
                     "Robots are invincible, but their sensors can be overloaded.\n",
+                    "When their CPU load (red bar) reaches 100%, they will turn off.\n",
                     "\n",
                     "Explosions are the best way to overload robots.\n",
                     "\n",

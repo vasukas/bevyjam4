@@ -44,20 +44,22 @@ fn spawn_terrain_floor(
     mut commands: Commands,
     assets: Res<ObjectAssets>,
 ) {
-    for (entity, object) in new.iter() {
-        let scene = match object {
-            TerrainFloor::Generic => assets.scene_floor.clone(),
+    let void_offset = 2.95;
 
-            TerrainFloor::VoidLta => assets.scene_void_lta.clone(),
-            TerrainFloor::VoidLtb => assets.scene_void_ltb.clone(),
-            TerrainFloor::VoidSquare => assets.scene_void_squ.clone(),
-            TerrainFloor::VoidTriangle => assets.scene_void_tri.clone(),
+    for (entity, object) in new.iter() {
+        let (scene, z_offset) = match object {
+            TerrainFloor::Generic => (assets.scene_floor.clone(), 0.),
+
+            TerrainFloor::VoidLta => (assets.scene_void_lta.clone(), void_offset),
+            TerrainFloor::VoidLtb => (assets.scene_void_ltb.clone(), void_offset),
+            TerrainFloor::VoidSquare => (assets.scene_void_squ.clone(), void_offset),
+            TerrainFloor::VoidTriangle => (assets.scene_void_tri.clone(), void_offset),
         };
 
-        commands.try_with_children(entity, |parent| {
+        commands.try_with_children(entity, move |parent| {
             parent.spawn(SceneBundle {
                 scene,
-                transform: rotate_3to2_tr(),
+                transform: rotate_3to2_tr().with_translation(Vec3::Z * z_offset),
                 ..default()
             });
         });

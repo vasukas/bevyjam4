@@ -262,6 +262,9 @@ fn draw_editor_menu(
 
             ui.heading("SELECTED");
             for (entity, id) in editor.selected.iter().copied().sorted_by_key(|v| v.0) {
+                if Some((entity, id)) == editor.highlighted {
+                    continue;
+                }
                 object(ui, entity, id);
             }
         });
