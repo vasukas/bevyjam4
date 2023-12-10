@@ -24,7 +24,7 @@ pub struct Target {
 
 impl Target {
     /// Max visibility distance
-    const MAX_DISTANCE: f32 = TILE_SIZE * 8.;
+    const MAX_DISTANCE: f32 = TILE_SIZE * 6.;
 
     /// AI has delayed reaction to player appearing in their field of view
     const MIN_REACTION_DELAY: Duration = Duration::from_millis(1000);

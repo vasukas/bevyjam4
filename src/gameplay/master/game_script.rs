@@ -43,6 +43,7 @@ fn on_level_loaded(
         "two" => {
             current_level.allow_starfield = true;
         }
+        "load_bay" => (),
         _ => warn!("no script for level {}", loaded.id),
     }
 }

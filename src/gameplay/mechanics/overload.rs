@@ -1,4 +1,5 @@
 use super::damage::Dead;
+use crate::gameplay::balance::OVERLOAD_RADIUS;
 use crate::gameplay::physics::*;
 use crate::utils::bevy::commands::FallibleCommands;
 use bevy::diagnostic::DiagnosticsStore;
@@ -33,8 +34,6 @@ impl Plugin for OverloadPlugin {
         app.add_systems(Update, update_overload);
     }
 }
-
-const OVERLOAD_RADIUS: f32 = 8.;
 
 fn update_overload(
     mut overloads: Query<(Entity, &GlobalTransform, &mut Overload), Without<Dead>>,
