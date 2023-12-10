@@ -319,7 +319,7 @@ fn tutorial(
     player: Query<&GlobalTransform, With<Player>>,
     prompt: ActionPrompt<PlayerActions>,
 ) {
-    if current_level.id == "ground_zero" {
+    if current_level.id == "01_cells" {
         let max_distance = 5_f32;
 
         let messages = [

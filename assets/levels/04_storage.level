@@ -1,0 +1,67 @@
+(
+    objects: {
+        (1): (
+            pos: (-5.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: ScriptPoint((
+                id: "player",
+            )),
+        ),
+        (2): (
+            pos: (-7.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Elevator(Enter),
+        ),
+        (3): (
+            pos: (-7.0, -1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Elevator(Exit),
+        ),
+        (4): (
+            pos: (1.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: EnemySpawner(Regular),
+        ),
+        (8): (
+            pos: (-0.56266665, 1.4960003),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
+        (9): (
+            pos: (-0.5740001, 0.26066712),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
+        (10): (
+            pos: (-1.5940007, 0.18133308),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
+        (11): (
+            pos: (-1.5940007, 1.4053339),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
+        (12): (
+            pos: (-1.5033336, 2.4253337),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
+        (13): (
+            pos: (-0.5740001, 2.4253337),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
+    },
+    last_object_id: 13,
+)

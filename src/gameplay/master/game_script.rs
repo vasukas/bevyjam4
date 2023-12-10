@@ -24,7 +24,7 @@ fn on_level_loaded(
     let Some(loaded) = level_loaded.read().last() else { return; };
 
     match loaded.id.as_str() {
-        "ground_zero" => {
+        "01_cells" => {
             messages.send(
                 Message::notify("Tutorial", "Look into bottom left corner to see tutorial.")
                     .delay(Duration::from_millis(1200), true),
@@ -40,10 +40,15 @@ fn on_level_loaded(
                 .delay(Duration::from_millis(6000), true),
             );
         }
-        "two" => {
+        "02_connect" => {
             current_level.allow_starfield = true;
         }
-        "load_bay" => (),
+        "03_loadbay" => (),
+        "04_storage" => (),
+        "05_process" => (),
+        "06_tunnels" => (),
+        "07_engine" => (),
+        "08_security" => (),
         _ => warn!("no script for level {}", loaded.id),
     }
 }
