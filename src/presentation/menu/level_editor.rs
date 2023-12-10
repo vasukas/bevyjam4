@@ -75,6 +75,7 @@ struct Editor {
 
     /// Objects on selected tile
     selected: Vec<(Entity, LevelObjectId)>,
+    highlighted: Option<(Entity, LevelObjectId)>,
 
     /// World position where cursor points to
     world_cursor: Vec2,
@@ -86,6 +87,7 @@ struct EditorTools {
     add_object: LevelObject,
     snap_to_tile: bool,
     draw_labels: bool,
+    delete_all: bool,
 }
 
 const EDITOR_TOOLS_USERDATA: &str = "editor_tools";
@@ -166,6 +168,13 @@ fn draw_editor_menu(
 
             ui.checkbox(&mut tools.snap_to_tile, "Snap to tile");
 
+            ui.radio_value(&mut tools.delete_all, true, "Delete mode: all on tile");
+            ui.radio_value(
+                &mut tools.delete_all,
+                false,
+                "Delete mode: only highlighted",
+            );
+
             ui.label(format!("Object: {:?}", tools.add_object.data));
             ui.collapsing("Properties", |ui| {
                 if let Some(object) = make_object(ui) {
@@ -221,9 +230,7 @@ fn draw_editor_menu(
 
             // edit/remove selected objects
 
-            ui.heading("SELECTED");
-
-            for (entity, id) in editor.selected.iter().copied().sorted_by_key(|v| v.0) {
+            let mut object = |ui: &mut egui::Ui, entity: Entity, id: LevelObjectId| {
                 ui.horizontal(|ui| {
                     if ui.button("Remove").clicked() {
                         level.remove_object(id);
@@ -246,6 +253,16 @@ fn draw_editor_menu(
                             });
                     }
                 });
+            };
+
+            ui.heading("HIGHLIGHTED");
+            if let Some((entity, id)) = editor.highlighted {
+                object(ui, entity, id);
+            }
+
+            ui.heading("SELECTED");
+            for (entity, id) in editor.selected.iter().copied().sorted_by_key(|v| v.0) {
+                object(ui, entity, id);
             }
         });
 
@@ -481,10 +498,20 @@ fn select_objects(
     editor.selected = objects
         .iter()
         .filter_map(|(transform, entity, id)| {
-            let entity_tile = pos_to_tile(transform.translation().xy());
+            let entity_tile = pos_to_tile(transform.translation().truncate());
             (entity_tile == cursor_tile).then_some((entity, *id))
         })
         .collect();
+
+    editor.highlighted = objects
+        .iter()
+        .map(|(transform, entity, id)| {
+            let pos = transform.translation().truncate();
+            let distance = pos.distance_squared(editor.world_cursor);
+            (distance, (entity, *id))
+        })
+        .min_by_key(|v| (v.0 * 1000.) as i32)
+        .map(|v| v.1);
 }
 
 fn tool_input(
@@ -516,11 +543,21 @@ fn tool_input(
         editor.unsaved_changes = true;
     }
 
-    if actions.pressed(EditorActions::ToolAlt) {
-        for (entity, id) in editor.selected.drain(..) {
+    let input_1 = tools.delete_all && actions.pressed(EditorActions::ToolAlt);
+    let input_2 = !tools.delete_all && actions.just_pressed(EditorActions::ToolAlt);
+    if input_1 || input_2 {
+        let mut remove = |entity, id| {
             level.remove_object(id);
             commands.try_despawn_recursive(entity);
             editor.unsaved_changes = true;
+        };
+
+        if tools.delete_all {
+            for (entity, id) in editor.selected.drain(..) {
+                remove(entity, id);
+            }
+        } else if let Some((entity, id)) = editor.highlighted {
+            remove(entity, id);
         }
     }
 
@@ -560,7 +597,11 @@ fn draw_tool_info(
 
         ui.label(format!("Add object: {}", prompt.get(EditorActions::Tool)));
         ui.label(format!(
-            "Remove all objects on tile: {}",
+            "Delete {}: {}",
+            match tools.delete_all {
+                true => "all objects on tile",
+                false => "highlighted object",
+            },
             prompt.get(EditorActions::ToolAlt)
         ));
         ui.label(format!(
@@ -577,6 +618,16 @@ fn draw_tool_info(
         ));
         ui.label(format!("Snap to tile: {:?}", tools.snap_to_tile));
 
+        if let Some((_, id)) = editor.highlighted {
+            ui.label("");
+            ui.label("Highlighted object:");
+
+            if let Some(object) = level.data.get_object(id) {
+                let text = format!("[{}] {:?}", object.align.symbol(), object.data);
+                ui.label(text);
+            }
+        }
+
         if !editor.selected.is_empty() {
             ui.label("");
             ui.label("Selected objects:");
@@ -591,7 +642,12 @@ fn draw_tool_info(
     });
 }
 
-fn highlight_selected_tile(editor: Res<Editor>, mut gizmos: Gizmos, tools: Res<EditorTools>) {
+fn highlight_selected_tile(
+    editor: Res<Editor>,
+    mut gizmos: Gizmos,
+    tools: Res<EditorTools>,
+    objects: Query<&GlobalTransform>,
+) {
     let color = Color::rgb(1., 0., 1.);
 
     let pos = pos_to_tile_center(editor.world_cursor);
@@ -601,6 +657,19 @@ fn highlight_selected_tile(editor: Res<Editor>, mut gizmos: Gizmos, tools: Res<E
     if !tools.snap_to_tile {
         let cursor = editor.world_cursor;
         gizmos.circle_2d(cursor, 0.55, color); // close to barrel size
+        gizmos.ray(cursor.extend(0.), cursor.extend(2.), color);
+    }
+
+    if let Some((entity, _)) = editor.highlighted {
+        let color = Color::rgb(0., 1., 0.);
+
+        let cursor = objects
+            .get(entity)
+            .map(|v| v.translation().truncate())
+            .unwrap_or_default();
+
+        gizmos.circle_2d(cursor, 0.4, color);
+        gizmos.circle_2d(cursor, 0.6, color);
         gizmos.ray(cursor.extend(0.), cursor.extend(2.), color);
     }
 }

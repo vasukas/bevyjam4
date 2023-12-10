@@ -642,12 +642,6 @@
             align: Top,
             data: TerrainLight(Generic),
         ),
-        (163): (
-            pos: (-1.2976784, -2.683784),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
         (164): (
             pos: (2.696077, 3.2747338),
             rotation_degrees: 0.0,
@@ -684,12 +678,6 @@
             align: Center,
             data: Barrel(Fire),
         ),
-        (170): (
-            pos: (-0.54260063, -4.2264566),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
         (171): (
             pos: (11.074066, 1.0888767),
             rotation_degrees: 0.0,
@@ -698,12 +686,6 @@
         ),
         (172): (
             pos: (11.266734, -1.1664569),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
-        (173): (
-            pos: (-1.1206002, 3.1515453),
             rotation_degrees: 0.0,
             align: Center,
             data: Barrel(Fire),
@@ -732,44 +714,14 @@
             align: Center,
             data: Barrel(Fire),
         ),
-        (178): (
-            pos: (2.900919, -0.9671402),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
-        (179): (
-            pos: (2.3229194, -1.9984734),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
         (180): (
             pos: (0.6957011, -7.222853),
             rotation_degrees: 0.0,
             align: Center,
             data: Barrel(Fire),
         ),
-        (181): (
-            pos: (1.7497015, -7.200186),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
-        (182): (
-            pos: (2.8150353, -7.302186),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
         (183): (
             pos: (11.417034, -2.6739037),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: Barrel(Fire),
-        ),
-        (184): (
-            pos: (11.371702, 0.046097755),
             rotation_degrees: 0.0,
             align: Center,
             data: Barrel(Fire),
@@ -1430,6 +1382,12 @@
             align: Center,
             data: TerrainFloor(VoidLtb),
         ),
+        (307): (
+            pos: (13.238743, -9.246229),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: Barrel(Fire),
+        ),
     },
-    last_object_id: 306,
+    last_object_id: 307,
 )
