@@ -1,5 +1,4 @@
 use super::barrels::Barrel;
-use super::enemy::Enemy;
 use super::player::Player;
 use crate::app::scheduling::SpawnSet;
 use crate::gameplay::master::level::data::HALF_TILE;

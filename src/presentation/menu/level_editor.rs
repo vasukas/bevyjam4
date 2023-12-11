@@ -553,6 +553,13 @@ fn edit_object(
             *changed |= ui
                 .radio_value(object, TerrainWall::HorizontalPipes, "HorizontalPipes")
                 .changed();
+
+            *changed |= ui
+                .radio_value(object, TerrainWall::WallCharred1, "WallCharred1")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainWall::WallCharred2, "WallCharred2")
+                .changed();
         }
 
         LevelObjectData::TerrainFloor(object) => {

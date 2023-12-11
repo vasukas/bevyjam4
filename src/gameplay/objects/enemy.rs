@@ -15,6 +15,7 @@ use std::time::Duration;
 #[derive(Component)]
 pub enum Enemy {
     Important,
+    #[allow(unused)]
     Spam,
 }
 

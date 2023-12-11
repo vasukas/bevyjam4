@@ -55,7 +55,9 @@ fn on_level_loaded(
         }
         "05_process" => (),
         "06_tunnels" => (),
-        "07_engine" => (),
+        "07_engine" => {
+            ambient = default();
+        }
         "08_security" => {
             current_level.allow_starfield = true;
             ambient = default();

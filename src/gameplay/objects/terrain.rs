@@ -17,6 +17,8 @@ pub enum TerrainWall {
     VerticalPipe2,
     HorizontalPipes,
     CellBars,
+    WallCharred1,
+    WallCharred2,
 
     #[default]
     #[serde(other)]

@@ -33,6 +33,8 @@ fn spawn_terrain_wall(
     for (entity, object) in new.iter() {
         let scene = match object {
             TerrainWall::Generic => assets.scene_wall.clone(),
+            TerrainWall::WallCharred1 => assets.scene_wall_charred1.clone(),
+            TerrainWall::WallCharred2 => assets.scene_wall_charred2.clone(),
             TerrainWall::CellBars => assets.scene_cell_bars.clone(),
             TerrainWall::Computer => assets.scene_wall_computer.clone(),
             TerrainWall::ComputerScreen => assets.scene_wall_compscreen.clone(),
@@ -178,6 +180,7 @@ fn spawn_unique(
             UniqueDecor::Cannon => assets.scene_cannon.clone(),
         };
         let brainlights = matches!(object, UniqueDecor::MegaBrain);
+        let enginelights = matches!(object, UniqueDecor::EngineFurnace);
 
         commands.try_with_children(entity, move |parent| {
             parent.spawn(SceneBundle {
@@ -204,6 +207,19 @@ fn spawn_unique(
                         ..default()
                     },
                     transform: Transform::from_xyz(0., 0., 5.),
+                    ..default()
+                });
+            }
+
+            if enginelights {
+                parent.spawn(PointLightBundle {
+                    point_light: PointLight {
+                        color: Color::ORANGE_RED,
+                        intensity: 2000.,
+                        shadows_enabled: false,
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(0., 0., 0.5),
                     ..default()
                 });
             }

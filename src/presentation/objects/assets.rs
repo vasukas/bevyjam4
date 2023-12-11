@@ -28,6 +28,8 @@ pub struct ObjectAssets {
     pub scene_wall_vertpipe2: Handle<Scene>,
     pub scene_wall_horpipes: Handle<Scene>,
     pub scene_wall: Handle<Scene>,
+    pub scene_wall_charred1: Handle<Scene>,
+    pub scene_wall_charred2: Handle<Scene>,
 
     // barrels
     pub scene_barrel_red: Handle<Scene>,
@@ -122,6 +124,8 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
         scene_wall_vertpipe2: track.load_and_track("models/wall_vertpipe2.glb#Scene0"),
         scene_wall_horpipes: track.load_and_track("models/wall_horpipes.glb#Scene0"),
         scene_wall: track.load_and_track("models/wall.gltf#Scene0"),
+        scene_wall_charred1: track.load_and_track("models/wall_charred1.glb#Scene0"),
+        scene_wall_charred2: track.load_and_track("models/wall_charred2.glb#Scene0"),
 
         scene_barrel_red: track.load_and_track("models/barrel_red.gltf#Scene0"),
         scene_barrel_blue: track.load_and_track("models/barrel_blue.gltf#Scene0"),
