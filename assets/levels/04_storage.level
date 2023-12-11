@@ -528,18 +528,6 @@
             align: Left,
             data: TerrainWall(Generic),
         ),
-        (119): (
-            pos: (-15.0, 1.0),
-            rotation_degrees: 0.0,
-            align: Left,
-            data: TerrainWall(Generic),
-        ),
-        (120): (
-            pos: (-15.0, -1.0),
-            rotation_degrees: 0.0,
-            align: Left,
-            data: TerrainWall(Generic),
-        ),
         (121): (
             pos: (-5.0, -3.0),
             rotation_degrees: 0.0,
@@ -4478,18 +4466,6 @@
             align: Center,
             data: TerrainFloor(VoidSquare),
         ),
-        (872): (
-            pos: (-17.0, -1.0),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: TerrainFloor(VoidSquare),
-        ),
-        (873): (
-            pos: (-17.0, 1.0),
-            rotation_degrees: 0.0,
-            align: Center,
-            data: TerrainFloor(VoidSquare),
-        ),
         (874): (
             pos: (-17.0, 3.0),
             rotation_degrees: 0.0,
@@ -7004,6 +6980,54 @@
             align: Center,
             data: TerrainFloor(VoidSquare),
         ),
+        (1308): (
+            pos: (-17.0, -1.0),
+            rotation_degrees: 180.0,
+            align: Center,
+            data: TerrainDecor(LoadCrane),
+        ),
+        (1309): (
+            pos: (-17.0, 1.0),
+            rotation_degrees: 180.0,
+            align: Center,
+            data: TerrainDecor(LoadCrane),
+        ),
+        (1310): (
+            pos: (-17.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (1311): (
+            pos: (-17.0, -1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: TerrainFloor(Generic),
+        ),
+        (1312): (
+            pos: (-17.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Left,
+            data: TerrainWall(Generic),
+        ),
+        (1313): (
+            pos: (-17.0, -1.0),
+            rotation_degrees: 0.0,
+            align: Left,
+            data: TerrainWall(Generic),
+        ),
+        (1314): (
+            pos: (-17.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Top,
+            data: TerrainWall(Generic),
+        ),
+        (1315): (
+            pos: (-17.0, -1.0),
+            rotation_degrees: 0.0,
+            align: Bottom,
+            data: TerrainWall(Generic),
+        ),
     },
-    last_object_id: 1298,
+    last_object_id: 1315,
 )

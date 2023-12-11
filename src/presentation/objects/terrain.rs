@@ -13,7 +13,14 @@ impl Plugin for TerrainPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PostUpdate,
-            (spawn_terrain_wall, spawn_terrain_floor, spawn_terrain_light)
+            (
+                spawn_terrain_wall,
+                spawn_terrain_decor,
+                spawn_terrain_floor,
+                spawn_terrain_light,
+                spawn_unique,
+                update_unique,
+            )
                 .in_set(SpawnSet::Controllers),
         );
     }
@@ -27,6 +34,37 @@ fn spawn_terrain_wall(
     for (entity, object) in new.iter() {
         let scene = match object {
             TerrainWall::Generic => assets.scene_wall.clone(),
+            TerrainWall::CellBars => assets.scene_cell_bars.clone(),
+            TerrainWall::Computer => assets.scene_wall_computer.clone(),
+            TerrainWall::ComputerScreen => assets.scene_wall_compscreen.clone(),
+            TerrainWall::Hatch => assets.scene_wall_hatch.clone(),
+            TerrainWall::Ventilation => assets.scene_wall_ventilation.clone(),
+            TerrainWall::VerticalPipe => assets.scene_wall_vertpipe.clone(),
+            TerrainWall::VerticalPipe2 => assets.scene_wall_vertpipe2.clone(),
+            TerrainWall::HorizontalPipes => assets.scene_wall_horpipes.clone(),
+        };
+
+        commands.try_with_children(entity, |parent| {
+            parent.spawn(SceneBundle {
+                scene,
+                transform: rotate_3to2_tr(),
+                ..default()
+            });
+        });
+    }
+}
+
+fn spawn_terrain_decor(
+    new: Query<(Entity, &TerrainDecor), Added<TerrainDecor>>,
+    mut commands: Commands,
+    assets: Res<ObjectAssets>,
+) {
+    for (entity, object) in new.iter() {
+        let scene = match object {
+            TerrainDecor::CellBed => assets.scene_cell_bed.clone(),
+            TerrainDecor::LoadCrane => assets.scene_load_crane.clone(),
+            TerrainDecor::ClosedPipe => assets.scene_closed_pipe.clone(),
+            TerrainDecor::GreenPipe => assets.scene_green_pipe.clone(),
         };
 
         commands.try_with_children(entity, |parent| {
@@ -49,6 +87,9 @@ fn spawn_terrain_floor(
     for (entity, object) in new.iter() {
         let (scene, z_offset) = match object {
             TerrainFloor::Generic => (assets.scene_floor.clone(), 0.),
+            TerrainFloor::CellMelted => (assets.scene_cell_melted.clone(), 0.),
+            TerrainFloor::Hatch => (assets.scene_floor_hatch.clone(), 0.),
+            TerrainFloor::Metals => (assets.scene_floor_metals.clone(), 0.),
 
             TerrainFloor::VoidLta => (assets.scene_void_lta.clone(), void_offset),
             TerrainFloor::VoidLtb => (assets.scene_void_ltb.clone(), void_offset),
@@ -82,6 +123,8 @@ fn spawn_terrain_light(
             } => (color, intensity, shadows),
 
             TerrainLight::Generic => (Color::ALICE_BLUE, 200., true),
+            TerrainLight::Alarm => (Color::RED, 60., true),
+            TerrainLight::AlarmBright => (Color::rgb(1., 0.5, 0.4), 200., true),
         };
 
         let light_transform = Transform::from_xyz(0., -0.5, 2.5); // up and away from wall
@@ -123,3 +166,35 @@ fn spawn_terrain_light(
         });
     }
 }
+
+#[derive(Component)]
+struct UniqueData {
+    model: Entity,
+}
+
+fn spawn_unique(
+    new: Query<(Entity, &UniqueDecor), Added<UniqueDecor>>,
+    mut commands: Commands,
+    assets: Res<ObjectAssets>,
+) {
+    for (entity, object) in new.iter() {
+        let model = match object {
+            UniqueDecor::EngineFurnace => &assets.model_engine,
+            UniqueDecor::MegaBrain => &assets.model_brain,
+            UniqueDecor::Cannon => &assets.model_cannon,
+        };
+        let scene = model.scene();
+
+        // TODO: brain animations
+
+        commands.try_with_children(entity, |parent| {
+            parent.spawn(SceneBundle {
+                scene,
+                transform: rotate_3to2_tr(),
+                ..default()
+            });
+        });
+    }
+}
+
+fn update_unique() {}

@@ -8,10 +8,13 @@ use crate::gameplay::master::level::data::*;
 use crate::gameplay::master::level::spawn::SpawnObject;
 use crate::gameplay::master::script_points::EnemySpawner;
 use crate::gameplay::objects::barrels::Barrel;
+use crate::gameplay::objects::conveyor::Conveyor;
 use crate::gameplay::objects::elevators::Elevator;
+use crate::gameplay::objects::terrain::TerrainDecor;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
 use crate::gameplay::objects::terrain::TerrainWall;
+use crate::gameplay::objects::terrain::UniqueDecor;
 use crate::gameplay::utils::pos_to_tile;
 use crate::gameplay::utils::pos_to_tile_center;
 use crate::presentation::objects::WorldCameraBundle;
@@ -79,6 +82,8 @@ struct Editor {
 
     /// World position where cursor points to
     world_cursor: Vec2,
+
+    last_added: Vec<LevelObjectId>,
 }
 
 #[derive(Resource, Default, Serialize, Deserialize)]
@@ -342,6 +347,12 @@ fn make_object(ui: &mut egui::Ui) -> Option<LevelObjectData> {
         ("Elevator", LevelObjectData::Elevator(default())),
         ("", LevelObjectData::None),
         ("Barrel", LevelObjectData::Barrel(Barrel::Fire)),
+        (
+            "Decor",
+            LevelObjectData::TerrainDecor(TerrainDecor::ClosedPipe),
+        ),
+        ("Unique", LevelObjectData::UniqueDecor(UniqueDecor::Cannon)),
+        ("Conveyor", LevelObjectData::Conveyor(Conveyor::Belt)),
         ("", LevelObjectData::None),
         ("Wall", LevelObjectData::TerrainWall(default())),
         ("Floor", LevelObjectData::TerrainFloor(default())),
@@ -400,6 +411,20 @@ fn edit_object(
         }
         ui.label("Rotation");
     });
+    ui.horizontal(|ui| {
+        if ui.button("> 0").clicked() {
+            object.rotation_degrees = 0.;
+        }
+        if ui.button("^ 90").clicked() {
+            object.rotation_degrees = 90.;
+        }
+        if ui.button("< 180").clicked() {
+            object.rotation_degrees = 180.;
+        }
+        if ui.button("V 270").clicked() {
+            object.rotation_degrees = 270.;
+        }
+    });
 
     match &mut object.data {
         LevelObjectData::ScriptPoint(object) => {
@@ -432,16 +457,90 @@ fn edit_object(
             *changed |= ui.radio_value(object, Barrel::Fire, "Fire").changed();
         }
 
+        LevelObjectData::TerrainDecor(object) => {
+            *changed |= ui
+                .radio_value(object, TerrainDecor::ClosedPipe, "Pipe: closed")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainDecor::GreenPipe, "Pipe: green")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainDecor::LoadCrane, "Load crane")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainDecor::CellBed, "Cell: bed")
+                .changed();
+        }
+
+        LevelObjectData::UniqueDecor(object) => {
+            *changed |= ui
+                .radio_value(object, UniqueDecor::EngineFurnace, "Engine furnace")
+                .changed();
+            *changed |= ui
+                .radio_value(object, UniqueDecor::MegaBrain, "MegaBrain")
+                .changed();
+            *changed |= ui
+                .radio_value(object, UniqueDecor::Cannon, "Cannon")
+                .changed();
+        }
+
+        LevelObjectData::Conveyor(object) => {
+            *changed |= ui.radio_value(object, Conveyor::Belt, "Belt").changed();
+            *changed |= ui
+                .radio_value(object, Conveyor::StartChute, "Start chute")
+                .changed();
+            *changed |= ui
+                .radio_value(object, Conveyor::EndChute, "End chute")
+                .changed();
+        }
+
         //
         LevelObjectData::TerrainWall(object) => {
             *changed |= ui
                 .radio_value(object, TerrainWall::Generic, "Generic")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainWall::CellBars, "Cell: bars")
+                .changed();
+
+            *changed |= ui
+                .radio_value(object, TerrainWall::Computer, "Computer")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainWall::ComputerScreen, "ComputerScreen")
+                .changed();
+
+            *changed |= ui
+                .radio_value(object, TerrainWall::Hatch, "Hatch")
+                .changed();
+            // *changed |= ui
+            //     .radio_value(object, TerrainWall::Ventilation, "Ventilation")
+            //     .changed();
+
+            *changed |= ui
+                .radio_value(object, TerrainWall::VerticalPipe, "VerticalPipe")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainWall::VerticalPipe2, "VerticalPipe 2")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainWall::HorizontalPipes, "HorizontalPipes")
                 .changed();
         }
 
         LevelObjectData::TerrainFloor(object) => {
             *changed |= ui
                 .radio_value(object, TerrainFloor::Generic, "Generic")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainFloor::CellMelted, "Cell: melted")
+                .changed();
+
+            *changed |= ui
+                .radio_value(object, TerrainFloor::Hatch, "Hatch")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainFloor::Metals, "Metal border")
                 .changed();
 
             *changed |= ui
@@ -459,10 +558,16 @@ fn edit_object(
         }
 
         LevelObjectData::TerrainLight(object) => {
-            if ui.button("Generic").clicked() {
-                *object = TerrainLight::Generic;
-                *changed = true;
-            }
+            *changed |= ui
+                .radio_value(object, TerrainLight::Generic, "Generic")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainLight::Alarm, "Alarm")
+                .changed();
+            *changed |= ui
+                .radio_value(object, TerrainLight::AlarmBright, "Alarm bright")
+                .changed();
+
             if ui.button("Custom").clicked() {
                 *object = TerrainLight::Custom {
                     color: default(),
@@ -482,7 +587,7 @@ fn edit_object(
                     simple_slider_field(ui, changed, " intensity", intensity, 10. ..=400.);
                     *changed |= ui.checkbox(shadows, "shadows").changed();
                 }
-                TerrainLight::Generic => (),
+                _ => (),
             }
         }
 
@@ -524,6 +629,7 @@ fn tool_input(
     mut commands: Commands,
     mut spawn_commands: EventWriter<SpawnObject>,
     mut tools: ResMut<EditorTools>,
+    objects: Query<(Entity, &LevelObjectId)>,
 ) {
     let editor = &mut *editor;
     let level = &mut level.data;
@@ -544,17 +650,22 @@ fn tool_input(
         spawn_commands.send(SpawnObject { id, object });
 
         editor.unsaved_changes = true;
+
+        if editor.last_added.len() > 100 {
+            editor.last_added.remove(0);
+        }
+        editor.last_added.push(id);
     }
+
+    let mut remove = |entity, id| {
+        level.remove_object(id);
+        commands.try_despawn_recursive(entity);
+        editor.unsaved_changes = true;
+    };
 
     let input_1 = tools.delete_all && actions.pressed(EditorActions::ToolAlt);
     let input_2 = !tools.delete_all && actions.just_pressed(EditorActions::ToolAlt);
     if input_1 || input_2 {
-        let mut remove = |entity, id| {
-            level.remove_object(id);
-            commands.try_despawn_recursive(entity);
-            editor.unsaved_changes = true;
-        };
-
         if tools.delete_all {
             for (entity, id) in editor.selected.drain(..) {
                 remove(entity, id);
@@ -577,6 +688,33 @@ fn tool_input(
     ] {
         if actions.just_pressed(action) {
             tools.add_object.align = align;
+        }
+    }
+
+    for (action, angle) in [
+        (EditorActions::Rotate0, 0.),
+        (EditorActions::Rotate90, 90.),
+        (EditorActions::Rotate180, 180.),
+        (EditorActions::Rotate270, 270.),
+    ] {
+        if actions.just_pressed(action) {
+            tools.add_object.rotation_degrees = angle;
+        }
+    }
+
+    if actions.just_pressed(EditorActions::UndoLastAdded) {
+        if let Some(id) = editor.last_added.pop() {
+            if let Some(entity) = objects.iter().find(|v| v.1 == &id).map(|v| v.0) {
+                remove(entity, id);
+            }
+        }
+    }
+
+    if actions.just_pressed(EditorActions::Pick) {
+        if let Some((_, id)) = editor.highlighted {
+            if let Some(object) = level.get_object(id) {
+                tools.add_object = object.clone();
+            }
         }
     }
 }
@@ -697,6 +835,9 @@ fn draw_labels(
             LevelObjectData::Elevator(_object) => (1, format!("Elevator")),
             //
             LevelObjectData::Barrel(_object) => (2, format!("Barrel")),
+            LevelObjectData::TerrainDecor(_object) => (2, format!("Barrel")),
+            LevelObjectData::UniqueDecor(_object) => (2, format!("Decor")),
+            LevelObjectData::Conveyor(_object) => (4, format!("Conveyor")),
             //
             LevelObjectData::TerrainWall(_) => (2, "Wall".to_string()),
             LevelObjectData::TerrainFloor(_) => (3, "Floor".to_string()),

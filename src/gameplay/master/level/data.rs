@@ -1,10 +1,13 @@
 use crate::gameplay::master::script_points::EnemySpawner;
 use crate::gameplay::master::script_points::ScriptPoint;
 use crate::gameplay::objects::barrels::Barrel;
+use crate::gameplay::objects::conveyor::Conveyor;
 use crate::gameplay::objects::elevators::Elevator;
+use crate::gameplay::objects::terrain::TerrainDecor;
 use crate::gameplay::objects::terrain::TerrainFloor;
 use crate::gameplay::objects::terrain::TerrainLight;
 use crate::gameplay::objects::terrain::TerrainWall;
+use crate::gameplay::objects::terrain::UniqueDecor;
 use crate::utils::misc_utils::serde_sorted_map;
 use bevy::asset::AssetLoader;
 use bevy::asset::AsyncReadExt as _;
@@ -152,6 +155,9 @@ pub enum LevelObjectData {
     Elevator(Elevator),
 
     Barrel(Barrel),
+    TerrainDecor(TerrainDecor),
+    UniqueDecor(UniqueDecor),
+    Conveyor(Conveyor),
 
     TerrainWall(TerrainWall),
     TerrainFloor(TerrainFloor),

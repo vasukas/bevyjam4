@@ -3,6 +3,7 @@ use bevy::prelude::*;
 mod animation_ctl;
 mod assets;
 mod barrels;
+mod conveyor;
 mod elevators;
 mod enemy;
 mod materials;
@@ -32,6 +33,7 @@ impl Plugin for ObjectsPlugin {
             elevators::ElevatorsPlugin,
             materials::MaterialsPlugin,
             starfield::StarfieldPlugin,
+            conveyor::ConveyorPlugin,
         ));
     }
 }

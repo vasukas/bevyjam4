@@ -85,6 +85,15 @@ fn spawn_objects(mut spawn_objects: ResMut<Events<SpawnObject>>, mut commands: C
             LevelObjectData::Barrel(object) => {
                 entity.insert(object);
             }
+            LevelObjectData::TerrainDecor(object) => {
+                entity.insert(object);
+            }
+            LevelObjectData::UniqueDecor(object) => {
+                entity.insert(object);
+            }
+            LevelObjectData::Conveyor(object) => {
+                entity.insert(object);
+            }
             LevelObjectData::TerrainWall(object) => {
                 entity.insert(object);
             }

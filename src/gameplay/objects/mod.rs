@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 pub mod barrels;
+pub mod conveyor;
 pub mod elevators;
 pub mod enemy;
 pub mod particles;
@@ -18,6 +19,7 @@ impl Plugin for ObjectsPlugin {
             barrels::BarrelsPlugin,
             particles::ParticlesPlugin,
             elevators::ElevatorsPlugin,
+            conveyor::ConveyorPlugin,
         ));
     }
 }

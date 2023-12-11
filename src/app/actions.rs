@@ -54,12 +54,19 @@ pub enum EditorActions {
     Tool,
     ToolAlt,
     SwitchDisplay,
+    UndoLastAdded,
+    Pick,
     //
     AlignTop,
     AlignBottom,
     AlignLeft,
     AlignRight,
     AlignCenter,
+    //
+    Rotate0,
+    Rotate90,
+    Rotate180,
+    Rotate270,
 }
 
 impl EditorActions {
@@ -69,6 +76,8 @@ impl EditorActions {
             .insert(MouseButton::Left, Self::Tool)
             .insert(MouseButton::Right, Self::ToolAlt)
             .insert(KeyCode::Space, Self::SwitchDisplay)
+            .insert(KeyCode::C, Self::UndoLastAdded)
+            .insert(KeyCode::P, Self::Pick)
             //
             .insert(KeyCode::Up, Self::AlignTop)
             .insert(KeyCode::Down, Self::AlignBottom)
@@ -76,6 +85,12 @@ impl EditorActions {
             .insert(KeyCode::Right, Self::AlignRight)
             .insert(KeyCode::Numpad0, Self::AlignCenter)
             .insert(KeyCode::Key0, Self::AlignCenter)
+            //
+            .insert(KeyCode::Numpad8, Self::Rotate0)
+            .insert(KeyCode::Numpad6, Self::Rotate90)
+            .insert(KeyCode::Numpad2, Self::Rotate180)
+            .insert(KeyCode::Numpad4, Self::Rotate270)
+            //
             .build()
     }
 }

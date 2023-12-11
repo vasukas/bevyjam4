@@ -71,6 +71,7 @@ pub enum PhysicsType {
     Overload,
 
     GravityPull,
+    Conveyor,
 }
 
 impl PhysicsType {
@@ -82,6 +83,7 @@ impl PhysicsType {
         let wall_only = Group::GROUP_5;
         let overload = Group::GROUP_6;
         let gravity_pull = Group::GROUP_7;
+        let conveyor = Group::GROUP_8;
 
         let (memberships, filters) = match self {
             PhysicsType::Wall => (wall, Group::all()),
@@ -91,6 +93,7 @@ impl PhysicsType {
             PhysicsType::Projectile => (projectile, wall | object | gravity_pull),
             PhysicsType::Overload => (overload, overload),
             PhysicsType::GravityPull => (Group::all(), object | projectile),
+            PhysicsType::Conveyor => (conveyor, object),
         };
 
         CollisionGroups {

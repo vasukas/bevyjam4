@@ -56,19 +56,12 @@ MVP goals (not neccessary in that order):
     - boss attacks
     - barrel conveyor
 
-- graphics
-    - conveyors (+ animation)
-    - conveyor chutes
-    - engine furnace (+ animation)
-    - holding cells
-    - loading cranes
-    - pipes
-    - alternate walls / floors
-
 - release
     + poster for itch page
     - add screenshots to itch page
-    - add native builds
+    + add native builds
+
+/ left-click & walk carries through almost everything
 
 
 

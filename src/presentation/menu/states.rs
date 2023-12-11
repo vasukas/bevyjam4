@@ -1,3 +1,4 @@
+use super::level_editor::EditorEnabled;
 use crate::app::actions::AppActions;
 use crate::app::scores::Scores;
 use crate::app::settings::AppSettings;
@@ -52,13 +53,19 @@ impl Plugin for StatesPlugin {
     }
 }
 
-fn update_game_controls(state: Res<State<MenuState>>, mut time: ResMut<TimeMaster>) {
-    let in_menu = match state.get() {
+fn update_game_controls(
+    state: Res<State<MenuState>>,
+    editor: Res<State<EditorEnabled>>,
+    mut time: ResMut<TimeMaster>,
+) {
+    time.in_menu = match state.get() {
         MenuState::None => false,
         _ => true,
     };
-
-    time.in_menu = in_menu;
+    time.in_editor = match editor.get() {
+        EditorEnabled::No => false,
+        _ => true,
+    };
 }
 
 fn on_load_complete(

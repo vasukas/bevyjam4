@@ -10,21 +10,52 @@ pub struct ObjectAssets {
     pub model_jimbo: ModelAsset,
     pub model_tripod: ModelAsset,
 
-    pub scene_floor: Handle<Scene>,
-    pub scene_wall: Handle<Scene>,
-
-    pub scene_barrel_red: Handle<Scene>,
-    pub scene_barrel_blue: Handle<Scene>,
-
-    pub scene_elevator_enter: Handle<Scene>,
-    pub scene_elevator_exit: Handle<Scene>,
-
+    // floors
     pub scene_void_lta: Handle<Scene>,
     pub scene_void_ltb: Handle<Scene>,
     pub scene_void_squ: Handle<Scene>,
     pub scene_void_tri: Handle<Scene>,
-    pub scene_star: Handle<Scene>,
+    pub scene_floor_hatch: Handle<Scene>,
+    pub scene_floor_metals: Handle<Scene>,
+    pub scene_floor: Handle<Scene>,
 
+    // walls
+    pub scene_wall_computer: Handle<Scene>,
+    pub scene_wall_compscreen: Handle<Scene>,
+    pub scene_wall_hatch: Handle<Scene>,
+    pub scene_wall_ventilation: Handle<Scene>, // NONE
+    pub scene_wall_vertpipe: Handle<Scene>,
+    pub scene_wall_vertpipe2: Handle<Scene>,
+    pub scene_wall_horpipes: Handle<Scene>,
+    pub scene_wall: Handle<Scene>,
+
+    // barrels
+    pub scene_barrel_red: Handle<Scene>,
+    pub scene_barrel_blue: Handle<Scene>,
+
+    // elevators
+    pub scene_elevator_enter: Handle<Scene>,
+    pub scene_elevator_exit: Handle<Scene>,
+
+    // decor
+    pub scene_cell_bars: Handle<Scene>,
+    pub scene_cell_melted: Handle<Scene>,
+    pub scene_cell_bed: Handle<Scene>,
+    pub scene_load_crane: Handle<Scene>,
+    pub scene_closed_pipe: Handle<Scene>,
+    pub scene_green_pipe: Handle<Scene>,
+
+    // unique
+    pub model_engine: ModelAsset, // NONE
+    pub model_brain: ModelAsset,  // NONE
+    pub model_cannon: ModelAsset, // NONE
+
+    // conveyor
+    pub model_belt: ModelAsset,  // NONE
+    pub model_chute: ModelAsset, // NONE
+
+    // procedural
+    pub scene_star: Handle<Scene>,
     pub scorchmark: Handle<Scene>,
 
     /// 1x1x1 cube
@@ -75,7 +106,21 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
         model_jimbo: ModelAsset::new(track.load_and_track("models/jimbo.gltf")),
         model_tripod: ModelAsset::new(track.load_and_track("models/tripod.gltf")),
 
+        scene_void_lta: track.load_and_track("models/void_lta.glb#Scene0"),
+        scene_void_ltb: track.load_and_track("models/void_ltb.glb#Scene0"),
+        scene_void_squ: track.load_and_track("models/void_squ.glb#Scene0"),
+        scene_void_tri: track.load_and_track("models/void_tri.glb#Scene0"),
+        scene_floor_hatch: track.load_and_track("models/floor_hatch.glb#Scene0"),
+        scene_floor_metals: track.load_and_track("models/floor_metals.glb#Scene0"),
         scene_floor: track.load_and_track("models/floor.gltf#Scene0"),
+
+        scene_wall_computer: track.load_and_track("models/wall_computer.glb#Scene0"),
+        scene_wall_compscreen: track.load_and_track("models/wall_compscreen.glb#Scene0"),
+        scene_wall_hatch: track.load_and_track("models/wall_hatch.glb#Scene0"),
+        scene_wall_ventilation: track.load_and_track("models/wall_ventilation.glb#Scene0"),
+        scene_wall_vertpipe: track.load_and_track("models/wall_vertpipe.glb#Scene0"),
+        scene_wall_vertpipe2: track.load_and_track("models/wall_vertpipe2.glb#Scene0"),
+        scene_wall_horpipes: track.load_and_track("models/wall_horpipes.glb#Scene0"),
         scene_wall: track.load_and_track("models/wall.gltf#Scene0"),
 
         scene_barrel_red: track.load_and_track("models/barrel_red.gltf#Scene0"),
@@ -84,12 +129,21 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
         scene_elevator_enter: track.load_and_track("models/elevator_enter.glb#Scene0"),
         scene_elevator_exit: track.load_and_track("models/elevator_exit.glb#Scene0"),
 
-        scene_void_lta: track.load_and_track("models/void_lta.glb#Scene0"),
-        scene_void_ltb: track.load_and_track("models/void_ltb.glb#Scene0"),
-        scene_void_squ: track.load_and_track("models/void_squ.glb#Scene0"),
-        scene_void_tri: track.load_and_track("models/void_tri.glb#Scene0"),
-        scene_star: track.load_and_track("models/star.glb#Scene0"),
+        scene_cell_bars: track.load_and_track("models/cell_bars.glb#Scene0"),
+        scene_cell_melted: track.load_and_track("models/cell_melted.glb#Scene0"),
+        scene_cell_bed: track.load_and_track("models/cell_bed.glb#Scene0"),
+        scene_load_crane: track.load_and_track("models/load_crane.glb#Scene0"),
+        scene_closed_pipe: track.load_and_track("models/closed_pipe.glb#Scene0"),
+        scene_green_pipe: track.load_and_track("models/green_pipe.glb#Scene0"),
 
+        model_engine: ModelAsset::new(track.load_and_track("models/engine.gltf")),
+        model_brain: ModelAsset::new(track.load_and_track("models/brain.gltf")),
+        model_cannon: ModelAsset::new(track.load_and_track("models/cannon.glb")),
+
+        model_belt: ModelAsset::new(track.load_and_track("models/belt.gltf")),
+        model_chute: ModelAsset::new(track.load_and_track("models/chute.gltf")),
+
+        scene_star: track.load_and_track("models/star.glb#Scene0"),
         scorchmark: track.load_and_track("models/scorchmark.glb#Scene0"),
 
         mesh_cube: meshes.add(shape::Cube::default().into()),
