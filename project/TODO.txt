@@ -51,6 +51,11 @@ MVP goals (not neccessary in that order):
     - engine
     - security/bridge
 
+- add decorations to
+    - connector (some vertpipe2 in corner with other pipes)
+    - loading bay
+    - storage
+
 - add final boss (respawning barrels; speed challenge)
     - boss creature
     - boss attacks

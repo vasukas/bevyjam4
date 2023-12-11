@@ -10,8 +10,13 @@ use serde::Serialize;
 #[derive(Component, Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub enum Conveyor {
     Belt,
-    StartChute,
+    StartChute(ConveyorOutput),
     EndChute,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
+pub enum ConveyorOutput {
+    BarrelsRareGroup,
 }
 
 pub struct ConveyorPlugin;

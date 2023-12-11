@@ -9,6 +9,7 @@ use crate::gameplay::master::level::spawn::SpawnObject;
 use crate::gameplay::master::script_points::EnemySpawner;
 use crate::gameplay::objects::barrels::Barrel;
 use crate::gameplay::objects::conveyor::Conveyor;
+use crate::gameplay::objects::conveyor::ConveyorOutput;
 use crate::gameplay::objects::elevators::Elevator;
 use crate::gameplay::objects::terrain::TerrainDecor;
 use crate::gameplay::objects::terrain::TerrainFloor;
@@ -487,10 +488,10 @@ fn edit_object(
         LevelObjectData::Conveyor(object) => {
             *changed |= ui.radio_value(object, Conveyor::Belt, "Belt").changed();
             *changed |= ui
-                .radio_value(object, Conveyor::StartChute, "Start chute")
+                .radio_value(object, Conveyor::EndChute, "End chute")
                 .changed();
             *changed |= ui
-                .radio_value(object, Conveyor::EndChute, "End chute")
+                .radio_value(object, Conveyor::StartChute(ConveyorOutput::BarrelsRareGroup), "Start chute: Barrels rare group")
                 .changed();
         }
 

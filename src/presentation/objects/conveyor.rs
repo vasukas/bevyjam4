@@ -1,5 +1,3 @@
-use super::animation_ctl::AnimationCtl;
-use super::animation_ctl::AnimationCtlSystem;
 use super::assets::ObjectAssets;
 use super::utils::rotate_3to2_tr;
 use crate::app::scheduling::SpawnSet;
@@ -7,6 +5,8 @@ use crate::gameplay::objects::conveyor::Conveyor;
 use crate::utils::bevy::commands::ExtendedEntityMut;
 use crate::utils::bevy::commands::FallibleCommands;
 use bevy::prelude::*;
+use bevy::transform::TransformSystem;
+use std::time::Duration;
 
 pub struct ConveyorPlugin;
 
@@ -16,15 +16,19 @@ impl Plugin for ConveyorPlugin {
             PostUpdate,
             (
                 spawn_conv.in_set(SpawnSet::Controllers),
-                update_conv_animation.before(AnimationCtlSystem),
+                belt_animation
+                    .after(SpawnSet::Details)
+                    .before(TransformSystem::TransformPropagate),
             ),
         );
     }
 }
 
+const BELT_COUNT: usize = 4;
+
 #[derive(Component)]
-struct ConvData {
-    model: Entity,
+struct Belt {
+    ids: [Entity; BELT_COUNT],
 }
 
 fn spawn_conv(
@@ -33,38 +37,69 @@ fn spawn_conv(
     assets: Res<ObjectAssets>,
 ) {
     for (entity, object) in new.iter() {
-        let (model,) = match object {
-            Conveyor::Belt => (&assets.model_belt,),
-            Conveyor::StartChute | Conveyor::EndChute => (&assets.model_chute,),
-        };
-        let scene = model.scene();
-        // TODO: ANIMATIONS
+        match object {
+            Conveyor::Belt => {
+                let scenes = [
+                    assets.scene_belt1.clone(),
+                    assets.scene_belt2.clone(),
+                    assets.scene_belt3.clone(),
+                    assets.scene_belt4.clone(),
+                ];
+                commands.try_command(entity, |entity| {
+                    let ids = scenes.map(|scene| {
+                        entity.with_child(|parent| {
+                            parent
+                                .spawn(SceneBundle {
+                                    scene,
+                                    transform: rotate_3to2_tr(),
+                                    ..default()
+                                })
+                                .id()
+                        })
+                    });
+                    entity.insert(Belt { ids });
+                });
+            }
 
-        commands.try_command(entity, |entity| {
-            let id = entity.with_child(|parent| {
-                parent
-                    .spawn((
-                        SceneBundle {
-                            scene,
-                            transform: rotate_3to2_tr(),
-                            ..default()
-                        },
-                        // animation,
-                    ))
-                    .id()
-            });
+            Conveyor::StartChute(..) | Conveyor::EndChute => {
+                let scene = assets.scene_chute.clone();
 
-            entity.insert(ConvData { model: id });
-        });
+                commands.try_with_children(entity, |parent| {
+                    parent.spawn(SceneBundle {
+                        scene,
+                        transform: rotate_3to2_tr(),
+                        ..default()
+                    });
+                });
+            }
+        }
     }
 }
 
-fn update_conv_animation(
-    mut conveyors: Query<(&Conveyor, &mut ConvData)>,
-    mut animations: Query<&mut AnimationCtl>,
+fn belt_animation(
+    belts: Query<&Belt>,
+    mut parts: Query<&mut Visibility>,
     time: Res<Time>,
+    mut phase: Local<usize>,
+    mut timer: Local<Option<Timer>>,
 ) {
-    for (conv, mut data) in conveyors.iter_mut() {
-        //
+    let period = Duration::from_millis(250);
+
+    let timer = timer.get_or_insert_with(|| Timer::new(period, TimerMode::Repeating));
+
+    let times = timer.tick(time.delta()).times_finished_this_tick();
+    if times != 0 {
+        *phase = (*phase + times as usize) % BELT_COUNT;
+
+        for belt in belts.iter() {
+            for (index, entity) in belt.ids.iter().enumerate() {
+                if let Ok(mut part) = parts.get_mut(*entity) {
+                    *part = match index == *phase {
+                        true => Visibility::Visible,
+                        false => Visibility::Hidden,
+                    };
+                }
+            }
+        }
     }
 }
