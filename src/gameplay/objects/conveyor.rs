@@ -1,4 +1,5 @@
 use super::barrels::Barrel;
+use super::enemy::Enemy;
 use super::player::Player;
 use crate::app::scheduling::SpawnSet;
 use crate::gameplay::master::level::data::HALF_TILE;
@@ -8,6 +9,7 @@ use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::physics::*;
 use crate::utils::bevy::commands::FallibleCommands;
 use crate::utils::math_algorithms::rotate_vec2;
+use crate::utils::random::RandomRange;
 use bevy::prelude::*;
 use bevy::transform::TransformSystem;
 use bevy::utils::HashSet;
@@ -27,6 +29,10 @@ pub enum Conveyor {
 pub enum ConveyorOutput {
     #[default]
     BarrelsRareGroup,
+
+    BarrelsFrequent,
+    RandomEnemies,
+    Random,
 }
 
 pub struct ConveyorPlugin;
@@ -93,7 +99,9 @@ fn spawn_conveyor(new: Query<(Entity, &Conveyor), Added<Conveyor>>, mut commands
                 commands.try_with_child(
                     entity,
                     (
-                        SpatialBundle::from_transform(Transform::from_translation(Vec3::Y * TILE_SIZE)),
+                        SpatialBundle::from_transform(Transform::from_translation(
+                            Vec3::Y * TILE_SIZE,
+                        )),
                         //
                         RigidBody::Fixed,
                         Collider::cuboid(HALF_TILE, HALF_TILE),
@@ -178,6 +186,32 @@ fn chute_spawn(
             ConveyorOutput::BarrelsRareGroup => {
                 if check(Duration::from_millis(6000), Duration::from_millis(400), 4) {
                     commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire));
+                }
+            }
+            ConveyorOutput::BarrelsFrequent => {
+                if check(Duration::from_millis(3000), Duration::from_millis(1200), 3) {
+                    commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire));
+                }
+            }
+            ConveyorOutput::RandomEnemies => {
+                if check(Duration::from_millis((5000..12000).random()), default(), 1) {
+                    commands.spawn((GameObjectBundle::new("barrel", pos()), Enemy::Spam));
+                }
+            }
+            ConveyorOutput::Random => {
+                if check(
+                    Duration::from_millis((2000..6000).random()),
+                    Duration::from_millis((4000..20000).random()),
+                    (1..4).random(),
+                ) {
+                    match (0. ..1.).random() < 0.1 {
+                        true => {
+                            commands.spawn((GameObjectBundle::new("enemy", pos()), Enemy::Spam))
+                        }
+                        false => {
+                            commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire))
+                        }
+                    };
                 }
             }
         }

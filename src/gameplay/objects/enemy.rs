@@ -13,7 +13,10 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 #[derive(Component)]
-pub struct Enemy;
+pub enum Enemy {
+    Important,
+    Spam,
+}
 
 pub struct EnemyPlugin;
 
@@ -25,8 +28,11 @@ impl Plugin for EnemyPlugin {
 
 const ENEMY_RADIUS: f32 = 0.7;
 
-fn spawn_player(mut new: Query<(Entity, &mut Transform), Added<Enemy>>, mut commands: Commands) {
-    for (entity, mut transform) in new.iter_mut() {
+fn spawn_player(
+    mut new: Query<(Entity, &mut Transform, &Enemy), Added<Enemy>>,
+    mut commands: Commands,
+) {
+    for (entity, mut transform, enemy) in new.iter_mut() {
         let target_dir = Vec2::random_dir();
         transform.rotation = Quat::from_rotation_z(-target_dir.angle_between(Vec2::X));
 
@@ -54,9 +60,13 @@ fn spawn_player(mut new: Query<(Entity, &mut Transform), Added<Enemy>>, mut comm
                     },
                 },
                 //
-                ImportantEnemy,
                 Overload::new(OVERLOAD_ENEMY_REGULAR),
             ),
         );
+
+        match enemy {
+            Enemy::Important => commands.try_insert(entity, ImportantEnemy),
+            Enemy::Spam => (),
+        }
     }
 }

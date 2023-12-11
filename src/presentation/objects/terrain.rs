@@ -19,7 +19,6 @@ impl Plugin for TerrainPlugin {
                 spawn_terrain_floor,
                 spawn_terrain_light,
                 spawn_unique,
-                update_unique,
             )
                 .in_set(SpawnSet::Controllers),
         );
@@ -167,34 +166,47 @@ fn spawn_terrain_light(
     }
 }
 
-#[derive(Component)]
-struct UniqueData {
-    model: Entity,
-}
-
 fn spawn_unique(
     new: Query<(Entity, &UniqueDecor), Added<UniqueDecor>>,
     mut commands: Commands,
     assets: Res<ObjectAssets>,
 ) {
     for (entity, object) in new.iter() {
-        let model = match object {
-            UniqueDecor::EngineFurnace => &assets.model_engine,
-            UniqueDecor::MegaBrain => &assets.model_brain,
-            UniqueDecor::Cannon => &assets.model_cannon,
+        let scene = match object {
+            UniqueDecor::EngineFurnace => assets.scene_engine.clone(),
+            UniqueDecor::MegaBrain => assets.scene_brain.clone(),
+            UniqueDecor::Cannon => assets.scene_cannon.clone(),
         };
-        let scene = model.scene();
+        let brainlights = matches!(object, UniqueDecor::MegaBrain);
 
-        // TODO: brain animations
-
-        commands.try_with_children(entity, |parent| {
+        commands.try_with_children(entity, move |parent| {
             parent.spawn(SceneBundle {
                 scene,
                 transform: rotate_3to2_tr(),
                 ..default()
             });
+
+            if brainlights {
+                parent.spawn(PointLightBundle {
+                    point_light: PointLight {
+                        intensity: 100.,
+                        shadows_enabled: false,
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(0., 0., 2.),
+                    ..default()
+                });
+
+                parent.spawn(PointLightBundle {
+                    point_light: PointLight {
+                        intensity: 500.,
+                        shadows_enabled: true,
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(0., 0., 5.),
+                    ..default()
+                });
+            }
         });
     }
 }
-
-fn update_unique() {}

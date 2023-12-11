@@ -44,27 +44,31 @@ MVP goals (not neccessary in that order):
     + limit fire projectile lifetime
     / exit elevator still stays red sometimes
 
-- add more levels
-    + storage
-    - process
-    O tunnels
-    - engine
-    - security/bridge
-
 - add decorations to
     - connector (some vertpipe2 in corner with other pipes)
     - loading bay
     - storage
 
-- add final boss (respawning barrels; speed challenge)
-    - boss creature
-    - boss attacks
-    - barrel conveyor
+- add more levels
+    + storage
+    - process
+    O tunnels
+    - engine
+    + security/bridge
+
++ add final boss (respawning barrels; speed challenge)
+    + boss creature
+    / boss attacks
+    + barrel conveyor
 
 - release
     + poster for itch page
     - add screenshots to itch page
     + add native builds
+
+- overload visible after player's death
+- boss overload: one at a time
+- conveyors don't work on enemies (!!!)
 
 / left-click & walk carries through almost everything
 

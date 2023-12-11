@@ -3,6 +3,7 @@ use std::time::Duration;
 
 pub const OVERLOAD_ENEMY_REGULAR: f32 = 5.;
 pub const OVERLOAD_RADIUS: f32 = TILE_SIZE * 5.;
+pub const OVERLOAD_BOSS: f32 = 8.;
 
 pub const OVERLOAD_PROJECTILE_IMPACT: f32 = 0.03;
 pub const OVERLOAD_FIRE_IMPACT: f32 = 0.05;

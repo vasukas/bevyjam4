@@ -1,4 +1,7 @@
 use super::level::spawn::GameObjectBundle;
+use super::level_progress::ImportantEnemy;
+use crate::gameplay::balance::OVERLOAD_BOSS;
+use crate::gameplay::mechanics::overload::Overload;
 use crate::gameplay::objects::enemy::Enemy;
 use crate::gameplay::objects::player::Player;
 use crate::utils::bevy::commands::FallibleCommands;
@@ -42,7 +45,14 @@ fn on_point_added(
                     Player::default(),
                 ));
             }
-            _ => (),
+            "boss" => {
+                commands.spawn((
+                    GameObjectBundle::new("boss", Transform::from(*transform)),
+                    Overload::new(OVERLOAD_BOSS),
+                    ImportantEnemy,
+                ));
+            }
+            id => warn!("unknown script point id \"{id}\""),
         }
     }
 }
@@ -52,7 +62,7 @@ fn enemy_spawner(new: Query<(Entity, &EnemySpawner), Added<EnemySpawner>>, mut c
         match *spawner {
             EnemySpawner::Regular => {
                 commands.try_with_children(entity, |parent| {
-                    parent.spawn((GameObjectBundle::new("enemy", default()), Enemy));
+                    parent.spawn((GameObjectBundle::new("enemy", default()), Enemy::Important));
                 });
             }
         }

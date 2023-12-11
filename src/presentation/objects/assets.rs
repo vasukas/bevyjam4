@@ -46,9 +46,9 @@ pub struct ObjectAssets {
     pub scene_green_pipe: Handle<Scene>,
 
     // unique
-    pub model_engine: ModelAsset, // NONE
-    pub model_brain: ModelAsset,  // NONE
-    pub model_cannon: ModelAsset, // NONE
+    pub scene_engine: Handle<Scene>,
+    pub scene_brain: Handle<Scene>,
+    pub scene_cannon: Handle<Scene>,
 
     // conveyor
     pub scene_belt: Handle<Scene>,
@@ -136,9 +136,9 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
         scene_closed_pipe: track.load_and_track("models/closed_pipe.glb#Scene0"),
         scene_green_pipe: track.load_and_track("models/green_pipe.glb#Scene0"),
 
-        model_engine: ModelAsset::new(track.load_and_track("models/engine.gltf")),
-        model_brain: ModelAsset::new(track.load_and_track("models/brain.gltf")),
-        model_cannon: ModelAsset::new(track.load_and_track("models/cannon.glb")),
+        scene_engine: track.load_and_track("models/engine.glb#Scene0"),
+        scene_brain: track.load_and_track("models/brain.glb#Scene0"),
+        scene_cannon: track.load_and_track("models/cannon.glb#Scene0"),
 
         scene_belt: track.load_and_track("models/belt.glb#Scene0"),
         scene_chute: track.load_and_track("models/chute.glb#Scene0"),

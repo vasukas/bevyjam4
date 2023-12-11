@@ -50,7 +50,9 @@ fn on_level_loaded(
         "05_process" => (),
         "06_tunnels" => (),
         "07_engine" => (),
-        "08_security" => (),
+        "08_security" => {
+            current_level.allow_starfield = true;
+        }
         _ => warn!("no script for level {}", loaded.id),
     }
 }
