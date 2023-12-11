@@ -3958,6 +3958,24 @@
             align: Top,
             data: Conveyor(StartChute(RandomEnemies)),
         ),
+        (784): (
+            pos: (-5.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: TerrainFloor(VoidSquare),
+        ),
+        (785): (
+            pos: (-7.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: TerrainFloor(VoidSquare),
+        ),
+        (786): (
+            pos: (-17.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: TerrainFloor(VoidSquare),
+        ),
     },
-    last_object_id: 783,
+    last_object_id: 786,
 )

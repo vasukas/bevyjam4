@@ -27,20 +27,54 @@ impl Overload {
     }
 }
 
+#[derive(Component)]
+pub struct MagicRecepient {
+    pub count: usize,
+}
+
+#[derive(Component)]
+pub struct MagicEmitter;
+
 pub struct OverloadPlugin;
 
 impl Plugin for OverloadPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_overload);
+        app.add_systems(Update, (update_overload, boss_magic));
+    }
+}
+
+fn boss_magic(
+    mut added: Query<(Entity, &mut Overload), With<MagicEmitter>>,
+    mut commands: Commands,
+) {
+    for (index, (entity, mut overload)) in added.iter_mut().enumerate() {
+        let (count, load) = match index {
+            0 => (4, 6.),
+            1 => (3, 10.),
+            2 => (2, 14.),
+            3 => (1, 17.),
+            _ => continue,
+        };
+        commands.try_insert(entity, MagicRecepient { count });
+        overload.max = load;
     }
 }
 
 fn update_overload(
-    mut overloads: Query<(Entity, &GlobalTransform, &mut Overload), Without<Dead>>,
+    mut overloads: Query<
+        (
+            Entity,
+            &GlobalTransform,
+            &mut Overload,
+            Option<&MagicRecepient>,
+        ),
+        Without<Dead>,
+    >,
     sources: Query<&OverloadSource>,
     physics: Res<RapierContext>,
     mut commands: Commands,
     diagnostics: Res<DiagnosticsStore>,
+    emitters: Query<(), (With<MagicEmitter>, Without<Dead>)>,
 ) {
     let frame_count = diagnostics
         .get(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
@@ -49,7 +83,7 @@ fn update_overload(
 
     let shape = Collider::ball(OVERLOAD_RADIUS);
 
-    for (entity, pos, mut overload) in overloads.iter_mut() {
+    for (entity, pos, mut overload, magic) in overloads.iter_mut() {
         if entity.index() & 3 != frame_count & 3 {
             continue;
         }
@@ -68,6 +102,13 @@ fn update_overload(
                 true
             },
         );
+
+        if let Some(magic) = magic {
+            let emitters = emitters.iter().count();
+            if emitters > magic.count {
+                overload.current = 0.;
+            }
+        }
 
         if overload.current >= overload.max {
             commands.try_insert(entity, Dead);

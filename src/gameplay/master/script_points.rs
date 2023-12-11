@@ -1,6 +1,6 @@
 use super::level::spawn::GameObjectBundle;
 use super::level_progress::ImportantEnemy;
-use crate::gameplay::balance::OVERLOAD_BOSS;
+use crate::gameplay::mechanics::overload::MagicEmitter;
 use crate::gameplay::mechanics::overload::Overload;
 use crate::gameplay::objects::enemy::Enemy;
 use crate::gameplay::objects::player::Player;
@@ -48,8 +48,9 @@ fn on_point_added(
             "boss" => {
                 commands.spawn((
                     GameObjectBundle::new("boss", Transform::from(*transform)),
-                    Overload::new(OVERLOAD_BOSS),
+                    Overload::new(100.),
                     ImportantEnemy,
+                    MagicEmitter,
                 ));
             }
             id => warn!("unknown script point id \"{id}\""),

@@ -8,6 +8,7 @@ use crate::app::actions::PlayerActions;
 use crate::gameplay::master::game_states::GameCommand;
 use crate::gameplay::master::level::current::CurrentLevel;
 use crate::gameplay::master::level::data::HALF_TILE;
+use crate::gameplay::master::level_progress::ImportantEnemy;
 use crate::gameplay::master::level_progress::LevelList;
 use crate::gameplay::mechanics::damage::Dead;
 use crate::gameplay::mechanics::damage::Health;
@@ -64,7 +65,7 @@ fn draw_hud(
     level: Res<CurrentLevel>,
     levels: Res<LevelList>,
     player: Query<&Health, (With<Player>, Without<Dead>)>,
-    enemies: Query<(), (With<Overload>, Without<Dead>)>,
+    enemies: Query<(), (With<ImportantEnemy>, Without<Dead>)>,
 ) {
     let Ok(health) = player.get_single() else { return; };
 
@@ -256,7 +257,12 @@ fn draw_overload(
     camera: Query<(&GlobalTransform, &Camera)>,
     ui_const: UiConst,
     time: Res<Time<Real>>,
+    dead_player: Query<(), (With<Player>, With<Dead>)>,
 ) {
+    if !dead_player.is_empty() {
+        return;
+    }
+
     let color = |t_overload| match t_overload {
         t if t < 0.25 => Color::RED,
         t if t < 0.66 => Color::ORANGE_RED,

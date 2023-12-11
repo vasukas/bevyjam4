@@ -66,9 +66,10 @@ MVP goals (not neccessary in that order):
     - add screenshots to itch page
     + add native builds
 
-- overload visible after player's death
-- boss overload: one at a time
-- conveyors don't work on enemies (!!!)
++ overload visible after player's death (would be nice to fade it, but oh well)
++ boss overload: one at a time
+/ conveyors don't work on enemies
+/ final boss insta-overloads after one "pillar" is
 
 / left-click & walk carries through almost everything
 

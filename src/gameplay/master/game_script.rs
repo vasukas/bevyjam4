@@ -20,8 +20,14 @@ fn on_level_loaded(
     mut messages: EventWriter<DelayedMessage>,
     prompt: ActionPrompt<PlayerActions>,
     mut current_level: ResMut<CurrentLevel>,
+    mut commands: Commands,
 ) {
     let Some(loaded) = level_loaded.read().last() else { return; };
+
+    let mut ambient = AmbientLight {
+        color: Color::WHITE,
+        brightness: 0.15,
+    };
 
     match loaded.id.as_str() {
         "01_cells" => {
@@ -52,7 +58,10 @@ fn on_level_loaded(
         "07_engine" => (),
         "08_security" => {
             current_level.allow_starfield = true;
+            ambient = default();
         }
         _ => warn!("no script for level {}", loaded.id),
     }
+
+    commands.insert_resource(ambient);
 }

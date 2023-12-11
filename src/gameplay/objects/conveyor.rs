@@ -130,8 +130,8 @@ fn belt_move(
 
     for (colliding, transform) in colliding.iter() {
         if !colliding.is_empty() {
-            let angle = transform.rotation.to_euler(EulerRot::ZYX).0 - FRAC_PI_2;
-            let forward = rotate_vec2(Vec2::X, angle) * speed;
+            let conv_angle = transform.rotation.to_euler(EulerRot::ZYX).0 - FRAC_PI_2;
+            let forward = rotate_vec2(Vec2::X, conv_angle) * speed;
 
             for entity in colliding.iter() {
                 if let Ok(mut transform) = entities.get_mut(entity) {
@@ -189,14 +189,14 @@ fn chute_spawn(
                 }
             }
             ConveyorOutput::BarrelsFrequent => {
-                if check(Duration::from_millis(3000), Duration::from_millis(1200), 3) {
+                if check(Duration::from_millis(2000), Duration::from_millis(800), 3) {
                     commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire));
                 }
             }
             ConveyorOutput::RandomEnemies => {
-                if check(Duration::from_millis((5000..12000).random()), default(), 1) {
-                    commands.spawn((GameObjectBundle::new("barrel", pos()), Enemy::Spam));
-                }
+                // if check(Duration::from_millis((5000..12000).random()), default(), 1) {
+                //     commands.spawn((GameObjectBundle::new("enemy_spam", pos()), Enemy::Spam));
+                // }
             }
             ConveyorOutput::Random => {
                 if check(
@@ -206,10 +206,11 @@ fn chute_spawn(
                 ) {
                     match (0. ..1.).random() < 0.1 {
                         true => {
-                            commands.spawn((GameObjectBundle::new("enemy", pos()), Enemy::Spam))
+                            commands
+                                .spawn((GameObjectBundle::new("enemy_spam", pos()), Enemy::Spam));
                         }
                         false => {
-                            commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire))
+                            // commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire));
                         }
                     };
                 }

@@ -218,6 +218,12 @@
             align: Center,
             data: Barrel(Fire),
         ),
+        (52): (
+            pos: (-3.0, 3.0),
+            rotation_degrees: 0.0,
+            align: Center,
+            data: EnemySpawner(Regular),
+        ),
     },
-    last_object_id: 51,
+    last_object_id: 52,
 )
