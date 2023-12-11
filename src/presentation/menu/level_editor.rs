@@ -491,7 +491,11 @@ fn edit_object(
                 .radio_value(object, Conveyor::EndChute, "End chute")
                 .changed();
             *changed |= ui
-                .radio_value(object, Conveyor::StartChute(ConveyorOutput::BarrelsRareGroup), "Start chute: Barrels rare group")
+                .radio_value(
+                    object,
+                    Conveyor::StartChute(ConveyorOutput::BarrelsRareGroup),
+                    "Start chute: Barrels rare group",
+                )
                 .changed();
         }
 

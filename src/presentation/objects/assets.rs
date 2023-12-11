@@ -51,10 +51,7 @@ pub struct ObjectAssets {
     pub model_cannon: ModelAsset, // NONE
 
     // conveyor
-    pub scene_belt1: Handle<Scene>,
-    pub scene_belt2: Handle<Scene>,
-    pub scene_belt3: Handle<Scene>,
-    pub scene_belt4: Handle<Scene>,
+    pub scene_belt: Handle<Scene>,
     pub scene_chute: Handle<Scene>,
 
     // procedural
@@ -143,10 +140,7 @@ fn load_assets(mut track: TrackAssets, mut commands: Commands, mut meshes: ResMu
         model_brain: ModelAsset::new(track.load_and_track("models/brain.gltf")),
         model_cannon: ModelAsset::new(track.load_and_track("models/cannon.glb")),
 
-        scene_belt1: track.load_and_track("models/belt1.glb#Scene0"),
-        scene_belt2: track.load_and_track("models/belt2.glb#Scene0"),
-        scene_belt3: track.load_and_track("models/belt3.glb#Scene0"),
-        scene_belt4: track.load_and_track("models/belt4.glb#Scene0"),
+        scene_belt: track.load_and_track("models/belt.glb#Scene0"),
         scene_chute: track.load_and_track("models/chute.glb#Scene0"),
 
         scene_star: track.load_and_track("models/star.glb#Scene0"),
