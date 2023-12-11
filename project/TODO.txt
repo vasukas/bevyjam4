@@ -44,14 +44,14 @@ MVP goals (not neccessary in that order):
     + limit fire projectile lifetime
     / exit elevator still stays red sometimes
 
-- add decorations to
-    - connector (some vertpipe2 in corner with other pipes)
-    - loading bay
-    - storage
+/ add decorations to
+    + connector (some vertpipe2 in corner with other pipes)
+    + loading bay
+    - storage (more!)
 
 - add more levels
     + storage
-    - process
+    + process
     O tunnels
     - engine
     + security/bridge
@@ -73,6 +73,8 @@ MVP goals (not neccessary in that order):
 
 / left-click & walk carries through almost everything
 
+/ bevy bug:
+thread 'main' panicked at 'error[B0003]: Could not insert a bundle (of type `bevy_pbr::light::VisiblePointLights`) for entity 2280v5 because it doesn't exist in this World.', /home/vasukas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bevy_ecs-0.12.1/src/system/commands/mod.rs:1022:13
 
 
 

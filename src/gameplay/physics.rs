@@ -93,7 +93,8 @@ impl PhysicsType {
             PhysicsType::Projectile => (projectile, wall | object | gravity_pull),
             PhysicsType::Overload => (overload, overload),
             PhysicsType::GravityPull => (Group::all(), object | projectile),
-            PhysicsType::Conveyor => (conveyor, object | enemy),
+            // PhysicsType::Conveyor => (conveyor, object | enemy),
+            PhysicsType::Conveyor => (conveyor, object), // TODO: fix convetors
         };
 
         CollisionGroups {

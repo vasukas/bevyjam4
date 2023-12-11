@@ -125,6 +125,7 @@ fn belt_move(
     time: Res<Time>,
 ) {
     let speed = 3. * time.delta_seconds();
+    let side_speed = speed * 0.5;
 
     let mut affected: HashSet<_> = default();
 
@@ -133,11 +134,29 @@ fn belt_move(
             let conv_angle = transform.rotation.to_euler(EulerRot::ZYX).0 - FRAC_PI_2;
             let forward = rotate_vec2(Vec2::X, conv_angle) * speed;
 
+            let is_vertical = forward.y.abs() > forward.x.abs();
+            let conv_pos = transform.translation;
+
             for entity in colliding.iter() {
                 if let Ok(mut transform) = entities.get_mut(entity) {
                     if affected.insert(entity) {
                         transform.translation.x += forward.x;
                         transform.translation.y += forward.y;
+
+                        match is_vertical {
+                            true => {
+                                let delta = transform.translation.x - conv_pos.x;
+                                if delta.abs() > 0.1 {
+                                    transform.translation.x -= side_speed.copysign(delta);
+                                }
+                            }
+                            false => {
+                                let delta = transform.translation.y - conv_pos.y;
+                                if delta.abs() > 0.1 {
+                                    transform.translation.y -= side_speed.copysign(delta);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -206,11 +225,11 @@ fn chute_spawn(
                 ) {
                     match (0. ..1.).random() < 0.1 {
                         true => {
-                            commands
-                                .spawn((GameObjectBundle::new("enemy_spam", pos()), Enemy::Spam));
+                            // commands
+                            //     .spawn((GameObjectBundle::new("enemy_spam", pos()), Enemy::Spam));
                         }
                         false => {
-                            // commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire));
+                            commands.spawn((GameObjectBundle::new("barrel", pos()), Barrel::Fire));
                         }
                     };
                 }

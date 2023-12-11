@@ -1472,6 +1472,12 @@
             align: Bottom,
             data: TerrainWall(VerticalPipe),
         ),
+        (326): (
+            pos: (9.0, 1.0),
+            rotation_degrees: 0.0,
+            align: Top,
+            data: TerrainWall(VerticalPipe2),
+        ),
     },
-    last_object_id: 325,
+    last_object_id: 326,
 )
